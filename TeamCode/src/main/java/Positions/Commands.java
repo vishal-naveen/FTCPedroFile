@@ -55,9 +55,27 @@ public class Commands {
         }
     }
 
+
+
     // Path following methods
     public static Command followPath(Follower follower, Path path) {
         return new FollowPathCommand(follower, path);
+    }
+
+    // Add this to your Commands class
+    public static Command preloadPosition(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.preloadPosition();
+        }, outtakeSubsystem);
+    }
+
+    // You might also want a sequential command that ensures proper timing
+    public static Command setPreloadPosition(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                Commands.closeClaw(outtakeSubsystem),  // Close claw first (0.9)
+                new WaitCommand(250),  // Wait a bit
+                preloadPosition(outtakeSubsystem)  // Then move to preload position
+        );
     }
 
     public static Command followPath(Follower follower, PathChain pathChain) {
@@ -97,7 +115,7 @@ public class Commands {
                 Commands.closeClaw(outtakeSubsystem),
                 new WaitCommand(500), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.prepareViperForScore(outtakeSubsystem),
-                new WaitCommand(500), // Wait another 500 milliseconds
+                new WaitCommand(1250), // Wait another 500 milliseconds
                 Commands.completeScorePosition(outtakeSubsystem)
         );
     }

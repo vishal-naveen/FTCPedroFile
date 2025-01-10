@@ -25,7 +25,12 @@ public class OuttakeSubsystem extends SubsystemBase {
         SCORE(Constants.OuttakeArmHighBar,
               Constants.OuttakeWristHighBar,
               Constants.OuttakeWristPivotHighBar,
-              Constants.VIPER_HIGHBAR);
+              Constants.VIPER_HIGHBAR),
+
+        PRELOAD(Constants.OuttakeArmPedroAuto,         // 0.6
+                Constants.OuttakeWristPedroAuto,        // 0
+                Constants.OuttakeWristPivotPedro,    // 0
+                Constants.VIPER_GROUND);
 
         private final double armPos, wristPos, wristPivotPos, viperPos;
 
@@ -47,8 +52,10 @@ public class OuttakeSubsystem extends SubsystemBase {
         }
     }
 
-    private OuttakeState currentState = OuttakeState.PICKUP;
+    private OuttakeState currentState = OuttakeState.SCORE;
     private ClawState clawState = ClawState.CLOSED;
+
+
 
     public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -87,6 +94,10 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeArm.setPosition(OuttakeState.SCORE.armPos);
         OuttakeWrist.setPosition(OuttakeState.SCORE.wristPos);
         OuttakeWristPivot.setPosition(OuttakeState.SCORE.wristPivotPos);
+    }
+
+    public void preloadPosition() {
+        setToState(OuttakeState.PRELOAD);
     }
 
     public void setClaw(ClawState state) {
