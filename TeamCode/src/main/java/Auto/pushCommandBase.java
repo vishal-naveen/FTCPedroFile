@@ -84,6 +84,13 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, blueLineUpToPushBlock1))
                                 .andThen(Commands.followPath(follower, pushBlock1ToPushBlock2))
                                 .andThen(Commands.followPath(follower, pushBlock2ToPushBlock3)),
+
+                        Commands.sleep(300)
+                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
+                                .andThen(Commands.sleep(250))
+                                .andThen(Commands.followPath(follower, blockPushToScorePath)),
+                        Commands.followPath(follower, pushScoreToPickUpPath)
+                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
                         // First pickup and score cycle
                         Commands.sleep(300)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
