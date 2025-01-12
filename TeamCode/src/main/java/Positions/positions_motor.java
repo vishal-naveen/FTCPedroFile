@@ -97,7 +97,7 @@ public class positions_motor {
     public static final double OuttakeWristPivotHighBar = 0.65;
 
     public static final double OuttakeClawOpen = 0.2;
-    public static final double OuttakeClawClose = 0.6;
+    public static final double OuttakeClawClose = 0.8;
 
     public static final int OUTAKE_NEW_VIPER_GROUND = 1500;
     public static final int OUTAKE_NEW_VIPER_HIGHBAR = 1200;

@@ -2,6 +2,7 @@ package Auto;
 
 import static Subsystem.FiveSpecimenPaths.blueLineUpToPushBlock1;
 import static Subsystem.FiveSpecimenPaths.lineFirstUpToBlueLineUp;
+import static Subsystem.FiveSpecimenPaths.preloadBackPath;
 import static Subsystem.FiveSpecimenPaths.scorePreload;
 import static Subsystem.FiveSpecimenPaths.lineFirstUp;
 import static Subsystem.FiveSpecimenPaths.pickUpToScore1;
@@ -48,7 +49,7 @@ public class dodsonCommandBase extends CommandOpMode {
 
         Constants.setConstants(FConstants.class, LConstants.class);
         this.follower = new Follower(hardwareMap);
-        this.follower.setStartingPose(new Pose(9.4, 62.8, Math.toRadians(0)));
+        this.follower.setStartingPose(new Pose(10, 62.8, Math.toRadians(0)));
         this.chain = Paths.fiveSpecimanAuto;
         // Initialize paths
         Paths.initializePaths(follower);
@@ -65,20 +66,14 @@ public class dodsonCommandBase extends CommandOpMode {
                         new WaitUntilCommand(this::opModeIsActive),
                         // Preload scoring sequence
                         Commands.scoreSpecimen(outtakeSubsystem)
-                                .alongWith(Commands.followPath(follower, scorePreload)),
-                        Commands.openClaw(outtakeSubsystem),
-                        Commands.sleep(3000).andThen
-                                (Commands.openClawThenPickUp(outtakeSubsystem)),
-                        Commands.followPath(follower, lineFirstUpToBlueLineUp),
-                        Commands.followPath(follower, blueLineUpToPushBlock1),
-
+                                .andThen(Commands.sleep(500))
+                                .andThen(Commands.followPath(follower, scorePreload)).andThen(Commands.sleep(1000))
+                                .andThen(Commands.openClaw(outtakeSubsystem))
+                                .andThen(Commands.followPath(follower, preloadBackPath)),
+                        Commands.openClawThenPickUp(outtakeSubsystem)
+                                .andThen(Commands.followPath(follower, lineFirstUpToBlueLineUp))
+                                .andThen(Commands.followPath(follower, blueLineUpToPushBlock1)),
                         // First pickup and score cycle
-                        Commands.sleep(300).andThen(Commands.closeClawThenScore(outtakeSubsystem)).andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScore1)),
-                        Commands.followPath(follower, scoreToPickUp).
-                                alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
-
-                        // Second pickup and score cycle
                         Commands.sleep(300).andThen(Commands.closeClawThenScore(outtakeSubsystem)).andThen(Commands.sleep(250))
                                 .andThen(Commands.followPath(follower, pickUpToScore1)),
                         Commands.followPath(follower, scoreToBlock2Top).
@@ -95,8 +90,14 @@ public class dodsonCommandBase extends CommandOpMode {
                         // Fourth pickup and score cycle
                         Commands.sleep(300).andThen(Commands.closeClawThenScore(outtakeSubsystem)).andThen(Commands.sleep(250))
                                 .andThen(Commands.followPath(follower, pickUpToScore4)),
-                        Commands.followPath(follower, park).
-                                alongWith(Commands.openClawThenPickUp(outtakeSubsystem))
+                        Commands.followPath(follower, scoreToPickUp).
+                                alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
+                        Commands.followPath(follower, scoreToPickUp).
+                                alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
+                        // Second pickup and score cycle
+                        Commands.sleep(300).andThen(Commands.closeClawThenScore(outtakeSubsystem)).andThen(Commands.sleep(250))
+                                .andThen(Commands.followPath(follower, pickUpToScore1)),
+                        Commands.followPath(follower, park).alongWith(Commands.openClawThenPickUp(outtakeSubsystem))
                 )
         );
     }
