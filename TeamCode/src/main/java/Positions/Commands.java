@@ -69,6 +69,7 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
+
     // You might also want a sequential command that ensures proper timing
     public static Command setPreloadPosition(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
