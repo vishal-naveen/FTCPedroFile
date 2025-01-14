@@ -82,8 +82,8 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.openClawThenPickUp(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, preloadToBlueLineUp))
                                 .andThen(Commands.followPath(follower, blueLineUpToPushBlock1))
-                                .andThen(Commands.followPath(follower, pushBlock1ToPushBlock2))
-                                .andThen(Commands.followPath(follower, pushBlock2ToPushBlock3)),
+                                .andThen(Commands.followPath(follower, pushBlock1ToPushBlock2)),
+//                                .andThen(Commands.followPath(follower, pushBlock2ToPushBlock3)),
 
                         Commands.sleep(300)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
@@ -106,12 +106,12 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.followPath(follower, scoreToPickUp2)
                                 .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
                         // Third scoring cycle
-                        Commands.sleep(300)
-                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScore3)),
-                        Commands.followPath(follower, scoreToPickUp3)
-                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
+//                        Commands.sleep(300)
+//                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
+//                                .andThen(Commands.sleep(250))
+//                                .andThen(Commands.followPath(follower, pickUpToScore3)),
+//                        Commands.followPath(follower, scoreToPickUp3)
+//                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
                         // Park
                         Commands.followPath(follower, park)
                                 .alongWith(Commands.openClawThenPickUp(outtakeSubsystem))

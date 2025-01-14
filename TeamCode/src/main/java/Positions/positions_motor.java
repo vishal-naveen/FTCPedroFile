@@ -9,12 +9,12 @@ public class positions_motor {
     public static final int VIPER_INT = 915;
     public static final int VIPER_GROUND_AUTO = 1600;
 
-    public static final int VIPER_HIGHBAR = 775;
+    public static final int VIPER_HIGHBAR = 900;
 
     public static final int VIPER_AUTO_END = 1500;
     public static final int VIPER_HIGHBAR2 = 1200;
-    public static final int VIPER_LOWBASKET = 700;
-    public static final int VIPER_HIGHBASKET = 3700
+    public static final int VIPER_LOWBASKET = 900;
+    public static final int VIPER_HIGHBASKET = 2500
             ;
 
     // Servo positions
@@ -50,8 +50,8 @@ public class positions_motor {
     public static final double NIntakeWristPivotHorizontal = 0;
 
     public static final double NIntakeWristPivotVertical = 0.35;
-    public static final double NIntakeClawOpen = 0.4;
-    public static final double NIntakeClawClose = 0.7;
+    public static final double NIntakeClawOpen = 0.7;
+    public static final double NIntakeClawClose = 0.4;
 
 
     //OUTTAKEEE
@@ -59,12 +59,12 @@ public class positions_motor {
 
     public static final double OuttakeArmPedroAuto = 0.6;
     public static final double OuttakeArmBucket = 0.4;
-    public static final double OuttakeArmHighBar = 0.05;
+    public static final double OuttakeArmHighBar = 0;
 
     public static final double OuttakeArmAutoLoading = 0.8;
     public static final double OuttakeArmHighBarFlick = 0.18;
 
-    public static final double OuttakeArmPickUpSpecimen = 0.85;
+    public static final double OuttakeArmPickUpSpecimen = 1;
     public static final double OuttakeArmPickUpGround = 0.2;
 
     public static final double OuttakeWristTransfer = 0.2;
@@ -90,11 +90,11 @@ public class positions_motor {
 
     public static final double OuttakeWristPivotPedro = 0.95;
 
-    public static final double OuttakeWristPivotHorizontal = 0;
+    public static final double OuttakeWristPivotHorizontal = 0.65;
 
-    public static final double OuttakeWristPivotSpecimenPickUp = 0;
+    public static final double OuttakeWristPivotSpecimenPickUp = 0.65;
 
-    public static final double OuttakeWristPivotHighBar = 0.65;
+    public static final double OuttakeWristPivotHighBar = 0;
 
     public static final double OuttakeClawOpen = 0.2;
     public static final double OuttakeClawClose = 0.8;

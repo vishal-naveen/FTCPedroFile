@@ -1,15 +1,16 @@
-package TeleOp;
+package Testers;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.positions_motor;
 
-@TeleOp(name="TeleOp.oldJustIntake")
-public class oldJustIntake extends OpMode {
+@TeleOp(name="transfertesting")
+public class transfertesting extends OpMode {
 
     private DcMotor frontLeft = null;
     private DcMotor frontRight = null;
@@ -31,10 +32,21 @@ public class oldJustIntake extends OpMode {
     boolean isWristHorizontal = false;
     boolean lastLeftBumper = false;
 
+    boolean lastRightBumperl = false;
+    boolean lastLeftBumperl = false;
+
     private Servo OuttakeArm = null;
     private Servo OuttakeWrist = null;
     private Servo OuttakeWristPivot = null;
     private Servo OuttakeClaw = null;
+
+    double outtakeArmPosition = 0.4; // Starting position, adjust as needed
+
+    private int transferState = 0;
+    private ElapsedTime transferTimer = new ElapsedTime();
+    private boolean transferInProgress = false;
+
+    private int lengthWait = 500;
 
 
     @Override
@@ -44,8 +56,7 @@ public class oldJustIntake extends OpMode {
         backLeft = hardwareMap.get(DcMotor.class, "BL");
         backRight = hardwareMap.get(DcMotor.class, "BR");
 
-
-
+        viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -55,10 +66,7 @@ public class oldJustIntake extends OpMode {
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         NintakeArm = hardwareMap.get(Servo.class, "NintakeArm");
         NintakeWrist = hardwareMap.get(Servo.class, "NintakeWrist");
@@ -70,14 +78,13 @@ public class oldJustIntake extends OpMode {
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
 
-
-
-
+        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     @Override
     public void loop() {
-        // Intake Controls
+
         if (gamepad2.left_bumper && !lastLeftBumper) {
             isWristHorizontal = !isWristHorizontal;
             NintakeWristPivot.setPosition(isWristHorizontal ?
@@ -89,11 +96,11 @@ public class oldJustIntake extends OpMode {
         if (gamepad2.right_bumper && !lastRightBumper) {
             isOutakeHorizontal = !isOutakeHorizontal;
             OuttakeWristPivot.setPosition(isOutakeHorizontal ?
-                    positions_motor.OuttakeWristPivotHighBar:
+                    positions_motor.OuttakeWristPivotHorizontal :
                     positions_motor.OuttakeWristPivotVertical);
         }
         lastRightBumper = gamepad2.right_bumper;
-
+        // Intake Controls
         if(gamepad2.dpad_left)
         {
             NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
@@ -113,31 +120,32 @@ public class oldJustIntake extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
         if(gamepad2.b){
-            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBAR);
-            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBar);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
 //        if(gamepad2.left_stick_x > 0.25){
-//            OuttakeArm.setPosition(Positions.positions_motor.OuttakeArmTransfer);
-//            OuttakeWrist.setPosition(Positions.positions_motor.OuttakeWristTransfer);
-//            OuttakeWristPivot.setPosition(Positions.positions_motor.OuttakeWristPivotHorizontal);
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmTransfer);
+//            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+//            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHorizontal);
 //        }
 
+
+        if(gamepad2.x){
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBarMore);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBarFlick);
+        }
+
         if(gamepad2.a){
-            viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
-            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
         }
 
-        if(gamepad2.x){
-            OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBarMore);
-            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBarFlick);
+        if(gamepad2.y){
+            OuttakeArm.setPosition(positions_motor.OuttakeArmTransfer);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
 
         if(gamepad2.left_trigger>0.1)
@@ -149,6 +157,76 @@ public class oldJustIntake extends OpMode {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
         }
 
+//        if(gamepad2.start)
+//        {
+//            NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
+//            NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
+//            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotVertical);
+//            OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
+//            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+//            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+//            wait(500);
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmTransfer);
+//            wait(500);
+//            OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
+//            wait(500);
+//            NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+//            wait(500);
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
+//        }
+
+
+        if(gamepad2.start && !transferInProgress) {
+            transferState = 0;
+            transferTimer.reset();
+            transferInProgress = true;
+        }
+
+        if(transferInProgress) {
+            switch(transferState) {
+                case 0:
+                    NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
+                    NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
+                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
+                    OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHorizontal);
+                    if(transferTimer.milliseconds() > lengthWait) {
+                        transferState = 1;
+                        transferTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmTransfer);
+                    if(transferTimer.milliseconds() > lengthWait) {
+                        transferState = 2;
+                        transferTimer.reset();
+                    }
+                    break;
+
+                case 2:
+                    OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
+                    if(transferTimer.milliseconds() > lengthWait) {
+                        transferState = 3;
+                        transferTimer.reset();
+                    }
+                    break;
+
+                case 3:
+                    NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+                    if(transferTimer.milliseconds() > lengthWait) {
+                        transferState = 4;
+                        transferTimer.reset();
+                    }
+                    break;
+
+                case 4:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
+                    transferInProgress = false;
+                    break;
+            }
+        }
 
 
         if(gamepad2.right_stick_y > 0.25){
@@ -162,41 +240,20 @@ public class oldJustIntake extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
 
-        // Drivetrain Controls
+
+
         if(gamepad1.left_bumper) {
-            power = 0.7;
-        }
-        if(gamepad1.dpad_up) {
-            power = 1;
-        }
-        if(gamepad1.dpad_down) {
-            power = 0.6;
+            OuttakeWrist.setPosition(0.3);
         }
 
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x * 1.1;
-        double rx = gamepad1.right_stick_x;
+        if(gamepad1.right_bumper) {
+            OuttakeWrist.setPosition(0.25);
+        }
 
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = power * ((y + x + rx) / denominator);
-        double backLeftPower = power * ((y - x + rx) / denominator);
-        double frontRightPower = power * ((y - x - rx) / denominator);
-        double backRightPower = power * ((y + x - rx) / denominator);
+// Add this to your telemetry
+        telemetry.addData("OuttakeArm Position Value", outtakeArmPosition);
 
-        frontLeft.setPower(frontLeftPower);
-        backLeft.setPower(backLeftPower);
-        frontRight.setPower(frontRightPower);
-        backRight.setPower(backRightPower);
 
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        telemetry.addData("FL Power", frontLeftPower);
-        telemetry.addData("FR Power", frontRightPower);
-        telemetry.addData("BL Power", backLeftPower);
-        telemetry.addData("BR Power", backRightPower);
 
         telemetry.addData("NintakeArm", NintakeArm.getPosition());
         telemetry.addData("NintakeWrist", NintakeWrist.getPosition());

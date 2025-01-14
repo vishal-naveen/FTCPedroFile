@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 
 import BucketAuto.BucketSidePaths;
+import Positions.RobotPose;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import IntakeSubsystem.BucketSideAutoSubsystem.HoverOrientation;
@@ -58,10 +59,11 @@ public class BucketSideCommandAuto extends CommandOpMode {
 
                         // Preload scoring sequence
                         CommandsBucket.setOuttakeToHighBucket(bucketSubsystem)
+                                .andThen(CommandsBucket.sleep(1000))
                                 .andThen(CommandsBucket.followPath(follower, scorePreload))
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.openOuttakeClaw(bucketSubsystem))
-                                .andThen(CommandsBucket.sleep(500))
+                                .andThen(CommandsBucket.sleep(2000))
                                 .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem)),
 
                         // First pickup and score cycle
@@ -102,8 +104,10 @@ public class BucketSideCommandAuto extends CommandOpMode {
 
                         // Park
                         CommandsBucket.followPath(follower, parkPath)
-                                .alongWith(CommandsBucket.outtakePark(bucketSubsystem))
+                                .alongWith(CommandsBucket.outtakePark(bucketSubsystem)),
+                        new RunCommand(() -> RobotPose.stopPose = follower.getPose())
                 )
         );
     }
+
 }

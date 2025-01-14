@@ -6,6 +6,7 @@ import com.pedropathing.util.Constants;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import Positions.RobotPose;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -26,7 +27,7 @@ public class ExampleFieldCentricTeleop extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(RobotPose.stopPose);  // Use the saved pose from auto
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -50,6 +51,15 @@ public class ExampleFieldCentricTeleop extends OpMode {
         - Turn Left/Right Movement: -gamepad1.right_stick_x
         - Robot-Centric Mode: false
         */
+
+        if(gamepad1.a) {
+            follower.setStartingPose(new Pose(
+                    follower.getPose().getX(),
+                    follower.getPose().getY(),
+                    0
+            ));
+        }
+
 
         follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
         follower.update();

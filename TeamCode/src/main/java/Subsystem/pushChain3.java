@@ -40,47 +40,51 @@ public class pushChain3 {
     public static PathChain paths() {
         // Preload path
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(preload)));
-        scorePreload.setConstantHeadingInterpolation(startPose.getHeading());
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preload.getHeading());
 
         preloadBackPath = new Path(new BezierLine(new Point(preload), new Point(preloadToBackPos)));
-        preloadBackPath.setConstantHeadingInterpolation(preload.getHeading());
+        preloadBackPath.setLinearHeadingInterpolation(preload.getHeading(), preloadToBackPos.getHeading());
 
-        // Line up path chain
+// Line up path chain
         lineFirstUp = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(preloadToBackPos), new Point(8.2, 37.8), new Point(blueLineUp)))
-                .setConstantHeadingInterpolation(preloadToBackPos.getHeading())
-                .addPath(new BezierCurve(new Point(blueLineUp), new Point(88.8, 26.3), new Point(pushBlock1)))
-                .setConstantHeadingInterpolation(blueLineUp.getHeading())
-                .addPath(new BezierCurve(new Point(pushBlock1), new Point(122.3, 17.92), new Point(pushBlock2)))
-                .setConstantHeadingInterpolation(pushBlock1.getHeading())
-                .addPath(new BezierCurve(new Point(pushBlock2), new Point(121, 9.7), new Point(pushBlock3)))
-                .setConstantHeadingInterpolation(pushBlock2.getHeading())
+                .setLinearHeadingInterpolation(preloadToBackPos.getHeading(), blueLineUp.getHeading())
+                .addPath(new BezierCurve(new Point(blueLineUp), new Point(93.44, 24.96), new Point(pushBlock1)))
+                .setLinearHeadingInterpolation(blueLineUp.getHeading(), pushBlock1.getHeading())
+                .addPath(new BezierCurve(new Point(pushBlock1), new Point(97.92, 29.3), new Point(71.04, 11.1), new Point(pushBlock2)))
+                .setLinearHeadingInterpolation(pushBlock1.getHeading(), pushBlock2.getHeading())
+//                .addPath(new BezierCurve(new Point(pushBlock2), new Point(121, 9.7), new Point(pushBlock3)))
+//                .setLinearHeadingInterpolation(pushBlock2.getHeading(), pushBlock3.getHeading())
                 .build();
 
-        blockPushToScorePath = new Path(new BezierCurve(new Point(pushBlock3), new Point(12.4, 77.7), new Point(scoreBlock)));
-        blockPushToScorePath.setConstantHeadingInterpolation(pushBlock3.getHeading());
+        blockPushToScorePath = new Path(new BezierCurve(new Point(pushBlock2), new Point(12.4, 77.7), new Point(scoreBlock)));
+        blockPushToScorePath.setLinearHeadingInterpolation(pushBlock3.getHeading(), scoreBlock.getHeading());
 
         pushScoreToPickUpPath = new Path(new BezierCurve(new Point(scoreBlock), new Point(16.9, 76.2), new Point(pickUp)));
-        pushScoreToPickUpPath.setConstantHeadingInterpolation(scoreBlock.getHeading());
+        pushScoreToPickUpPath.setLinearHeadingInterpolation(scoreBlock.getHeading(), pickUp.getHeading());
 
-        // Scoring cycles
+// Scoring cycles
         pickUpToScore1 = new Path(new BezierCurve(new Point(pickUp), new Point(16.5, 75.8), new Point(scoreBlock)));
-        pickUpToScore1.setConstantHeadingInterpolation(pickUp.getHeading());
+        pickUpToScore1.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlock.getHeading());
 
         scoreToPickUp1 = new Path(new BezierCurve(new Point(scoreBlock), new Point(16.9, 76.2), new Point(pickUp)));
-        scoreToPickUp1.setConstantHeadingInterpolation(scoreBlock.getHeading());
+        scoreToPickUp1.setLinearHeadingInterpolation(scoreBlock.getHeading(), pickUp.getHeading());
 
         pickUpToScore2 = new Path(new BezierCurve(new Point(pickUp), new Point(16.5, 75.8), new Point(scoreBlock)));
-        pickUpToScore2.setConstantHeadingInterpolation(pickUp.getHeading());
+        pickUpToScore2.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlock.getHeading());
 
         scoreToPickUp2 = new Path(new BezierCurve(new Point(scoreBlock), new Point(16.9, 76.2), new Point(pickUp)));
-        scoreToPickUp2.setConstantHeadingInterpolation(scoreBlock.getHeading());
+        scoreToPickUp2.setLinearHeadingInterpolation(scoreBlock.getHeading(), pickUp.getHeading());
 
         pickUpToScore3 = new Path(new BezierCurve(new Point(pickUp), new Point(16.5, 75.8), new Point(scoreBlock)));
-        pickUpToScore3.setConstantHeadingInterpolation(pickUp.getHeading());
+        pickUpToScore3.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlock.getHeading());
 
         scoreToPickUp3 = new Path(new BezierCurve(new Point(scoreBlock), new Point(16.9, 76.2), new Point(pickUp)));
-        scoreToPickUp3.setConstantHeadingInterpolation(scoreBlock.getHeading());
+        scoreToPickUp3.setLinearHeadingInterpolation(scoreBlock.getHeading(), pickUp.getHeading());
+
+// Park path
+        park = new Path(new BezierLine(new Point(pickUp), new Point(parkPos)));
+        park.setLinearHeadingInterpolation(pickUp.getHeading(), parkPos.getHeading());
 
         // Park path
         park = new Path(new BezierLine(new Point(pickUp), new Point(parkPos)));

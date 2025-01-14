@@ -32,19 +32,21 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
     // Outtake States
     public enum OuttakeState {
-        HOVER_HORIZONTAL(Constants.OuttakeArmPickUpSpecimen, 0.3, Constants.OuttakeWristPivotHorizontal),
-        HOVER_VERTICAL(Constants.OuttakeArmPickUpSpecimen, 0.3, Constants.OuttakeWristPivotVertical),
-        HOVER_SLANT_FORWARD(Constants.OuttakeArmPickUpSpecimen, 0.3, 0.4),  // Adjust slant value
-        HOVER_SLANT_BACKWARD(Constants.OuttakeArmPickUpSpecimen, 0.3, 0.6), // Adjust slant value
-        TRANSFER(Constants.OuttakeArmTransfer, Constants.OuttakeWristTransfer, Constants.OuttakeWristPivotHorizontal),
-        HIGH_BUCKET(Constants.OuttakeArmBucket, Constants.OuttakeWristBucket, Constants.OuttakeWristPivotHighBar);
+        HOVER_HORIZONTAL(Constants.OuttakeArmPickUpSpecimen, 0.3, Constants.OuttakeWristPivotHorizontal, 0),
+        HOVER_VERTICAL(Constants.OuttakeArmPickUpSpecimen, 0.3, Constants.OuttakeWristPivotVertical, 0),
+        HOVER_SLANT_FORWARD(Constants.OuttakeArmPickUpSpecimen, 0.3, 0.4, 0),
+        HOVER_SLANT_BACKWARD(Constants.OuttakeArmPickUpSpecimen, 0.3, 0.6, 0),
+        TRANSFER(Constants.OuttakeArmTransfer, Constants.OuttakeWristTransfer, Constants.OuttakeWristPivotHorizontal, 0),
+        HIGH_BUCKET(Constants.OuttakeArmBucket, Constants.OuttakeWristBucket, Constants.OuttakeWristPivotHighBar, Constants.VIPER_HIGHBASKET);
 
         private final double armPos, wristPos, wristPivotPos;
+        private final int viperPos;
 
-        OuttakeState(double armPos, double wristPos, double wristPivotPos) {
+        OuttakeState(double armPos, double wristPos, double wristPivotPos, int viperPos) {
             this.armPos = armPos;
             this.wristPos = wristPos;
             this.wristPivotPos = wristPivotPos;
+            this.viperPos = viperPos;
         }
     }
 
@@ -188,6 +190,11 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         OuttakeArm.setPosition(state.armPos);
         OuttakeWrist.setPosition(state.wristPos);
         OuttakeWristPivot.setPosition(state.wristPivotPos);
+
+        // Set viper motor position
+        viperMotor.setTargetPosition(state.viperPos);
+        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperMotor.setPower(1);
     }
 
     public void setOuttakeToTransferPosition() {
@@ -205,8 +212,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         updateTransferSequence();
     }
 
-    public void outtakePark()
-    {
+    public void outtakePark() {
         viperMotor.setTargetPosition(0);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         viperMotor.setPower(1);
@@ -217,8 +223,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         if (!sequenceInProgress) return;
 
         switch (sequenceState) {
-            case 0: // Prepare positions
-                setOuttakeState(OuttakeState.TRANSFER);
+            case 0: // Prepare positions and retract viper
+                setOuttakeState(OuttakeState.TRANSFER); // This will also set viper to 0
                 OuttakeClaw.setPosition(Constants.OuttakeClawOpen);
                 if (sequenceTimer.milliseconds() > 500) {
                     sequenceState++;
@@ -242,8 +248,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 }
                 break;
 
-            case 3: // Move to high bucket
-                setOuttakeState(OuttakeState.HIGH_BUCKET);
+            case 3: // Move to high bucket with viper extended
+                setOuttakeState(OuttakeState.HIGH_BUCKET); // This will extend viper to high position
                 sequenceInProgress = false;
                 break;
         }
@@ -252,7 +258,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (sequenceInProgress) {
-            updateIntakeSequence("transfer_both"); // Default behavior
+            updateIntakeSequence("transfer_both");
             updateTransferSequence();
         }
 
@@ -260,6 +266,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         telemetry.addData("Sequence in Progress", sequenceInProgress);
         telemetry.addData("Sequence State", sequenceState);
         telemetry.addData("Timer", sequenceTimer.milliseconds());
+        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
+        telemetry.addData("Viper Target", viperMotor.getTargetPosition());
         telemetry.addData("Intake Arm", NintakeArm.getPosition());
         telemetry.addData("Intake Wrist", NintakeWrist.getPosition());
         telemetry.addData("Intake Pivot", NintakeWristPivot.getPosition());
