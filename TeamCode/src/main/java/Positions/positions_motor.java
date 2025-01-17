@@ -57,7 +57,7 @@ public class positions_motor {
     //OUTTAKEEE
     public static final double OuttakeArmTransfer = 0.8;
 
-    public static final double OuttakeArmPedroAuto = 0.6;
+    public static final double OuttakeArmPedroAuto = 0.8;
     public static final double OuttakeArmBucket = 0.4;
     public static final double OuttakeArmHighBar = 0.15;
 
@@ -95,7 +95,7 @@ public class positions_motor {
 
     public static final double OuttakeWristPivotVertical = 0.35;
 
-    public static final double OuttakeWristPivotPedro = 0.95;
+    public static final double OuttakeWristPivotPedro = 0.35;
 
     public static final double OuttakeWristPivotHorizontal = 0.7;
 
@@ -104,7 +104,7 @@ public class positions_motor {
     public static final double OuttakeWristPivotHighBar = 0;
 
     public static final double OuttakeClawOpen = 0.2;
-    public static final double OuttakeClawClose = 0.8;
+    public static final double OuttakeClawClose = 0.55;
 
     public static final int OUTAKE_NEW_VIPER_GROUND = 1500;
     public static final int OUTAKE_NEW_VIPER_HIGHBAR = 1200;

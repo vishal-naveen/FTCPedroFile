@@ -107,6 +107,11 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         // Outtake remains in its current position
     }
 
+    public void armBack() {
+        NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
+        // Outtake remains in its current position
+    }
+
     public void startIntakeOnly() {
         NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
         NintakeWrist.setPosition(Constants.NIntakeWristPickUp);

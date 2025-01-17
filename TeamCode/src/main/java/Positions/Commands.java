@@ -114,9 +114,9 @@ public class Commands {
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(500), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.prepareViperForScore(outtakeSubsystem),
-                new WaitCommand(1250), // Wait another 500 milliseconds
+                new WaitCommand(100), // Wait another 500 milliseconds
                 Commands.completeScorePosition(outtakeSubsystem)
         );
     }
