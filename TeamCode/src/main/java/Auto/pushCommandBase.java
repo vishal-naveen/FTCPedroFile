@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.pedropathing.follower.Follower;
 
 import IntakeSubsystem.BucketSideAutoSubsystem;
+import IntakeSubsystem.CommandsBucket;
 import Subsystem.OuttakeSubsystem;
 import Subsystem.PathsPush3;
 import Subsystem.PathsPush3Chain;
@@ -20,7 +21,7 @@ import Positions.Commands;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name="pushCommandBase13x", group = "Auto Testing")
+@Autonomous(name="pushCommandBase14", group = "Auto Testing")
 public class pushCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;
@@ -59,18 +60,26 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, scorePreload))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
-                        Commands.followPath(follower, preloadBackPath)
-                                .andThen(Commands.pickUpSpecimen(outtakeSubsystem)),
+//                        Commands.followPath(follower, preloadBackPath)
+//                                .andThen(Commands.pickUpSpecimen(outtakeSubsystem)),
+//
+//                        Commands.followPath(follower, preloadToBlueLineUp),
 
-                        Commands.followPath(follower, preloadToBlueLineUp),
+                        Commands.followPath(follower, blueLineDirect)
+                                .andThen(Commands.pickUpSpecimen(outtakeSubsystem)),
                         Commands.followPath(follower, blueLineUpToPushBlock1),
                         Commands.followPath(follower, pushBlock1ToPushBlock2),
                         Commands.followPath(follower, pushBlock2ToPushBlock3),
 
                         // First scoring sequence
+
+                        Commands.pickUpSpecimen(outtakeSubsystem)
+                                .andThen(Commands.followPath(follower, pushBlock3ToPickUp)),
+
                         Commands.sleep(10)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
+                                .andThen(Commands.sleep(10))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore1ToScore1))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
@@ -106,7 +115,12 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4))
-                                .andThen(Commands.openClaw(outtakeSubsystem))
+                                .andThen(Commands.openClaw(outtakeSubsystem)),
+
+
+                        Commands.pickUpSpecimen(outtakeSubsystem)
+                                .andThen(Commands.followPath(follower, score4ToPickUp))
+                                .alongWith(CommandsBucket.extendIntakeFull(bucketSubsystem, BucketSideAutoSubsystem.HoverOrientation.HORIZONTAL))
                 )
         );
     }

@@ -85,7 +85,7 @@ public class positions_motor {
     public static final double OuttakeWristPedroAuto = 0;
     //0.75 is straight
     //0.6 is sticking up
-    public static final double OuttakeWristPickUpSpecimen = 0.9;
+    public static final double OuttakeWristPickUpSpecimen = 0.75;
 
     public static final double OuttakeWristHighBarMore = 0.75;
 
