@@ -30,7 +30,7 @@ import Subsystem.PathsPush3Chain;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name="pushChainCommandBase", group = "Auto Testing")
+//@Autonomous(name="pushChainCommandBase", group = "Auto Testing")
 public class pushChainCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;

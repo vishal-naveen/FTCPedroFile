@@ -33,7 +33,7 @@ import Positions.Commands;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name="dodsonCommandBase", group = "Auto Testing")
+//@Autonomous(name="dodsonCommandBase", group = "Auto Testing")
 public class dodsonCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;

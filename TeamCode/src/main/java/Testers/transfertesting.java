@@ -187,7 +187,7 @@ public class transfertesting extends OpMode {
                 case 0:
                     NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
                     NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
-                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
+                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotVertical);
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHorizontal);

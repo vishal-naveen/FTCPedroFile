@@ -81,6 +81,12 @@ public class CommandsBucket {
         }, subsystem);
     }
 
+    public static Command intakeWristUp(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> {
+            subsystem.intakeWristUp();
+        }, subsystem);
+    }
+
     // Basic Claw Commands
 // Basic Claw Commands
     public static Command openIntakeClaw(BucketSideAutoSubsystem subsystem) {
@@ -113,27 +119,38 @@ public class CommandsBucket {
         }, subsystem);
     }
 
+    public static Command intakeWristPickup(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> {
+            subsystem.intakeWristPickup();  // You'll need to create this method in BucketSideAutoSubsystem
+        }, subsystem);
+    }
+
+    public static Command intakeArmBack(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> {
+            subsystem.intakeArmBack();  // You'll need to create this method in BucketSideAutoSubsystem
+        }, subsystem);
+    }
+
     // Intake Sequence Commands
     public static Command startIntakePickupSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
-                new WaitCommand(250),
-                // Move wrist down to pickup position
-                new InstantCommand(() -> subsystem.startIntakeSequence("pickup_position")),
                 new WaitCommand(500),
-                // Close claw to grab
+                intakeWristPickup(subsystem),
+                new WaitCommand(500),
                 closeIntakeClaw(subsystem),
                 new WaitCommand(500),
-                // Move wrist back up to hover
-                new InstantCommand(() -> subsystem.startIntakeSequence("pickup_hover"))
+                intakeWristUp(subsystem),
+                new WaitCommand(500),
+                intakeArmBack(subsystem)
         );
     }
 
     public static Command startIntakeAndOuttakeTransferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
-                new WaitCommand(250),
-                new InstantCommand(() -> subsystem.startIntakeSequence("transfer")),
+                new WaitCommand(500),
+                retractIntakeForTransfer(subsystem),
                 new WaitCommand(500),
                 closeIntakeClaw(subsystem)
         );
@@ -142,8 +159,8 @@ public class CommandsBucket {
     public static Command startIntakeOnlyTransferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
-                new WaitCommand(250),
-                new InstantCommand(() -> subsystem.startIntakeSequence("transfer_intake_only")),
+                new WaitCommand(500),
+                retractIntakeOnly(subsystem),
                 new WaitCommand(500),
                 closeIntakeClaw(subsystem)
         );
@@ -165,10 +182,17 @@ public class CommandsBucket {
     // Full Outtake Transfer Sequence
     public static Command startFullOuttakeTransferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
+                // Move outtake to transfer position and close claw
                 setOuttakeToTransferPosition(subsystem),
                 new WaitCommand(500),
-                new InstantCommand(() -> subsystem.startOuttakeTransferSequence()),
-                new WaitCommand(1500)
+                // Close outtake claw to grab pixel
+                closeOuttakeClaw(subsystem),
+                new WaitCommand(500),
+                // Open intake claw to release
+                openIntakeClaw(subsystem),
+                new WaitCommand(500),
+                // Move to scoring position
+                setOuttakeToHighBucket(subsystem)
         );
     }
 

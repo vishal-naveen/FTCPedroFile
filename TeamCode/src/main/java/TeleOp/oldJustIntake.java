@@ -1,10 +1,13 @@
 package TeleOp;
 
+import static Positions.Commands.sleep;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.positions_motor;
 
@@ -35,6 +38,10 @@ public class oldJustIntake extends OpMode {
     private Servo OuttakeWrist = null;
     private Servo OuttakeWristPivot = null;
     private Servo OuttakeClaw = null;
+
+    private ElapsedTime flickTimer = new ElapsedTime();
+    private boolean isFlicking = false;
+    private int flickState = 0;
 
 
     @Override
@@ -70,6 +77,7 @@ public class oldJustIntake extends OpMode {
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
 
+        flickTimer = new ElapsedTime();
 
 
 
@@ -113,11 +121,11 @@ public class oldJustIntake extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
         if(gamepad2.b){
-            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBAR);
-            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperMotor.setPower(1);
-            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
-            OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBar);
+//            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBAR);
+//            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            viperMotor.setPower(1);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
 //        if(gamepad2.left_stick_x > 0.25){
@@ -127,6 +135,37 @@ public class oldJustIntake extends OpMode {
 //        }
 
         if(gamepad2.a){
+//            viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
+//            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            viperMotor.setPower(1);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
+        }
+
+        if(gamepad2.x){
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBarFLICK);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
+        }
+
+
+
+
+
+
+
+
+
+        if(gamepad1.b){
+            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBAR);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBar);
+            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+        }
+
+        if(gamepad1.a){
             viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
             viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             viperMotor.setPower(1);
@@ -135,16 +174,43 @@ public class oldJustIntake extends OpMode {
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
         }
 
-        if(gamepad2.x){
-            OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBarMore);
-            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBarFlick);
+        if(gamepad1.x && !isFlicking) {
+            isFlicking = true;
+            flickState = 0;
+            flickTimer.reset();
         }
 
-        if(gamepad2.left_trigger>0.1)
+        if(isFlicking) {
+            switch(flickState) {
+                case 0:
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBarFLICK);
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
+                    if(flickTimer.milliseconds() >= 1000) {
+                        flickState = 1;
+                        flickTimer.reset();
+                    }
+                    break;
+                case 1:
+                    viperMotor.setTargetPosition(100);
+                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    viperMotor.setPower(1);
+                    if(flickTimer.milliseconds() >= 1000) {
+                        flickState = 2;
+                        flickTimer.reset();
+                    }
+                    break;
+                case 2:
+                    OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
+                    isFlicking = false;
+                    break;
+            }
+        }
+
+        if(gamepad2.left_trigger>0.25)
         {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
         }
-        if(gamepad2.right_trigger>0.1)
+        if(gamepad2.right_trigger>0.25)
         {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
         }

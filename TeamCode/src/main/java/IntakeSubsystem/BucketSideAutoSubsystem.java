@@ -140,6 +140,20 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         updateIntakeSequence(endBehavior);
     }
 
+    // Add these two methods to BucketSideAutoSubsystem class
+
+    public void intakeWristPickup() {
+        NintakeArm.setPosition(Constants.NIntakeArmExtendedFull);
+        NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
+        NintakeWristPivot.setPosition(Constants.NIntakeWristPivotHorizontal);
+    }
+
+    public void intakeArmBack() {
+        NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
+        NintakeWrist.setPosition(Constants.NIntakeWristPickUpBefore);
+        NintakeWristPivot.setPosition(Constants.NIntakeWristPivotHorizontal);
+    }
+
     private void updateIntakeSequence(String endBehavior) {
         if (!sequenceInProgress) return;
 
@@ -199,10 +213,20 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
     public void setOuttakeToTransferPosition() {
         setOuttakeState(OuttakeState.TRANSFER);
+        OuttakeClaw.setPosition(Constants.OuttakeClawClose);
     }
 
     public void setOuttakeToHighBucket() {
         setOuttakeState(OuttakeState.HIGH_BUCKET);
+    }
+
+
+
+    public void outtakePark() {
+        viperMotor.setTargetPosition(0);
+        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        viperMotor.setPower(1);
+        OuttakeArm.setPosition(Constants.OuttakeArmBucket);
     }
 
     public void startOuttakeTransferSequence() {
@@ -212,11 +236,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         updateTransferSequence();
     }
 
-    public void outtakePark() {
-        viperMotor.setTargetPosition(0);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
-        OuttakeArm.setPosition(Constants.OuttakeArmBucket);
+    public void intakeWristUp() {
+        NintakeWrist.setPosition(Constants.NIntakeWristTransfer);
     }
 
     private void updateTransferSequence() {
@@ -225,7 +246,6 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         switch (sequenceState) {
             case 0: // Prepare positions and retract viper
                 setOuttakeState(OuttakeState.TRANSFER); // This will also set viper to 0
-                OuttakeClaw.setPosition(Constants.OuttakeClawOpen);
                 if (sequenceTimer.milliseconds() > 500) {
                     sequenceState++;
                     sequenceTimer.reset();
@@ -254,6 +274,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 break;
         }
     }
+
 
     @Override
     public void periodic() {

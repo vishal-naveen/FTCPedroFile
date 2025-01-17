@@ -31,7 +31,7 @@ import pedroPathing.constants.LConstants;
  * @version 2.0, 11/28/2024
  */
 
-@Autonomous(name = "bucketTest1", group = "Auto Testing")
+//@Autonomous(name = "bucketTest1", group = "Auto Testing")
 public class bucketTest1 extends OpMode {
 
     private Follower follower;

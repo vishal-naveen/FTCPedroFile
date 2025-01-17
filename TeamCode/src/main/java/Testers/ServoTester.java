@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import Positions.positions_motor;
+import Subsystem.OuttakeWristSubsystem;
 
 @TeleOp(name="Testers.ServoTester")
 public class ServoTester extends OpMode {
@@ -15,17 +16,26 @@ public class ServoTester extends OpMode {
 
     private DcMotor viperMotor = null;
 
+    private Servo OuttakeArm, OuttakeWrist = null;
+
 
     @Override
     public void init() {
-        testServo = hardwareMap.get(Servo.class, "testServo");
+        testServo = hardwareMap.get(Servo.class, "OuttakeWrist");
+
+
+        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
+
+        OuttakeArm = hardwareMap.get(Servo.class, "OuttakeArm");
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
 
-        viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBAR);
+
+        viperMotor.setTargetPosition(450);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         viperMotor.setPower(1);
     }

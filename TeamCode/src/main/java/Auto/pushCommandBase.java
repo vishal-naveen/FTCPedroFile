@@ -1,30 +1,6 @@
 package Auto;
 
-import static Subsystem.Push3Specimen.preloadToBlueLineUp;
-import static Subsystem.Push3Specimen.blueLineUpToPushBlock1;
-import static Subsystem.Push3Specimen.pushBlock1ToPushBlock2;
-import static Subsystem.Push3Specimen.pushBlock2ToPushBlock3;
-import static Subsystem.Push3Specimen.preloadBackPath;
-import static Subsystem.Push3Specimen.scorePreload;
-import static Subsystem.Push3Specimen.pickUpToScore1;
-import static Subsystem.Push3Specimen.scoreToPickUp1;
-import static Subsystem.Push3Specimen.pickUpToScore2;
-import static Subsystem.Push3Specimen.scoreToPickUp2;
-import static Subsystem.Push3Specimen.pickUpToScore3;
-import static Subsystem.Push3Specimen.scoreToPickUp3;
-import static Subsystem.Push3Specimen.blockPushToScorePath;
-import static Subsystem.Push3Specimen.pushScoreToPickUpPath;
-import static Subsystem.Push3Specimen.park;
-
-import com.arcrobotics.ftclib.command.CommandOpMode;
-import com.arcrobotics.ftclib.command.RunCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitUntilCommand;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.PathChain;
-import com.pedropathing.util.Constants;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.pedropathing.follower.Follower;
+import static Subsystem.Push3Specimen.*;  // Updated to import all paths
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.RunCommand;
@@ -43,7 +19,7 @@ import Positions.Commands;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name="pushCommandBase", group = "Auto Testing")
+@Autonomous(name="pushCommandBase12", group = "Auto Testing")
 public class pushCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;
@@ -67,7 +43,6 @@ public class pushCommandBase extends CommandOpMode {
             outtakeSubsystem.preloadPosition();
         }
 
-        // Schedule the autonomous routine
         schedule(
                 new RunCommand(follower::update),
                 new SequentialCommandGroup(
@@ -75,46 +50,54 @@ public class pushCommandBase extends CommandOpMode {
                         // Preload scoring sequence
                         Commands.scoreSpecimen(outtakeSubsystem)
                                 .andThen(Commands.sleep(500))
+                                .andThen(Commands.followPath(follower, preloadBeforePath))
+                                .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scorePreload))
-                                .andThen(Commands.sleep(1000))
-                                .andThen(Commands.openClaw(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, preloadBackPath)),
-                        Commands.openClawThenPickUp(outtakeSubsystem)
-                                .andThen(Commands.followPath(follower, preloadToBlueLineUp))
-                                .andThen(Commands.followPath(follower, blueLineUpToPushBlock1))
-                                .andThen(Commands.followPath(follower, pushBlock1ToPushBlock2)),
-//                                .andThen(Commands.followPath(follower, pushBlock2ToPushBlock3)),
+                                .andThen(Commands.openClaw(outtakeSubsystem)),
 
-                        Commands.sleep(300)
+                        Commands.followPath(follower, preloadBackPath)
+                                .andThen(Commands.openClawThenPickUp(outtakeSubsystem)),
+
+                        Commands.followPath(follower, preloadToBlueLineUp),
+                        Commands.followPath(follower, blueLineUpToPushBlock1),
+                        Commands.followPath(follower, pushBlock1ToPushBlock2),
+
+                        // First scoring sequence
+                        Commands.sleep(750)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, blockPushToScorePath)),
-                        Commands.followPath(follower, pushScoreToPickUpPath)
+                                .andThen(Commands.followPath(follower, pushToScoreBefore1))
+                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.followPath(follower, scoreBefore1ToScore1))
+                                .andThen(Commands.openClaw(outtakeSubsystem)),
+
+                        Commands.followPath(follower, score1ToPickUp)
                                 .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
-                        // First pickup and score cycle
-                        Commands.sleep(300)
+
+                        // Second scoring sequence
+                        Commands.sleep(750)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScore1)),
-                        Commands.followPath(follower, scoreToPickUp1)
+                                .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
+                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.followPath(follower, scoreBefore2ToScore2))
+                                .andThen(Commands.openClaw(outtakeSubsystem)),
+
+                        Commands.followPath(follower, score2ToPickUp)
                                 .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
-                        // Second scoring cycle
-                        Commands.sleep(300)
+
+                        // Third scoring sequence
+                        Commands.sleep(750)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScore2)),
-                        Commands.followPath(follower, scoreToPickUp2)
-                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
-                        // Third scoring cycle
-//                        Commands.sleep(300)
-//                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-//                                .andThen(Commands.sleep(250))
-//                                .andThen(Commands.followPath(follower, pickUpToScore3)),
-//                        Commands.followPath(follower, scoreToPickUp3)
-//                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem)),
+                                .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
+                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.followPath(follower, scoreBefore3ToScore3))
+                                .andThen(Commands.openClaw(outtakeSubsystem)),
+
+                        Commands.followPath(follower, score3ToPickUp)
+                                .andThen(Commands.openClawThenPickUp(outtakeSubsystem)),
+
                         // Park
                         Commands.followPath(follower, park)
-                                .alongWith(Commands.openClawThenPickUp(outtakeSubsystem))
+                                .andThen(Commands.openClawThenPickUp(outtakeSubsystem))
                 )
         );
     }

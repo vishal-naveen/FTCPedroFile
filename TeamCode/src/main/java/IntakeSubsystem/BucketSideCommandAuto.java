@@ -63,48 +63,50 @@ public class BucketSideCommandAuto extends CommandOpMode {
                                 .andThen(CommandsBucket.followPath(follower, scorePreload))
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.openOuttakeClaw(bucketSubsystem))
-                                .andThen(CommandsBucket.sleep(2000))
-                                .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem)),
+                                .andThen(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.HORIZONTAL))
+                                .andThen(CommandsBucket.sleep(500))
+                                .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem))
+                                .andThen(CommandsBucket.sleep(500)),
 
                         // First pickup and score cycle
                         CommandsBucket.followPath(follower, pickUp1Path)
-                                .alongWith(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.HORIZONTAL)),
+                                .andThen(CommandsBucket.sleep(500)),
                         CommandsBucket.startIntakePickupSequence(bucketSubsystem)
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.startFullOuttakeTransferSequence(bucketSubsystem))
                                 .andThen(CommandsBucket.followPath(follower, score1Path))
-                                .andThen(CommandsBucket.sleep(1000))
+                                .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.openOuttakeClaw(bucketSubsystem))
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem)),
 
                         // Second pickup and score cycle
                         CommandsBucket.followPath(follower, pickUp2Path)
-                                .alongWith(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.HORIZONTAL)),
+                                .andThen(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.HORIZONTAL)),
                         CommandsBucket.startIntakePickupSequence(bucketSubsystem)
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.startFullOuttakeTransferSequence(bucketSubsystem))
                                 .andThen(CommandsBucket.followPath(follower, score2Path))
-                                .andThen(CommandsBucket.sleep(1000))
+                                .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.openOuttakeClaw(bucketSubsystem))
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem)),
 
                         // Third pickup and score cycle
                         CommandsBucket.followPath(follower, pickUp3Path)
-                                .alongWith(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.SLANT_FORWARD)),
+                                .andThen(CommandsBucket.extendIntakeFull(bucketSubsystem, HoverOrientation.SLANT_FORWARD)),
                         CommandsBucket.startIntakePickupSequence(bucketSubsystem)
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.startFullOuttakeTransferSequence(bucketSubsystem))
                                 .andThen(CommandsBucket.followPath(follower, score3Path))
-                                .andThen(CommandsBucket.sleep(1000))
+                                .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.openOuttakeClaw(bucketSubsystem))
                                 .andThen(CommandsBucket.sleep(500))
                                 .andThen(CommandsBucket.setOuttakeToTransferPosition(bucketSubsystem)),
 
                         // Park
                         CommandsBucket.followPath(follower, parkPath)
-                                .alongWith(CommandsBucket.outtakePark(bucketSubsystem)),
+                                .andThen(CommandsBucket.outtakePark(bucketSubsystem)),
                         new RunCommand(() -> RobotPose.stopPose = follower.getPose())
                 )
         );

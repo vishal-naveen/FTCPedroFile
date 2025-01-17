@@ -11,10 +11,11 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 
 import Positions.Constants;
+import Positions.positions_motor;
 
 public class OuttakeSubsystem extends SubsystemBase {
     private final Servo OuttakeArm, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
-    private final DcMotorEx viperMotor;
+//    private final DcMotorEx viperMotor;
     private Telemetry telemetry;
 
     public enum OuttakeState {
@@ -22,15 +23,21 @@ public class OuttakeSubsystem extends SubsystemBase {
                Constants.OuttakeWristPickUpSpecimen,
                Constants.OuttakeWristPivotSpecimenPickUp,
                Constants.VIPER_GROUND),
-        SCORE(Constants.OuttakeArmHighBar,
-              Constants.OuttakeWristHighBar,
+        SCORE(Constants.OuttakeArmNewHighBar,
+              Constants.OuttakeWristNewHighBar,
               Constants.OuttakeWristPivotHighBar,
               Constants.VIPER_HIGHBAR),
 
         PRELOAD(Constants.OuttakeArmPedroAuto,         // 0.6
                 Constants.OuttakeWristPedroAuto,        // 0
                 Constants.OuttakeWristPivotPedro,    // 0
-                Constants.VIPER_GROUND);
+                Constants.VIPER_GROUND),
+
+        FLICK(Constants.OuttakeArmNewHighBarFLICK,     // 0.15
+                Constants.OuttakeWristNewHighBarFLICK,    // 0.8
+                Constants.OuttakeWristPivotHighBar,       // 0
+                Constants.VIPER_HIGHBAR);
+
 
         private final double armPos, wristPos, wristPivotPos, viperPos;
 
@@ -65,10 +72,10 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
 
-        viperMotor = hardwareMap.get(DcMotorEx.class, "viper1motor");
-        viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        viperMotor = hardwareMap.get(DcMotorEx.class, "viper1motor");
+//        viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+//        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void setToState(OuttakeState state) {
@@ -77,16 +84,16 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeWrist.setPosition(state.wristPos);
         OuttakeWristPivot.setPosition(state.wristPivotPos);
 
-        viperMotor.setTargetPosition((int)state.viperPos);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+//        viperMotor.setTargetPosition((int)state.viperPos);
+//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        viperMotor.setPower(1);
     }
 
     public void prepareScoreViper() {
         // Only lift the viper to high bar position
-        viperMotor.setTargetPosition((int)OuttakeState.SCORE.viperPos);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+//        viperMotor.setTargetPosition((int)OuttakeState.SCORE.viperPos);
+//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        viperMotor.setPower(1);
     }
 
     public void completeScoringPosition() {
@@ -120,6 +127,9 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void closeClaw() {
         setClaw(ClawState.CLOSED);
     }
+    public void flick() {
+        setToState(OuttakeState.FLICK);
+    }
 
 
 
@@ -127,7 +137,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void periodic() {
         telemetry.addData("Outtake State", currentState);
         telemetry.addData("Claw State", clawState);
-        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
+//        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
         telemetry.update();
     }
 }

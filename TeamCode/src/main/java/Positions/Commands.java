@@ -139,6 +139,20 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
+    public static Command flick(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.flick();
+        }, outtakeSubsystem);
+    }
+
+    public static Command flickWithDelay(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                Commands.flick(outtakeSubsystem),
+                new WaitCommand(500),
+                Commands.openClaw(outtakeSubsystem)
+        );
+    }
+
     // Enhanced Sleep Command
     public static Command sleep(long milliseconds) {
         return new WaitCommand(milliseconds);

@@ -53,10 +53,10 @@ public class ExampleFieldCentricTeleop extends OpMode {
         */
 
         if(gamepad1.a) {
-            follower.setStartingPose(new Pose(
+            follower.setCurrentPoseWithOffset(new Pose(
                     follower.getPose().getX(),
                     follower.getPose().getY(),
-                    0
+                    Math.toRadians(0)
             ));
         }
 
