@@ -94,9 +94,9 @@ public class positions_motor {
     public static final double OuttakeArmNewTransferWAIT = 0.8;
     public static final double OuttakeArmPickUpGround = 0.2;
 
-    public static final double OuttakeArmNewHighBar = 0.2;
+    public static final double OuttakeArmNewHighBar = 0.25;
 
-    public static final double OuttakeArmNewHighBarFLICK = 0.135;
+    public static final double OuttakeArmNewHighBarFLICK = 0.16;
 
 
 
@@ -145,7 +145,7 @@ public class positions_motor {
     //0.6 is sticking up
 
     //0.05
-    public static final double OuttakeWristPickUpSpecimen = 0.625;
+    public static final double OuttakeWristPickUpSpecimen = 0.485;
 
 
     public static final double OuttakeWristHighBarMore = 0.6;

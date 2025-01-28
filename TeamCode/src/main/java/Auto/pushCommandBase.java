@@ -60,26 +60,26 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
-//                        Commands.followPath(follower, preloadBackPath)
-//                                .andThen(Commands.pickUpSpecimen(outtakeSubsystem)),
-//
-//                        Commands.followPath(follower, preloadToBlueLineUp),
+
 
                         Commands.followPath(follower, blueLineDirect)
                                 .andThen(Commands.pickUpPOS(outtakeSubsystem)),
                         Commands.followPath(follower, blueLineUpToPushBlock1),
-                        Commands.followPath(follower, pushBlock1ToPushBlock2),
-                        Commands.followPath(follower, pushBlock2ToPushBlock3)
+                        Commands.followPath(follower, pushBlock1ToPushBlock2Up),
+                        Commands.followPath(follower, pushBlock2UpToPushBlock2),
+                        Commands.followPath(follower, pushBlock2ToPushBlock3Up)
                                 .withTimeout(3000),
-                        Commands.followPath(follower, pushBlockToDirect),
+                        Commands.followPath(follower, pushBlock3UpToPushBlock3)
+                                .withTimeout(3000),
 
                         // First scoring sequence
 
 //                        Commands.pickUpSpecimen(outtakeSubsystem)
 //                                .andThen(Commands.followPath(follower, pushBlock3ToPickUp)),
 
-                        Commands.sleep(10)
-                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
+//                        Commands.sleep(10)
+//                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
+                        Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
 //                                .andThen(Commands.sleep(10))
                                 .andThen(Commands.flick(outtakeSubsystem)),
