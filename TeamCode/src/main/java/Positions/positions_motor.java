@@ -14,8 +14,9 @@ public class positions_motor {
     public static final int VIPER_AUTO_END = 1500;
     public static final int VIPER_HIGHBAR2 = 1200;
     public static final int VIPER_LOWBASKET = 900;
-    public static final int VIPER_HIGHBASKET = 2500
-            ;
+
+   //2650
+    public static final int VIPER_HIGHBASKET = 2800;
 
     // Servo positions
     public static final double ARM_UP = 0.6;
@@ -41,65 +42,123 @@ public class positions_motor {
     public static final double NIntakeArmExtendedFull = 0.7;
     public static final double NIntakeArmExtendedThird = 0.4;
     public static final double NIntakeArmExtendedQuater = 0.2;
+
+    public static final double NIntakeArmTransfer = 0.262;
     public static final double NIntakeArmExtendedBack = 0.1;
 
     public static final double NIntakeWristPickUp = 0.9;
 
     public static final double NIntakeWristPickUpBefore = 0.6;
-    public static final double NIntakeWristTransfer = 0;
-    public static final double NIntakeWristPivotHorizontal = 0.35;
+    public static final double NIntakeWristTransfer = 0.25;
+    public static final double NIntakeWristPivotHorizontal = 0.235;
 
-    public static final double NIntakeWristPivotVertical = 0.7;
-    public static final double NIntakeClawOpen = 0.6;
-    public static final double NIntakeClawClose = 0.4;
+    public static final double NIntakeWristPivotVertical = 0.585;
+
+    public static final double NIntakeWristPivotTransfer = 1;
+    public static final double NIntakeClawOpen = 0.95;
+
+    public static final double NIntakeClawOpenTransfer = 0.75;
+    public static final double NIntakeClawClose = 0.575;
+
+    public static final double NIntakeClawCloseFull = 0.525;
 
 
     //OUTTAKEEE
-    public static final double OuttakeArmTransfer = 0.8;
+
+
+    public static final double OuttakeWristTransfer = 0.56;
+
+
+
+    public static final double OuttakeWristTransferAuto = 0.27;
+
+    public static final double OuttakeArmTransfer = 0.75;
+
+    public static final double OuttakeArmTransferAuto = 0.7;
+
+    public static final double OuttakeArmTransferWait = 0.55;
 
     public static final double OuttakeArmPedroAuto = 0.8;
-    public static final double OuttakeArmBucket = 0.4;
+    public static final double OuttakeArmBucket = 0.35;
+
+    public static final double OuttakeArmDownWhileBucket = 0.1;
     public static final double OuttakeArmHighBar = 0.15;
 
     public static final double OuttakeArmAutoLoading = 0.8;
     public static final double OuttakeArmHighBarFlick = 0.18;
 
     public static final double OuttakeArmPickUpSpecimen = 1;
+
+    public static final double OuttakeArmNewTransfer = 0.9;
+
+    public static final double OuttakeArmNewTransferWAIT = 0.8;
     public static final double OuttakeArmPickUpGround = 0.2;
 
-    public static final double OuttakeWristTransfer = 0.45;
-    public static final double OuttakeWristBucket = 0.7;
-    public static final double OuttakeWristHighBar = 0.575;
+    public static final double OuttakeArmNewHighBar = 0.2;
 
-    public static final double OuttakeWristNewHighBar = 0.725;
-
-    public static final double OuttakeWristNewHighBarFLICK = 0.8;
-    public static final double OuttakeArmNewHighBar = 0.25;
-
-    public static final double OuttakeArmNewHighBarFLICK = 0.15;
+    public static final double OuttakeArmNewHighBarFLICK = 0.135;
 
 
 
-    public static final double OuttakeWristAutoLoading = 0.3;
+    public static final double OuttakeArmBucketTEMP = 0.6;
 
-    public static final double OuttakeWristPedroAuto = 0;
+
+
+    //New
+
+    public static final double OuttakeArmRightTransfer = 0.75;
+
+    public static final double OuttakeArmRightTransferAuto = 0.7;
+
+    public static final double OuttakeArmRightTransferWait = 0.55;
+
+    public static final double OuttakeArmRightPedroAuto = 0.8;
+    public static final double OuttakeArmRightBucket = 0.3;
+    public static final double OuttakeArmRightHighBar = 0.15;
+
+    public static final double OuttakeArmRightAutoLoading = 0.8;
+    public static final double OuttakeArmRightHighBarFlick = 0.18;
+
+    public static final double OuttakeArmRightPickUpSpecimen = 0;
+    public static final double OuttakeArmRightPickUpGround = 0.2;
+
+    public static final double OuttakeArmRightNewHighBar = 1;
+
+    public static final double OuttakeArmRightNewHighBarFLICK = 1;
+
+
+
+    public static final double OuttakeWristHighBar = 0.51;
+
+    public static final double OuttakeWristNewHighBar = 0.5;
+
+    public static final double OuttakeWristNewHighBarFLICK = 0.6625;
+
+
+    //0.9
+    public static final double OuttakeWristBucket = 0.825;
+
+    public static final double OuttakeWristDownWhileBucket = 0.55;
+
+    public static final double OuttakeWristPedroAuto = 0.1;
     //0.75 is straight
     //0.6 is sticking up
-    public static final double OuttakeWristPickUpSpecimen = 0.75;
 
-    public static final double OuttakeWristHighBarMore = 0.75;
-
-    public static final double OuttakeWristPickUpGround = 0.2;
+    //0.05
+    public static final double OuttakeWristPickUpSpecimen = 0.625;
 
 
+    public static final double OuttakeWristHighBarMore = 0.6;
 
-    public static final double OuttakeWristPivotVertical = 0.35;
+
+
+    public static final double OuttakeWristPivotVertical = 0.3;
 
     public static final double OuttakeWristPivotPedro = 0.35;
 
-    public static final double OuttakeWristPivotHorizontal = 0.7;
+    public static final double OuttakeWristPivotHorizontal = 0.735;
 
-    public static final double OuttakeWristPivotSpecimenPickUp = 0.65;
+    public static final double OuttakeWristPivotSpecimenPickUp = 0.685;
 
     public static final double OuttakeWristPivotHighBar = 0;
 

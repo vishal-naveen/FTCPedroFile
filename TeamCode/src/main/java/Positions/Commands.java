@@ -90,6 +90,12 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
+    public static Command pickUpPOS(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.pickUpPOS();
+        }, outtakeSubsystem);
+    }
+
     // In the Commands class
     public static Command openClawThenPickUp(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
@@ -114,10 +120,8 @@ public class Commands {
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
-                Commands.prepareViperForScore(outtakeSubsystem),
-                new WaitCommand(100), // Wait another 500 milliseconds
-                Commands.completeScorePosition(outtakeSubsystem)
+                new WaitCommand(350), // Wait for 500 milliseconds (0.5 seconds)
+                Commands.pickUpSpecimen(outtakeSubsystem)
         );
     }
 

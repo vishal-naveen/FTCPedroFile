@@ -4,15 +4,12 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
-import IntakeSubsystem.BucketSideAutoSubsystem;
-import IntakeSubsystem.BucketSideAutoSubsystem.HoverOrientation;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 
 public class CommandsBucket {
-    // Path Following Commands
     public static class FollowPathCommand extends CommandBase {
         private final Follower follower;
         private final Path path;
@@ -53,7 +50,6 @@ public class CommandsBucket {
         }
     }
 
-    // Path following methods
     public static Command followPath(Follower follower, Path path) {
         return new FollowPathCommand(follower, path);
     }
@@ -62,163 +58,125 @@ public class CommandsBucket {
         return new FollowPathCommand(follower, pathChain);
     }
 
-    // Intake Extension Commands
-    public static Command extendIntakeFull(BucketSideAutoSubsystem subsystem, HoverOrientation orientation) {
-        return new InstantCommand(() -> {
-            subsystem.extendIntakeFullWithHover(orientation);
-        }, subsystem);
+    // Basic commands
+    public static Command startTransfer(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.startTransfer(), subsystem);
     }
 
-    public static Command retractIntakeForTransfer(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.retractIntakeForTransfer();
-        }, subsystem);
+    public static Command extendIntake(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.extendIntake(), subsystem);
     }
 
-    public static Command retractIntakeOnly(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.retractIntakeOnly();
-        }, subsystem);
+    public static Command extendIntakeCross(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.extendIntakeCross(), subsystem);
     }
 
-    public static Command intakeWristUp(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.intakeWristUp();
-        }, subsystem);
+
+    public static Command downWhileScore(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.downWhileScore(), subsystem);
     }
 
-    // Basic Claw Commands
-// Basic Claw Commands
+    public static Command retractIntakeTransfer(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.retractIntakeTransfer(), subsystem);
+    }
+
     public static Command openIntakeClaw(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.openIntakeClaw();
-        }, subsystem);
+        return new InstantCommand(() -> subsystem.openIntakeClaw(), subsystem);
     }
 
     public static Command closeIntakeClaw(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.closeIntakeClaw();
-        }, subsystem);
+        return new InstantCommand(() -> subsystem.closeIntakeClaw(), subsystem);
+    }
+
+    public static Command IntakePivotHorizontal(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.IntakePivotHorizontal(), subsystem);
     }
 
     public static Command openOuttakeClaw(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.openOuttakeClaw();
-        }, subsystem);
+        return new InstantCommand(() -> subsystem.openOuttakeClaw(), subsystem);
     }
 
     public static Command closeOuttakeClaw(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.closeOuttakeClaw();
-        }, subsystem);
+        return new InstantCommand(() -> subsystem.closeOuttakeClaw(), subsystem);
     }
 
-    public static Command outtakePark(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.outtakePark();
-        }, subsystem);
+    public static Command setHighBucketViper(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.setHighBucketViper(), subsystem);
     }
 
-    public static Command intakeWristPickup(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.intakeWristPickup();  // You'll need to create this method in BucketSideAutoSubsystem
-        }, subsystem);
+    public static Command setHighBucket(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.setHighBucket(), subsystem);
     }
 
-    public static Command intakeArmBack(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.intakeArmBack();  // You'll need to create this method in BucketSideAutoSubsystem
-        }, subsystem);
+    public static Command pickUpPOS(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.setPickupPOS(), subsystem);
     }
 
-    // Intake Sequence Commands
-    public static Command startIntakePickupSequence(BucketSideAutoSubsystem subsystem) {
+    public static Command setArmTempPOS(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.tempPOS(), subsystem);
+    }
+
+    public static Command setViperDown(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.viperDown(), subsystem);
+    }
+
+    public static Command parkOuttake(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.parkOuttake(), subsystem);
+    }
+
+    public static Command wristDown(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.wristDown(), subsystem);
+    }
+
+    // Sequences
+    public static Command pickupSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
-                new WaitCommand(500),
-                intakeWristPickup(subsystem),
+                wristDown(subsystem),
                 new WaitCommand(500),
                 closeIntakeClaw(subsystem),
                 new WaitCommand(500),
-                intakeWristUp(subsystem),
-                new WaitCommand(500),
-                intakeArmBack(subsystem)
+                retractIntakeTransfer(subsystem)
         );
     }
 
-    public static Command startIntakeAndOuttakeTransferSequence(BucketSideAutoSubsystem subsystem) {
+    public static Command pickupSequenceCross(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
+                wristDown(subsystem),
                 new WaitCommand(500),
-                retractIntakeForTransfer(subsystem),
+                closeIntakeClaw(subsystem),
+                new WaitCommand(100),
+                IntakePivotHorizontal(subsystem),
                 new WaitCommand(500),
-                closeIntakeClaw(subsystem)
+                retractIntakeTransfer(subsystem)
         );
     }
 
-    public static Command startIntakeOnlyTransferSequence(BucketSideAutoSubsystem subsystem) {
+    public static Command transferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
-                openIntakeClaw(subsystem),
-                new WaitCommand(500),
-                retractIntakeOnly(subsystem),
-                new WaitCommand(500),
-                closeIntakeClaw(subsystem)
+                startTransfer(subsystem),
+                new WaitCommand(2500)
         );
     }
 
-    // Outtake Commands
-    public static Command setOuttakeToTransferPosition(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.setOuttakeToTransferPosition();
-        }, subsystem);
-    }
-
-    public static Command setOuttakeToHighBucket(BucketSideAutoSubsystem subsystem) {
-        return new InstantCommand(() -> {
-            subsystem.setOuttakeToHighBucket();
-        }, subsystem);
-    }
-
-    // Full Outtake Transfer Sequence
-    public static Command startFullOuttakeTransferSequence(BucketSideAutoSubsystem subsystem) {
+    public static Command pickupAndTransfer(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
-                // Move outtake to transfer position and close claw
-                setOuttakeToTransferPosition(subsystem),
+                pickupSequence(subsystem),
                 new WaitCommand(500),
-                // Close outtake claw to grab pixel
-                closeOuttakeClaw(subsystem),
-                new WaitCommand(500),
-                // Open intake claw to release
-                openIntakeClaw(subsystem),
-                new WaitCommand(500),
-                // Move to scoring position
-                setOuttakeToHighBucket(subsystem)
+                transferSequence(subsystem)
         );
     }
 
-    // Combined Sequences
-    public static Command pickupAndTransferToOuttake(BucketSideAutoSubsystem subsystem) {
+    public static Command pickupAndTransferCross(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
-                startIntakePickupSequence(subsystem),
+                pickupSequenceCross(subsystem),
                 new WaitCommand(500),
-                startFullOuttakeTransferSequence(subsystem)
+                transferSequence(subsystem)
         );
     }
 
-    public static Command pickupAndTransferIntakeOnly(BucketSideAutoSubsystem subsystem) {
-        return new SequentialCommandGroup(
-                startIntakePickupSequence(subsystem),
-                new WaitCommand(500),
-                startIntakeOnlyTransferSequence(subsystem)
-        );
-    }
-
-    // Wait Commands
     public static Command sleep(long milliseconds) {
-        return new WaitCommand(milliseconds);
-    }
-
-    public static Command pauseFor(long milliseconds) {
         return new WaitCommand(milliseconds);
     }
 }

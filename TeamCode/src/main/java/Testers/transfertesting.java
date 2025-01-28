@@ -111,6 +111,16 @@ public class transfertesting extends OpMode {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
         }
 
+        if(gamepad1.dpad_left)
+        {
+            NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+        }
+
+        if(gamepad1.dpad_right)
+        {
+            NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+        }
+
         if(gamepad2.left_stick_y > 0.25){
             NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
@@ -120,6 +130,9 @@ public class transfertesting extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
         if(gamepad2.b){
+            viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristHighBar);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
@@ -137,22 +150,29 @@ public class transfertesting extends OpMode {
         }
 
         if(gamepad2.a){
+            viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
         }
 
         if(gamepad2.y){
-            OuttakeArm.setPosition(positions_motor.OuttakeArmTransfer);
-            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
-            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
         }
 
-        if(gamepad2.left_trigger>0.1)
+
+
+        if(gamepad2.left_trigger>0.25)
         {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
         }
-        if(gamepad2.right_trigger>0.1)
+        if(gamepad2.right_trigger>0.25)
         {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
         }
@@ -175,8 +195,47 @@ public class transfertesting extends OpMode {
 //            OuttakeArm.setPosition(positions_motor.OuttakeArmHighBar);
 //        }
 
+        if(gamepad1.y)
+        {
+            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
+            OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
+        }
+
 
         if(gamepad2.start && !transferInProgress) {
+            // Check if OuttakeArm is in highbar or flick position
+            boolean isOuttakeInHighPosition = Math.abs(OuttakeArm.getPosition() - positions_motor.OuttakeArmHighBar) < 0.05 ||
+                    Math.abs(OuttakeArm.getPosition() - positions_motor.OuttakeArmHighBarFlick) < 0.05;
+
+            // Check if NintakeWrist is not in transfer position
+            boolean isNintakeNotInTransfer = Math.abs(NintakeWrist.getPosition() - positions_motor.NIntakeWristTransfer) > 0.05;
+
+            // Set wait time based on conditions
+            lengthWait = 500; // base time
+            if(isOuttakeInHighPosition) lengthWait += 500;  // Add time for high position
+            if(isNintakeNotInTransfer) lengthWait += 500;   // Add time for wrist movement
+
+            transferState = 0;
+            transferTimer.reset();
+            transferInProgress = true;
+        }
+
+        if(gamepad1.start && !transferInProgress) {
+            // Check if OuttakeArm is in highbar or flick position
+            boolean isOuttakeInHighPosition = Math.abs(OuttakeArm.getPosition() - positions_motor.OuttakeArmHighBar) < 0.05 ||
+                    Math.abs(OuttakeArm.getPosition() - positions_motor.OuttakeArmHighBarFlick) < 0.05;
+
+            // Check if NintakeWrist is not in transfer position
+            boolean isNintakeNotInTransfer = Math.abs(NintakeWrist.getPosition() - positions_motor.NIntakeWristTransfer) > 0.05;
+
+            // Set wait time based on conditions
+            lengthWait = 500; // base time
+            if(isOuttakeInHighPosition) lengthWait += 500;  // Add time for high position
+            if(isNintakeNotInTransfer) lengthWait += 500;   // Add time for wrist movement
+
             transferState = 0;
             transferTimer.reset();
             transferInProgress = true;
@@ -190,7 +249,7 @@ public class transfertesting extends OpMode {
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotVertical);
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHorizontal);
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     if(transferTimer.milliseconds() > lengthWait) {
                         transferState = 1;
                         transferTimer.reset();
@@ -214,7 +273,7 @@ public class transfertesting extends OpMode {
                     break;
 
                 case 3:
-                    NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+                    NintakeClaw.setPosition(positions_motor.NIntakeClawOpenTransfer);
                     if(transferTimer.milliseconds() > lengthWait) {
                         transferState = 4;
                         transferTimer.reset();

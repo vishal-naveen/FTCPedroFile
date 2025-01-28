@@ -35,6 +35,8 @@ public class oldJustIntake extends OpMode {
     boolean lastLeftBumper = false;
 
     private Servo OuttakeArm = null;
+
+    private Servo OuttakeArmRight = null;
     private Servo OuttakeWrist = null;
     private Servo OuttakeWristPivot = null;
     private Servo OuttakeClaw = null;
@@ -76,6 +78,7 @@ public class oldJustIntake extends OpMode {
         OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
+        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
 
         flickTimer = new ElapsedTime();
 
@@ -125,6 +128,7 @@ public class oldJustIntake extends OpMode {
 //            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+            OuttakeArmRight.setPosition(positions_motor.OuttakeArmRightNewHighBar);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
@@ -135,10 +139,8 @@ public class oldJustIntake extends OpMode {
 //        }
 
         if(gamepad2.a){
-//            viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
-//            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            viperMotor.setPower(1);
             OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+            OuttakeArmRight.setPosition(positions_motor.OuttakeArmRightPickUpSpecimen);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
         }
@@ -146,6 +148,7 @@ public class oldJustIntake extends OpMode {
         if(gamepad2.x){
             OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBarFLICK);
             OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
+            OuttakeArmRight.setPosition(positions_motor.OuttakeArmRightNewHighBarFLICK);
         }
 
 

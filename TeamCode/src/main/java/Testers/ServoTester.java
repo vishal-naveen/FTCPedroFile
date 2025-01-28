@@ -11,41 +11,54 @@ import Subsystem.OuttakeWristSubsystem;
 @TeleOp(name="Testers.ServoTester")
 public class ServoTester extends OpMode {
 
-    private  Servo testServo = null;
-    private  Servo armServo = null;
-
+    private Servo testServo = null;
+    private Servo armServo = null;
     private DcMotor viperMotor = null;
-
-    private Servo OuttakeArm, OuttakeWrist = null;
-
+    private Servo OuttakeArm = null;
+    private Servo OuttakeArmRight = null;
+    private Servo OuttakeWrist = null;
+    private Servo OuttakeWristPivot = null;
 
     @Override
     public void init() {
         testServo = hardwareMap.get(Servo.class, "OuttakeWrist");
-
-
-        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
-
+//        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
         OuttakeArm = hardwareMap.get(Servo.class, "OuttakeArm");
+//        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
+//        OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
+//
+//        viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
+//        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
-        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
 
-        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-
-
-        viperMotor.setTargetPosition(450);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
     }
-
 
     @Override
     public void loop() {
+        // Gamepad 1 controls
+//        if(gamepad1.b) {
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+//            OuttakeArmRight.setPosition(positions_motor.OuttakeArmNewHighBar);
+//            OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+//            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+//        }
+//
+//        if(gamepad1.a) {
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+//            OuttakeArmRight.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+//            OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+//            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
+//        }
+//
+//        if(gamepad1.x) {
+//            OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBarFLICK);
+//            OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
+//            OuttakeArmRight.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
+//        }
 
-
-
+        // Gamepad 2 controls
         if (gamepad2.dpad_down) {
             testServo.setPosition(0);
         }
@@ -53,10 +66,10 @@ public class ServoTester extends OpMode {
             testServo.setPosition(0.1);
         }
         if (gamepad2.dpad_up) {
-            testServo.setPosition(0.2);
+            testServo.setPosition(0.15);
         }
         if (gamepad2.dpad_right) {
-            testServo.setPosition(0.3);
+            testServo.setPosition(0.2);
         }
         if(gamepad2.a) {
             testServo.setPosition(0.4);
@@ -80,8 +93,11 @@ public class ServoTester extends OpMode {
             testServo.setPosition(1);
         }
 
-
         telemetry.addData("Test Servo Position:", testServo.getPosition());
+//        telemetry.addData("OuttakeArm Position:", OuttakeArm.getPosition());
+//        telemetry.addData("OuttakeArmRight Position:", OuttakeArmRight.getPosition());
+//        telemetry.addData("OuttakeWrist Position:", OuttakeWrist.getPosition());
+//        telemetry.addData("OuttakeWristPivot Position:", OuttakeWristPivot.getPosition());
         telemetry.update();
     }
 }

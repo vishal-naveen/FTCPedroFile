@@ -1,5 +1,7 @@
 package Subsystem;
 
+import static Positions.Constants.lengthWait;
+
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -9,6 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.Constants;
 import Positions.positions_motor;
@@ -17,6 +20,23 @@ public class OuttakeSubsystem extends SubsystemBase {
     private final Servo OuttakeArm, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
 //    private final DcMotorEx viperMotor;
     private Telemetry telemetry;
+
+    private int pickupState = 0;
+    private boolean pickupInProgress = false;
+    private ElapsedTime pickupTimer = new ElapsedTime();
+
+    public void pickUpFull() {
+        pickupState = 0;
+        pickupTimer.reset();
+        pickupInProgress = true;
+    }
+
+
+    public void pickUpPOS() {
+        OuttakeArm.setPosition(Constants.OuttakeArmPickUpSpecimen);
+        OuttakeWrist.setPosition(Constants.OuttakeWristPickUpSpecimen);
+        OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotSpecimenPickUp);
+    }
 
     public enum OuttakeState {
         PICKUP(Constants.OuttakeArmPickUpSpecimen,
@@ -78,6 +98,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 //        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
+
+
     public void setToState(OuttakeState state) {
         currentState = state;
         OuttakeArm.setPosition(state.armPos);
@@ -88,6 +110,8 @@ public class OuttakeSubsystem extends SubsystemBase {
 //        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        viperMotor.setPower(1);
     }
+
+
 
     public void prepareScoreViper() {
         // Only lift the viper to high bar position
@@ -116,9 +140,6 @@ public class OuttakeSubsystem extends SubsystemBase {
         setToState(OuttakeState.SCORE);
     }
 
-    public void pickUpFull() {
-        setToState(OuttakeState.PICKUP);
-    }
 
     public void openClaw() {
         setClaw(ClawState.OPEN);
@@ -135,9 +156,33 @@ public class OuttakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        if(pickupInProgress) {
+            switch(pickupState) {
+                case 0:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+                    if(pickupTimer.milliseconds() > lengthWait) {
+                        pickupState = 1;
+                        pickupTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    if(pickupTimer.milliseconds() > lengthWait) {
+                        pickupInProgress = false;
+                    }
+                    break;
+            }
+        }
+
         telemetry.addData("Outtake State", currentState);
         telemetry.addData("Claw State", clawState);
-//        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
+        telemetry.addData("Pickup State", pickupState);
+        telemetry.addData("Pickup Timer", pickupTimer.milliseconds());
+        telemetry.addData("Pickup In Progress", pickupInProgress);
+        telemetry.addData("Outtake State", currentState);
+        telemetry.addData("Claw State", clawState);
         telemetry.update();
     }
 }
