@@ -33,6 +33,7 @@ public class specimenPLUS_PATHS {
     private static final Pose pushBlock3Up = new Pose(52, 13.5, Math.toRadians(0));
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
     private static final Pose pushBlock3Pick = new Pose(16.1, 35, Math.toRadians(0));
+    //a
     private static final Pose pickUp = new Pose(10.5, 35, Math.toRadians(0));
     private static final Pose pickUpAlt = new Pose(10.5, 25.75, Math.toRadians(0));
     private static final Pose pickUpAlt2 = new Pose(10, 25.85, Math.toRadians(0));
