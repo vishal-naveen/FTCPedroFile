@@ -57,16 +57,19 @@ public class specimenPLUS_MAIN extends CommandOpMode {
                 new SequentialCommandGroup(
                         new WaitUntilCommand(this::opModeIsActive),
 
-                        Commands.followPath(follower, blueLineDirect),
-//                        Commands.sleep(5),
-                        Commands.followPath(follower, blueLineUpToPushBlock1)
+                        Commands.followPath(follower, blueLineDirect)
                                 .andThen(Commands.scoreSpecimen(outtakeSubsystem)),
-                        Commands.followPath(follower, pushBlock1ToPushBlock2)
+                        Commands.followPath(follower, blueLineUpToPushBlock1),
+                        Commands.followPath(follower, pushBlock1ToPushBlock2Up)
                                 .andThen(Commands.pickUpPOS(outtakeSubsystem))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
-                        Commands.followPath(follower, pushBlock2ToPushBlock3)
+                        Commands.followPath(follower, pushBlock2UpToPushBlock2),
+                        Commands.sleep(5),
+                        Commands.followPath(follower, pushBlock2ToPushBlock3Up)
                                 .withTimeout(3000),
-                        Commands.followPath(follower, pushBlockToDirect),
+                        Commands.sleep(5),
+                        Commands.followPath(follower, pushBlock3UpToPushBlock3)
+                                .withTimeout(3000),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))

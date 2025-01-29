@@ -159,7 +159,6 @@ public class FieldcentricTELE extends OpMode {
         // Intake Arm Controls
         if(gamepad2.left_stick_y > 0.25) {
             NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
-            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
         if(gamepad2.left_stick_y < -0.25) {
             NintakeArm.setPosition(positions_motor.NIntakeArmExtendedFull);
@@ -219,12 +218,12 @@ public class FieldcentricTELE extends OpMode {
             OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
 
-        if(gamepad2.dpad_up && !lastDpadUp && !transferInProgress) {
+        if(gamepad2.touchpad && !lastDpadUp && !transferInProgress) {
             transferState = 0;
             transferTimer.reset();
             transferInProgress = true;
         }
-        lastDpadUp = gamepad2.dpad_up;
+        lastDpadUp = gamepad2.touchpad;
 
         if(transferInProgress) {
             switch(transferState) {
@@ -244,7 +243,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-                    if(transferTimer.milliseconds() > 1000) {
+                    if(transferTimer.milliseconds() > 500) {
                         transferState = 2;
                         transferTimer.reset();
                     }
@@ -252,7 +251,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
-                    if(transferTimer.milliseconds() > 500) {
+                    if(transferTimer.milliseconds() > 400) {
                         transferState = 3;
                         transferTimer.reset();
                     }
@@ -260,7 +259,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 3:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-                    if(transferTimer.milliseconds() > 500) {
+                    if(transferTimer.milliseconds() > 100) {
                         transferState = 4;
                         transferTimer.reset();
                     }
@@ -268,13 +267,6 @@ public class FieldcentricTELE extends OpMode {
 
                 case 4:
                     NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
-                    if(transferTimer.milliseconds() > 500) {
-                        transferState = 5;
-                        transferTimer.reset();
-                    }
-                    break;
-
-                case 5:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
@@ -312,6 +304,17 @@ public class FieldcentricTELE extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
         }
         if(gamepad2.back) {
+//            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
+            //VIPER UP
+        }
+
+        if(gamepad2.start) {
+//            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+            //VIPER DOWN
+        }
+
+        if(gamepad2.dpad_up)
+        {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
 
