@@ -55,12 +55,12 @@ public class positions_motor {
     public static final double NIntakeWristPivotVertical = 0.585;
 
     public static final double NIntakeWristPivotTransfer = 1;
-    public static final double NIntakeClawOpen = 0.95;
+    public static final double NIntakeClawOpen = 0.9;
 
     public static final double NIntakeClawOpenTransfer = 0.75;
-    public static final double NIntakeClawClose = 0.575;
+    public static final double NIntakeClawClose = 0.56;
 
-    public static final double NIntakeClawCloseFull = 0.525;
+    public static final double NIntakeClawCloseFull = 0.51;
 
 
     //OUTTAKEEE
@@ -72,7 +72,7 @@ public class positions_motor {
 
     public static final double OuttakeWristTransferAuto = 0.27;
 
-    public static final double OuttakeArmTransfer = 0.75;
+    public static final double OuttakeArmTransfer = 0.65;
 
     public static final double OuttakeArmTransferAuto = 0.7;
 
@@ -94,9 +94,9 @@ public class positions_motor {
     public static final double OuttakeArmNewTransferWAIT = 0.8;
     public static final double OuttakeArmPickUpGround = 0.2;
 
-    public static final double OuttakeArmNewHighBar = 0.25;
+    public static final double OuttakeArmNewHighBar = 0.125;
 
-    public static final double OuttakeArmNewHighBarFLICK = 0.16;
+    public static final double OuttakeArmNewHighBarFLICK = 0.04;
 
 
 
@@ -145,7 +145,7 @@ public class positions_motor {
     //0.6 is sticking up
 
     //0.05
-    public static final double OuttakeWristPickUpSpecimen = 0.485;
+    public static final double OuttakeWristPickUpSpecimen = 0.68;
 
 
     public static final double OuttakeWristHighBarMore = 0.6;
@@ -162,7 +162,7 @@ public class positions_motor {
 
     public static final double OuttakeWristPivotHighBar = 0;
 
-    public static final double OuttakeClawOpen = 0.2;
+    public static final double OuttakeClawOpen = 0.1;
     public static final double OuttakeClawClose = 0.55;
 
     public static final int OUTAKE_NEW_VIPER_GROUND = 1500;

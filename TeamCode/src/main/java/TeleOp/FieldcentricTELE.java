@@ -58,6 +58,9 @@ public class FieldcentricTELE extends OpMode {
     private boolean pickupInProgress = false;
     private boolean lastB = false;  // Changed from lastA to lastB for clarity
 
+    private boolean lastDpadLeft = false;
+    private boolean lastDpadRight = false;
+
     @Override
     public void init() {
         // Initialize Pedro Pathing
@@ -135,11 +138,22 @@ public class FieldcentricTELE extends OpMode {
         lastRightBumper = gamepad2.right_bumper;
 
         // Intake Claw Controls
-        if(gamepad2.dpad_left) {
+        if(gamepad2.dpad_left && !lastDpadLeft) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
         }
-        if(gamepad2.dpad_right) {
+        if(gamepad2.dpad_right && !lastDpadRight) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+        }
+        lastDpadLeft = gamepad2.dpad_left;
+        lastDpadRight = gamepad2.dpad_right;
+
+        if(!transferInProgress) {
+            if(gamepad2.dpad_left && !lastDpadLeft) {
+                NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+            }
+            if(gamepad2.dpad_right && !lastDpadRight) {
+                NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+            }
         }
 
         // Intake Arm Controls
@@ -271,11 +285,6 @@ public class FieldcentricTELE extends OpMode {
             }
         }
 
-
-        if(gamepad1.dpad_left)
-        {
-            NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
-        }
 
         if(gamepad1.dpad_right)
         {

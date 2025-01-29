@@ -62,6 +62,8 @@ public class Commands {
         return new FollowPathCommand(follower, path);
     }
 
+
+
     // Add this to your Commands class
     public static Command preloadPosition(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
@@ -120,7 +122,7 @@ public class Commands {
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(300), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
         );
     }

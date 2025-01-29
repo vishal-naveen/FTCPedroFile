@@ -21,7 +21,7 @@ public class ServoTester extends OpMode {
 
     @Override
     public void init() {
-        testServo = hardwareMap.get(Servo.class, "OuttakeWrist");
+        testServo = hardwareMap.get(Servo.class, "OuttakeClaw");
 //        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
         OuttakeArm = hardwareMap.get(Servo.class, "OuttakeArm");
 //        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
