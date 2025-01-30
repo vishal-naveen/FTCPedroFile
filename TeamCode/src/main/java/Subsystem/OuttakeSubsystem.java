@@ -191,7 +191,7 @@ public class OuttakeSubsystem extends SubsystemBase {
             switch(preloadPickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(preloadPickupTimer.milliseconds() > 150) {
+                    if(preloadPickupTimer.milliseconds() > 75) {
                         preloadPickupState = 1;
                         preloadPickupTimer.reset();
                     }
@@ -200,7 +200,7 @@ public class OuttakeSubsystem extends SubsystemBase {
                 case 1:
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(preloadPickupTimer.milliseconds() > 150) {
+                    if(preloadPickupTimer.milliseconds() > 75) {
                         preloadPickupInProgress = false;
                     }
                     break;

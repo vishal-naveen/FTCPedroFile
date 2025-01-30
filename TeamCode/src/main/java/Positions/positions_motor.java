@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class positions_motor {
     // Viper slide positions
-    public static final int VIPER_GROUND = 0;
+    public static final int VIPER_GROUND = 25;
     public static final int VIPER_INT = 915;
     public static final int VIPER_GROUND_AUTO = 1600;
 
@@ -89,7 +89,7 @@ public class positions_motor {
 
     public static final double OuttakeArmPickUpSpecimen = 1;
 
-    public static final double OuttakeArmNewTransfer = 0.92;
+    public static final double OuttakeArmNewTransfer = 0.93;
 
     public static final double OuttakeArmNewTransferWAIT = 0.675;
     public static final double OuttakeArmPickUpGround = 0.2;
