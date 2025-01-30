@@ -44,6 +44,8 @@ public class positions_motor {
     public static final double NIntakeArmExtendedQuater = 0.2;
 
     public static final double NIntakeArmTransfer = 0.268;
+
+    public static final double NIntakeArmSpecimenPickUp = 0.3;
     public static final double NIntakeArmExtendedBack = 0.1;
 
     public static final double NIntakeWristPickUp = 0.9;
