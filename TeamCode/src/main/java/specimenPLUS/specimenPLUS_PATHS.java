@@ -28,19 +28,19 @@ public class specimenPLUS_PATHS {
     private static final Pose blueLineUp = new Pose(55, 33.4, Math.toRadians(0));
     private static final Pose pushBlock1 = new Pose(15, 27.6, Math.toRadians(0));
     private static final Pose pushBlock2 = new Pose(13.5, 20, Math.toRadians(0));
-    private static final Pose pushBlock3 = new Pose(9.5, 13.5, Math.toRadians(0));
+    private static final Pose pushBlock3 = new Pose(12, 13.5, Math.toRadians(-3.5));
     private static final Pose pushBlock2Up = new Pose(52, 20, Math.toRadians(0));
-    private static final Pose pushBlock3Up = new Pose(52, 13.5, Math.toRadians(0));
+    private static final Pose pushBlock3Up = new Pose(52, 13.5, Math.toRadians(-3.5));
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
     private static final Pose pushBlock3Pick = new Pose(16.1, 35, Math.toRadians(0));
     //a
     private static final Pose pickUp = new Pose(10.5, 35, Math.toRadians(0));
-    private static final Pose pickUpAlt = new Pose(10.5, 25.75, Math.toRadians(0));
-    private static final Pose pickUpAlt2 = new Pose(10, 25.85, Math.toRadians(0));
+    private static final Pose pickUpAlt = new Pose(10.25, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt2 = new Pose(9.9, 25.85, Math.toRadians(0));
 
-    private static final Pose pickUpAlt3 = new Pose(9.4, 25.95, Math.toRadians(0));
+    private static final Pose pickUpAlt3 = new Pose(9.2, 25.95, Math.toRadians(0));
 
-    private static final Pose pickUpAlt4 = new Pose(9, 25.95, Math.toRadians(0));
+    private static final Pose pickUpAlt4 = new Pose(8.65, 25.95, Math.toRadians(0));
 
     private static final Pose parkPickUp = new Pose(22.8, 42.5, Math.toRadians(50));
     private static final Pose parkPos = new Pose(13.5, 31.4, Math.toRadians(0));

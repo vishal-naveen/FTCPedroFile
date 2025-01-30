@@ -61,6 +61,14 @@ public class FieldcentricTELE extends OpMode {
     private boolean lastDpadLeft = false;
     private boolean lastDpadRight = false;
 
+
+    private int viperDownState = 0;
+    private ElapsedTime viperDownTimer = new ElapsedTime();
+    private boolean viperDownInProgress = false;
+    private boolean lastStart = false;
+
+
+
     @Override
     public void init() {
         // Initialize Pedro Pathing
@@ -185,7 +193,7 @@ public class FieldcentricTELE extends OpMode {
             switch(pickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(pickupTimer.milliseconds() > lengthWait) {
+                    if(pickupTimer.milliseconds() > 150) {
                         pickupState = 1;
                         pickupTimer.reset();
                     }
@@ -194,7 +202,7 @@ public class FieldcentricTELE extends OpMode {
                 case 1:
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > lengthWait) {
+                    if(pickupTimer.milliseconds() > 50) {
                         pickupInProgress = false;
                     }
                     break;
@@ -210,6 +218,12 @@ public class FieldcentricTELE extends OpMode {
         if(gamepad2.x) {
             OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
             OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBarFLICK);
+        }
+
+        if(gamepad2.dpad_down) {
+            OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransferWAIT);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
         }
 
         if(gamepad2.y) {
@@ -237,19 +251,31 @@ public class FieldcentricTELE extends OpMode {
                     break;
 
                 case 1:
+
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
                     NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-                    if(transferTimer.milliseconds() > 500) {
-                        transferState = 2;
-                        transferTimer.reset();
+                    if(Math.abs(NintakeArm.getPosition() - positions_motor.NIntakeArmTransfer) > 0.1) {
+                        // Arm is extended out, wait longer
+                        if(transferTimer.milliseconds() > 700) {
+                            transferState = 2;
+                            transferTimer.reset();
+                        }
+                    } else {
+                        // Arm is not extended, wait less time
+                        if(transferTimer.milliseconds() > 500) {
+                            transferState = 2;
+                            transferTimer.reset();
+                        }
                     }
+
                     break;
 
                 case 2:
+                    // Close claw with different wait times based on arm position
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
                     if(transferTimer.milliseconds() > 400) {
                         transferState = 3;
@@ -306,12 +332,47 @@ public class FieldcentricTELE extends OpMode {
         if(gamepad2.back) {
 //            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
             //VIPER UP
+            OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
+            OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
+            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+            viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
         }
 
-        if(gamepad2.start) {
-//            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-            //VIPER DOWN
+// Add these state variables at the top of the class with other state variables
+
+
+// Replace the existing start button handler with this state machine
+        if(gamepad2.start && !lastStart && !viperDownInProgress) {
+            viperDownState = 0;
+            viperDownTimer.reset();
+            viperDownInProgress = true;
         }
+        lastStart = gamepad2.start;
+
+        if(viperDownInProgress) {
+            switch(viperDownState) {
+                case 0:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransferWAIT);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    if(viperDownTimer.milliseconds() > 750) {
+                        viperDownState = 1;
+                        viperDownTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
+                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    viperMotor.setPower(1);
+                    viperDownInProgress = false;
+                    break;
+            }
+        }
+
+
 
         if(gamepad2.dpad_up)
         {
@@ -320,20 +381,6 @@ public class FieldcentricTELE extends OpMode {
 
 
         // Telemetry
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("Power", power);
-
-        telemetry.addData("NintakeArm", NintakeArm.getPosition());
-        telemetry.addData("NintakeWrist", NintakeWrist.getPosition());
-        telemetry.addData("NintakeWristPivot", NintakeWristPivot.getPosition());
-        telemetry.addData("NintakeClaw", NintakeClaw.getPosition());
-        telemetry.addData("OuttakeArm", OuttakeArm.getPosition());
-        telemetry.addData("OuttakeWrist", OuttakeWrist.getPosition());
-        telemetry.addData("OuttakeWristPivot", OuttakeWristPivot.getPosition());
-        telemetry.addData("OuttakeClaw", OuttakeClaw.getPosition());
-        telemetry.addData("Viper: ", viperMotor.getCurrentPosition());
         telemetry.update();
     }
 }

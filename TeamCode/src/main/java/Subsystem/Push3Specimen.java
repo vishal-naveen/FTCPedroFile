@@ -30,19 +30,19 @@ public class Push3Specimen {
     private static final Pose pushBlock2Up = new Pose(57.5, 21.6, Math.toRadians(0));
     private static final Pose pushBlock2 = new Pose(13.5, 21.6, Math.toRadians(0));
 
-    private static final Pose pushBlock3Up = new Pose(55, 13.7, Math.toRadians(0));
-    private static final Pose pushBlock3 = new Pose(12.5, 13.7, Math.toRadians(0));
+    private static final Pose pushBlock3Up = new Pose(55, 14.2, Math.toRadians(-7));
+    private static final Pose pushBlock3 = new Pose(12.5, 14.2, Math.toRadians(-7));
 
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
 
     private static final Pose pushBlock3Pick = new Pose(16.1, 35, Math.toRadians(0));
     private static final Pose pickUp = new Pose(12.5, 35, Math.toRadians(0));
 
-    private static final Pose pickUpAlt = new Pose(12.6, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt = new Pose(11.575, 25.75, Math.toRadians(0));
 
-    private static final Pose pickUpAlt2 = new Pose(12.35, 25.85, Math.toRadians(0));
+    private static final Pose pickUpAlt2 = new Pose(11.325, 25.85, Math.toRadians(0));
 
-    private static final Pose pickUpAlt3 = new Pose(12.1, 25.95, Math.toRadians(0));
+    private static final Pose pickUpAlt3 = new Pose(11.1, 25.95, Math.toRadians(0));
 
 
     private static final Pose parkPickUp = new Pose(22.8, 42.5, Math.toRadians(50));
@@ -97,7 +97,7 @@ public class Push3Specimen {
 
     public static PathChain paths() {
 
-        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(6.8, 33.8), new Point(blueLineUp)));
+        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(3.8, 26.8), new Point(blueLineUp)));
         blueLineDirect.setLinearHeadingInterpolation(preload.getHeading(), blueLineUp.getHeading());
 
         blueLineUpToPushBlock1 = new Path(new BezierCurve(new Point(blueLineUp), new Point(61.6, 24.4), new Point(pushBlock1)));

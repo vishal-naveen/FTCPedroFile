@@ -92,6 +92,12 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
+    public static Command preloadPickUpSpecimen(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.preloadPickUpFull();
+        }, outtakeSubsystem);
+    }
+
     public static Command pickUpPOS(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
             outtakeSubsystem.pickUpPOS();
@@ -124,6 +130,14 @@ public class Commands {
                 Commands.closeClaw(outtakeSubsystem),
                 new WaitCommand(100), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
+        );
+    }
+
+    public static Command preloadcloseClawThenScore(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                Commands.closeClaw(outtakeSubsystem),
+                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
+                Commands.preloadPickUpSpecimen(outtakeSubsystem)
         );
     }
 

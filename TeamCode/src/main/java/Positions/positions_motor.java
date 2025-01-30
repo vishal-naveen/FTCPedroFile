@@ -55,12 +55,12 @@ public class positions_motor {
     public static final double NIntakeWristPivotVertical = 0.585;
 
     public static final double NIntakeWristPivotTransfer = 1;
-    public static final double NIntakeClawOpen = 0.9;
+    public static final double NIntakeClawOpen = 0.8;
 
     public static final double NIntakeClawOpenTransfer = 0.75;
-    public static final double NIntakeClawClose = 0.565;
+    public static final double NIntakeClawClose = 0.54;
 
-    public static final double NIntakeClawCloseFull = 0.51;
+    public static final double NIntakeClawCloseFull = 0.5;
 
 
     //OUTTAKEEE
@@ -89,7 +89,7 @@ public class positions_motor {
 
     public static final double OuttakeArmPickUpSpecimen = 1;
 
-    public static final double OuttakeArmNewTransfer = 0.915;
+    public static final double OuttakeArmNewTransfer = 0.92;
 
     public static final double OuttakeArmNewTransferWAIT = 0.675;
     public static final double OuttakeArmPickUpGround = 0.2;
@@ -145,7 +145,7 @@ public class positions_motor {
     //0.6 is sticking up
 
     //0.05
-    public static final double OuttakeWristPickUpSpecimen = 0.68;
+    public static final double OuttakeWristPickUpSpecimen = 0.685;
 
 
     public static final double OuttakeWristHighBarMore = 0.6;

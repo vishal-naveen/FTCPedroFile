@@ -25,6 +25,17 @@ public class OuttakeSubsystem extends SubsystemBase {
     private boolean pickupInProgress = false;
     private ElapsedTime pickupTimer = new ElapsedTime();
 
+
+
+    private int preloadPickupState = 0;
+    private boolean preloadPickupInProgress = false;
+    private ElapsedTime preloadPickupTimer = new ElapsedTime();
+
+    public void preloadPickUpFull() {
+        preloadPickupState = 0;
+        preloadPickupTimer.reset();
+        preloadPickupInProgress = true;
+    }
     public void pickUpFull() {
         pickupState = 0;
         pickupTimer.reset();
@@ -160,7 +171,7 @@ public class OuttakeSubsystem extends SubsystemBase {
             switch(pickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(pickupTimer.milliseconds() > 50) {
+                    if(pickupTimer.milliseconds() > 150) {
                         pickupState = 1;
                         pickupTimer.reset();
                     }
@@ -169,12 +180,34 @@ public class OuttakeSubsystem extends SubsystemBase {
                 case 1:
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > 50) {
+                    if(pickupTimer.milliseconds() > 150) {
                         pickupInProgress = false;
                     }
                     break;
             }
         }
+
+        if(preloadPickupInProgress) {
+            switch(preloadPickupState) {
+                case 0:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+                    if(preloadPickupTimer.milliseconds() > 150) {
+                        preloadPickupState = 1;
+                        preloadPickupTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    if(preloadPickupTimer.milliseconds() > 150) {
+                        preloadPickupInProgress = false;
+                    }
+                    break;
+            }
+        }
+
+
 
         telemetry.addData("Outtake State", currentState);
         telemetry.addData("Claw State", clawState);
