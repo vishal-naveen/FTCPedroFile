@@ -43,7 +43,7 @@ public class positions_motor {
     public static final double NIntakeArmExtendedThird = 0.4;
     public static final double NIntakeArmExtendedQuater = 0.2;
 
-    public static final double NIntakeArmTransfer = 0.2525;
+    public static final double NIntakeArmTransfer = 0.295;
 
     public static final double NIntakeArmSpecimenPickUp = 0.3;
     public static final double NIntakeArmExtendedBack = 0.1;
@@ -62,7 +62,7 @@ public class positions_motor {
     public static final double NIntakeClawOpenTransfer = 0.75;
     public static final double NIntakeClawClose = 0.53;
 
-    public static final double NIntakeClawCloseFull = 0.5;
+    public static final double NIntakeClawCloseFull = 0.475;
 
 
     //OUTTAKEEE

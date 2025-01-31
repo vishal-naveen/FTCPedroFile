@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import Positions.Constants;
+import Positions.positions_motor;
 
 public class BucketSideAutoSubsystem extends SubsystemBase {
     private final Servo NintakeArm, NintakeWrist, NintakeWristPivot, NintakeClaw;
@@ -23,11 +24,56 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     private boolean transferInProgress = false;
     private int transferState = 0;
     private ElapsedTime transferTimer = new ElapsedTime();
+    private boolean isArmExtended = false;
+    private boolean isPivotHorizontal = false;
+
+    private static final double VIPER_HOLDING_POWER = 0.1;
+    private static final int POSITION_TOLERANCE = 20;
+    private boolean isViperAtTarget = false;
+
+    private int viperDownState = 0;
+    private ElapsedTime viperDownTimer = new ElapsedTime();
+    private boolean viperDownInProgress = false;
+
+
 
     public void startTransfer() {
         transferState = 0;
         transferTimer.reset();
         transferInProgress = true;
+        updateArmExtensionState();
+        updatePivotState();
+    }
+
+
+
+
+    private void updateViperMotorState() {
+        if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+            int currentPos = viperMotor.getCurrentPosition();
+            int targetPos = viperMotor.getTargetPosition();
+
+            if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
+                isViperAtTarget = true;
+                viperMotor.setPower(VIPER_HOLDING_POWER);
+            } else {
+                isViperAtTarget = false;
+                viperMotor.setPower(1);
+            }
+        }
+    }
+
+    private void updateArmExtensionState() {
+        // Update based on arm position
+        double currentArmPos = NintakeArm.getPosition();
+        isArmExtended = Math.abs(currentArmPos - Constants.NIntakeArmExtendedFull) < 0.05;
+    }
+
+
+
+    private void updatePivotState() {
+        double pivotPosition = NintakeWristPivot.getPosition();
+        isPivotHorizontal = Math.abs(pivotPosition - Constants.NIntakeWristPivotHorizontal) < 0.05;
     }
 
     public BucketSideAutoSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
@@ -55,8 +101,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     }
 
     public void extendIntakeCross() {
-        NintakeArm.setPosition(Constants.NIntakeArmTransfer);
-        NintakeWrist.setPosition(Constants.NIntakeWristPickUpBefore);
+        NintakeArm.setPosition(Constants.NIntakeArmExtendedThird);
+        NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
         NintakeWristPivot.setPosition(Constants.NIntakeWristPivotVertical);
     }
 
@@ -68,6 +114,10 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
     public void wristDown() {
         NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
+    }
+
+    public void wristUp() {
+        NintakeWrist.setPosition(Constants.NIntakeWristTransfer);
     }
 
 
@@ -87,6 +137,11 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
         NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
         NintakeWristPivot.setPosition(Constants.NIntakeWristPivotHorizontal);
+    }
+
+    public void bucketAuto() {
+        NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
+        NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
     }
 
     public void retractSpecimenInit() {
@@ -111,10 +166,16 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         OuttakeClaw.setPosition(Constants.OuttakeClawClose);
     }
 
+    public void waitPOS() {
+        OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransferWAIT);
+        OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+    }
+
     public void viperDown() {
-        viperMotor.setTargetPosition(Constants.VIPER_GROUND);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperDownState = 0;
+        viperDownTimer.reset();
+        viperDownInProgress = true;
     }
 
     public void setHighBucket() {
@@ -123,13 +184,13 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotHighBar);
         viperMotor.setTargetPosition(Constants.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1);  // updateViperMotorState will manage the actual power
     }
 
     public void setHighBucketViper() {
         viperMotor.setTargetPosition(Constants.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1);  // updateViperMotorState will manage the actual power
     }
     public void setPickupPOS() {
         OuttakeArm.setPosition(Constants.OuttakeArmNewTransfer);
@@ -157,11 +218,16 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (transferInProgress) {
+
+        updateViperMotorState();
+        if(transferInProgress) {
             switch(transferState) {
                 case 0:
-                    NintakeWrist.setPosition(Constants.NIntakeWristTransfer);
-                    OuttakeClaw.setPosition(Constants.OuttakeClawOpen);
+                    updateArmExtensionState(); // Update arm state before starting transfer
+                    NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
+                    OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
+                    NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+
                     if(transferTimer.milliseconds() > 500) {
                         transferState = 1;
                         transferTimer.reset();
@@ -169,69 +235,96 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     break;
 
                 case 1:
-                    NintakeClaw.setPosition(Constants.NIntakeClawCloseFull);
-                    NintakeWristPivot.setPosition(Constants.NIntakeWristPivotTransfer);
-                    NintakeArm.setPosition(Constants.NIntakeArmTransfer);
-                    OuttakeArm.setPosition(Constants.OuttakeArmNewTransfer);
-                    OuttakeWrist.setPosition(Constants.OuttakeWristTransfer);
-                    OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotHighBar);
-                    if(transferTimer.milliseconds() > 1000) {
-                        transferState = 2;
-                        transferTimer.reset();
+                    if(isArmExtended) {
+                        if(transferTimer.milliseconds() <= 450) {
+                            // Do nothing and wait until 300ms has passed
+                        } else {
+                            // Execute movements after 300ms delay
+                            NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
+                            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+                            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+                            OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
+                            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+                            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                            if(transferTimer.milliseconds() > 200) {
+                                transferState = 2;
+                                transferTimer.reset();
+                            }
+                        }
+                    } else {
+                        // Execute movements immediately if not extended
+                        NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
+                        NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+                        OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
+                        OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+                        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                        if(transferTimer.milliseconds() > 200) {
+                            transferState = 2;
+                            transferTimer.reset();
+                        }
                     }
                     break;
 
                 case 2:
-                    OuttakeClaw.setPosition(Constants.OuttakeClawClose);
-                    if(transferTimer.milliseconds() > 1000) {
+                    OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
+                    if(transferTimer.milliseconds() > 400) {
                         transferState = 3;
                         transferTimer.reset();
                     }
                     break;
 
                 case 3:
-                    NintakeClaw.setPosition(Constants.NIntakeClawOpen);
-                    if(transferTimer.milliseconds() > 1000) {
+                    NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+                    if(transferTimer.milliseconds() > 100) {
                         transferState = 4;
                         transferTimer.reset();
                     }
                     break;
 
                 case 4:
-                    NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
-                    if(transferTimer.milliseconds() > 1000) {
-                        transferState = 5;
-                        transferTimer.reset();
-                    }
-                    break;
-
-                case 5:
-                    OuttakeArm.setPosition(Constants.OuttakeArmBucket);
-                    OuttakeWrist.setPosition(Constants.OuttakeWristBucket);
-                    OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotHighBar);
-                    NintakeWristPivot.setPosition(Constants.NIntakeWristPivotHorizontal);
-                    NintakeWrist.setPosition(Constants.NIntakeWristPickUpBefore);
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
+                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+                    viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
+                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    viperMotor.setPower(1);
                     transferInProgress = false;
                     break;
             }
         }
 
-        telemetry.addData("Sequence in Progress", sequenceInProgress);
-        telemetry.addData("Sequence State", sequenceState);
-        telemetry.addData("Timer", sequenceTimer.milliseconds());
-        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
-        telemetry.addData("Viper Target", viperMotor.getTargetPosition());
-        telemetry.addData("Intake Arm", NintakeArm.getPosition());
-        telemetry.addData("Intake Wrist", NintakeWrist.getPosition());
-        telemetry.addData("Intake Pivot", NintakeWristPivot.getPosition());
-        telemetry.addData("Intake Claw", NintakeClaw.getPosition());
-        telemetry.addData("Outtake Arm", OuttakeArm.getPosition());
-        telemetry.addData("Outtake Wrist", OuttakeWrist.getPosition());
-        telemetry.addData("Outtake Pivot", OuttakeWristPivot.getPosition());
-        telemetry.addData("Outtake Claw", OuttakeClaw.getPosition());
-        telemetry.addData("Transfer State", transferState);
-        telemetry.addData("Transfer Timer", transferTimer.milliseconds());
-        telemetry.addData("Transfer In Progress", transferInProgress);
+        if(viperDownInProgress) {
+            switch(viperDownState) {
+                case 0:
+                    // First move the arms to a safe position
+                    OuttakeArm.setPosition(Constants.OuttakeArmNewTransferWAIT);
+                    OuttakeWrist.setPosition(Constants.OuttakeWristPickUpSpecimen);
+                    OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotHighBar);
+
+                    // Wait for arms to reach position before moving viper
+                    if(viperDownTimer.milliseconds() > 750) {
+                        viperDownState = 1;
+                        viperDownTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    // Move viper to ground position
+                    viperMotor.setTargetPosition(Constants.VIPER_GROUND);
+                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    viperMotor.setPower(1);
+                    viperDownInProgress = false;
+                    break;
+            }
+        }
+
+
+
+        telemetry.addData("Viper Power", viperMotor.getPower());
         telemetry.update();
     }
+
+
 }

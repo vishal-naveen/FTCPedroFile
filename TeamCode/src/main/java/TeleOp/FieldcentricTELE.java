@@ -91,7 +91,13 @@ public class FieldcentricTELE extends OpMode {
 
     private boolean isArmExtended = false;
 
+    private boolean isPivotHorizontal = false;
 
+
+    private void updatePivotState() {
+        double pivotPosition = NintakeWristPivot.getPosition();
+        isPivotHorizontal = Math.abs(pivotPosition - positions_motor.NIntakeWristPivotHorizontal) < 0.05;
+    }
     private void updateArmExtensionState() {
         double armPosition = NintakeArm.getPosition();
         // Check if arm is in extended positions
@@ -358,7 +364,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 1:
                     if(isArmExtended) {
-                        if(transferTimer.milliseconds() <= 300) {
+                        if(transferTimer.milliseconds() <= 450) {
                             // Do nothing and wait until 300ms has passed
                         } else {
                             // Execute movements after 300ms delay
@@ -389,7 +395,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
-                    if(transferTimer.milliseconds() > 200) {
+                    if(transferTimer.milliseconds() > 400) {
                         transferState = 3;
                         transferTimer.reset();
                     }

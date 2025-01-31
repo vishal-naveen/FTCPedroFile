@@ -13,6 +13,8 @@ import com.pedropathing.follower.Follower;
 
 import BucketAuto.BucketPathInitializer;
 import BucketAuto.BucketSidePaths;
+import Positions.Commands;
+import Subsystem.OuttakeSubsystem;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -22,9 +24,13 @@ public class BucketSideCommandAuto extends CommandOpMode {
     private Follower follower;
     private BucketSideAutoSubsystem bucketSubsystem;
 
+    private OuttakeSubsystem outtakeSubsystem;  // Declared as class field
+
+
     @Override
     public void initialize() {
         bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
+        outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
@@ -36,7 +42,7 @@ public class BucketSideCommandAuto extends CommandOpMode {
         if(opModeInInit()) {
             bucketSubsystem.preloadOuttake();
             bucketSubsystem.openIntakeClaw();
-            bucketSubsystem.retractIntakeFull();
+            bucketSubsystem.bucketAuto();
             bucketSubsystem.closeOuttakeClaw();
         }
 
@@ -47,7 +53,8 @@ public class BucketSideCommandAuto extends CommandOpMode {
 
                         // Scoring preload
                         CommandsBucket.setHighBucket(bucketSubsystem),
-                        CommandsBucket.sleep(1000),
+                        CommandsBucket.followPath(follower, waitPre),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.followPath(follower, scorePreload),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
@@ -55,53 +62,55 @@ public class BucketSideCommandAuto extends CommandOpMode {
                         CommandsBucket.extendIntake(bucketSubsystem),
 
                         // First cycle - Pickup pixel 1
-                        CommandsBucket.followPath(follower, pickUp1Path),
+                        CommandsBucket.setWaitPOS(bucketSubsystem),
+//                        CommandsBucket.sleep(250),
                         CommandsBucket.setViperDown(bucketSubsystem),
-                        CommandsBucket.sleep(250),
-                        CommandsBucket.pickupAndTransfer(bucketSubsystem)
-                                .andThen(CommandsBucket.sleep(250))
-                                .andThen(CommandsBucket.setHighBucket(bucketSubsystem)),
-                        CommandsBucket.sleep(1500),
-                        // Score pixel 1
+                        CommandsBucket.followPath(follower, pickUp1Path),
+                        CommandsBucket.sleep(500),
+                        CommandsBucket.pickupAndTransfer(bucketSubsystem),
                         CommandsBucket.followPath(follower, score1Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(500),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.extendIntake(bucketSubsystem),
 
 
                         // Second cycle - Pickup pixel 2
-                        CommandsBucket.followPath(follower, pickUp2Path),
+                        CommandsBucket.setWaitPOS(bucketSubsystem),
                         CommandsBucket.setViperDown(bucketSubsystem),
-                        CommandsBucket.sleep(250),
-                        CommandsBucket.pickupAndTransfer(bucketSubsystem)
-                                .andThen(CommandsBucket.sleep(250))
-                                .andThen(CommandsBucket.setHighBucket(bucketSubsystem)),
-                        CommandsBucket.sleep(1500),
-                        // Score pixel 2
+                        CommandsBucket.sleep(100),
+                        CommandsBucket.followPath(follower, pickUp2Path),
+                        CommandsBucket.sleep(500),
+                        CommandsBucket.pickupAndTransfer(bucketSubsystem),
                         CommandsBucket.followPath(follower, score2Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(500),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.extendIntakeCross(bucketSubsystem),
 
 
                         // Third cycle - Pickup pixel 3
-                        CommandsBucket.followPath(follower, pickUp3Path),
-                        CommandsBucket.extendIntakeCross(bucketSubsystem),
+                        CommandsBucket.setWaitPOS(bucketSubsystem),
                         CommandsBucket.setViperDown(bucketSubsystem),
-                        CommandsBucket.sleep(250),
-                        CommandsBucket.pickupAndTransferCross(bucketSubsystem)
-                                .andThen(CommandsBucket.sleep(250))
-                                .andThen(CommandsBucket.setHighBucket(bucketSubsystem)),
+                        CommandsBucket.followPath(follower, pickUpPath3PRE),
+                        CommandsBucket.sleep(50),
+                        CommandsBucket.followPath(follower, pickUp3Path),
                         CommandsBucket.sleep(500),
-                        // Score pixel 3
+                        CommandsBucket.justPickUPCross(bucketSubsystem),
+                        CommandsBucket.sleep(50),
+                        CommandsBucket.followPath(follower, pickUpPath3Grab),
+                        CommandsBucket.sleep(250),
+                        CommandsBucket.justTransferCross(bucketSubsystem),
+                        CommandsBucket.sleep(50),
                         CommandsBucket.followPath(follower, score3Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(500),
-                        CommandsBucket.pickUpPOS(bucketSubsystem),
+                        CommandsBucket.sleep(250),
+                        CommandsBucket.setWaitPOS(bucketSubsystem),
                         CommandsBucket.setViperDown(bucketSubsystem),
+                        CommandsBucket.followPath(follower, parkPath),
+                        CommandsBucket.sleep(500),
+                        Commands.scoreSpecimen(outtakeSubsystem),
                         CommandsBucket.sleep(1500)
                 )
         );

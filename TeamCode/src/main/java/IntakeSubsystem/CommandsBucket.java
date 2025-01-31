@@ -120,6 +120,10 @@ public class CommandsBucket {
         return new InstantCommand(() -> subsystem.viperDown(), subsystem);
     }
 
+    public static Command setWaitPOS(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.waitPOS(), subsystem);
+    }
+
     public static Command parkOuttake(BucketSideAutoSubsystem subsystem) {
         return new InstantCommand(() -> subsystem.parkOuttake(), subsystem);
     }
@@ -128,15 +132,21 @@ public class CommandsBucket {
         return new InstantCommand(() -> subsystem.wristDown(), subsystem);
     }
 
+    public static Command wristUp(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.wristUp(), subsystem);
+    }
+
+
+
     // Sequences
     public static Command pickupSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 openIntakeClaw(subsystem),
                 wristDown(subsystem),
-                new WaitCommand(500),
+                new WaitCommand(250),
                 closeIntakeClaw(subsystem),
-                new WaitCommand(500),
-                retractIntakeTransfer(subsystem)
+                new WaitCommand(250),
+                wristUp(subsystem)
         );
     }
 
@@ -152,6 +162,18 @@ public class CommandsBucket {
                 retractIntakeTransfer(subsystem)
         );
     }
+
+    public static Command justClawGrab(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                openIntakeClaw(subsystem),
+                wristDown(subsystem),
+                new WaitCommand(500),
+                closeIntakeClaw(subsystem),
+                new WaitCommand(100),
+                IntakePivotHorizontal(subsystem)
+        );
+    }
+
 
     public static Command transferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
@@ -172,6 +194,18 @@ public class CommandsBucket {
         return new SequentialCommandGroup(
                 pickupSequenceCross(subsystem),
                 new WaitCommand(500),
+                transferSequence(subsystem)
+        );
+    }
+
+    public static Command justPickUPCross(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                justClawGrab(subsystem)
+        );
+    }
+
+    public static Command justTransferCross(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
                 transferSequence(subsystem)
         );
     }

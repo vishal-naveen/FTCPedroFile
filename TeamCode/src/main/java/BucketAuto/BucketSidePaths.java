@@ -37,12 +37,15 @@ public class BucketSidePaths {
     // Poses
     private static final Pose startPose = new Pose(9, 111, Math.toRadians(180));
     private static final Pose scorePose = new Pose(18, 127.6, Math.toRadians(140));
-    private static final Pose pickUpBlock1Pos = new Pose(25.25, 121.96, Math.toRadians(180));
-    private static final Pose pickUpBlock2Pos = new Pose(25.25, 131.8, Math.toRadians(180));
-    private static final Pose pickUpBlock3Pos = new Pose(45.9, 127.45, Math.toRadians(270));
-    private static final Pose park = new Pose(62.6, 98.2, Math.toRadians(270));
+    private static final Pose pickUpBlock1Pos = new Pose(24, 123.5, Math.toRadians(170));
+    private static final Pose pickUpBlock2Pos = new Pose(25.5, 133.3, Math.toRadians(175));
+
+    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 123.6, Math.toRadians(260));
+    private static final Pose pickUpBlock3Pos = new Pose(45.9, 128.5, Math.toRadians(260));
+    private static final Pose park = new Pose(62.6, 95.2, Math.toRadians(270));
 
     // Paths
+    public static Path waitPre;
     public static Path scorePreload;
     public static Path pickUp1Path;
     public static Path pickUp2Path;
@@ -52,13 +55,19 @@ public class BucketSidePaths {
     public static Path score3Path;
     public static Path parkPath;
 
+    public static Path pickUpPath3PRE;
+    public static Path pickUpPath3Grab;
+
     public BucketSidePaths(Follower follower) {
         BucketSidePaths.follower = follower;
     }
 
     public static PathChain paths() {
+
+        waitPre = new Path(new BezierLine(new Point(startPose),  new Point(pickUpBlock1Pos)));
+        waitPre.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
         // Preload path to score
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
+        scorePreload = new Path(new BezierLine(new Point(pickUpBlock1Pos), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 
         // Path to first pickup
@@ -78,11 +87,18 @@ public class BucketSidePaths {
         score2Path.setLinearHeadingInterpolation(pickUpBlock2Pos.getHeading(), scorePose.getHeading());
 
         // Path to third pickup
-        pickUp3Path = new Path(new BezierLine(new Point(scorePose), new Point(pickUpBlock3Pos)));
-        pickUp3Path.setLinearHeadingInterpolation(scorePose.getHeading(), pickUpBlock3Pos.getHeading());
+
+        pickUpPath3PRE = new Path(new BezierLine(new Point(scorePose),  new Point(pickUpBlock3BEFORE)));
+        pickUpPath3PRE.setLinearHeadingInterpolation(scorePose.getHeading(), pickUpBlock3Pos.getHeading());
+
+        pickUp3Path = new Path(new BezierLine(new Point(pickUpBlock3BEFORE),  new Point(pickUpBlock3Pos)));
+        pickUp3Path.setConstantHeadingInterpolation(pickUpBlock3BEFORE.getHeading());
+
+        pickUpPath3Grab = new Path(new BezierLine(new Point(pickUpBlock3Pos),  new Point(pickUpBlock3BEFORE)));
+        pickUpPath3Grab.setConstantHeadingInterpolation(pickUpBlock3BEFORE.getHeading());
 
         // Score third block
-        score3Path = new Path(new BezierLine(new Point(pickUpBlock3Pos), new Point(scorePose)));
+        score3Path = new Path(new BezierLine(new Point(pickUpBlock3BEFORE), new Point(scorePose)));
         score3Path.setLinearHeadingInterpolation(pickUpBlock3Pos.getHeading(), scorePose.getHeading());
 
         // Park path
@@ -91,6 +107,7 @@ public class BucketSidePaths {
 
         // Return as a PathChain
         return follower.pathBuilder()
+                .addPath(waitPre)
                 .addPath(scorePreload)
                 .addPath(pickUp1Path)
                 .addPath(score1Path)
@@ -99,6 +116,8 @@ public class BucketSidePaths {
                 .addPath(pickUp3Path)
                 .addPath(score3Path)
                 .addPath(parkPath)
+                .addPath(pickUpPath3PRE)
+                .addPath(pickUpPath3Grab)
                 .build();
     }
 }
