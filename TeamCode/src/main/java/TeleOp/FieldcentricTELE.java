@@ -263,30 +263,28 @@ public class FieldcentricTELE extends OpMode {
         if(gamepad2.dpad_left && !lastDpadLeft) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
         }
-        if(gamepad2.dpad_right && !lastDpadRight && !intakeCloseInProgress) {
-            intakeCloseState = 0;
-            intakeCloseTimer.reset();
-            intakeCloseInProgress = true;
+        if(gamepad2.dpad_right && !lastDpadRight) {
+            NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+
         }
         lastDpadLeft = gamepad2.dpad_left;
         lastDpadRight = gamepad2.dpad_right;
 
-        if(intakeCloseInProgress) {
-            switch(intakeCloseState) {
-                case 0:
-                    NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
-                    if(intakeCloseTimer.milliseconds() > 200) {
-                        intakeCloseState = 1;
-                        intakeCloseTimer.reset();
-                    }
-                    break;
-
-                case 1:
-                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-                    intakeCloseInProgress = false;
-                    break;
-            }
-        }
+//        if(intakeCloseInProgress) {
+//            switch(intakeCloseState) {
+//                case 0:
+//                    if(intakeCloseTimer.milliseconds() > 200) {
+//                        intakeCloseState = 1;
+//                        intakeCloseTimer.reset();
+//                    }
+//                    break;
+//
+//                case 1:
+//                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+//                    intakeCloseInProgress = false;
+//                    break;
+//            }
+//        }
 
         if(gamepad2.b && !lastB && !pickupInProgress) {
             pickupState = 0;
@@ -547,6 +545,7 @@ public class FieldcentricTELE extends OpMode {
         telemetry.addData("viper target ", viperMotor.getTargetPosition());
         telemetry.addData("viper pos ", viperMotor.getCurrentPosition());
         telemetry.addData("Ground Timer Active", isGroundTimerActive);
+        telemetry.addData("intake wrist pivot ", NintakeWristPivot.getPosition());
         if (isGroundTimerActive) {
             telemetry.addData("Time until power off", (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);
         }

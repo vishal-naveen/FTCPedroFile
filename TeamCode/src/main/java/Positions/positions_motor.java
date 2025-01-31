@@ -147,7 +147,7 @@ public class positions_motor {
     //0.6 is sticking up
 
     //0.05
-    public static final double OuttakeWristPickUpSpecimen = 0.6925;
+    public static final double OuttakeWristPickUpSpecimen = 0.695;
 
 
     public static final double OuttakeWristHighBarMore = 0.6;
