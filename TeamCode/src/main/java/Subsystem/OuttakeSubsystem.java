@@ -171,16 +171,23 @@ public class OuttakeSubsystem extends SubsystemBase {
             switch(pickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(pickupTimer.milliseconds() > 150) {
+                    if(pickupTimer.milliseconds() > 90) {
                         pickupState = 1;
-                        pickupTimer.reset();
+                        pickupTimer.reset();  // Reset timer for next state
                     }
                     break;
 
                 case 1:
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > 150) {
+                    if(pickupTimer.milliseconds() > 500) {
+                        pickupState = 2;
+                        pickupTimer.reset();  // Reset timer for next state
+                    }
+                    break;
+
+                case 2:
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    if(pickupTimer.milliseconds() > 150) {  // Added appropriate delay
                         pickupInProgress = false;
                     }
                     break;
@@ -191,7 +198,8 @@ public class OuttakeSubsystem extends SubsystemBase {
             switch(preloadPickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(preloadPickupTimer.milliseconds() > 75) {
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    if(preloadPickupTimer.milliseconds() > 300) {
                         preloadPickupState = 1;
                         preloadPickupTimer.reset();
                     }
@@ -199,7 +207,6 @@ public class OuttakeSubsystem extends SubsystemBase {
 
                 case 1:
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
                     if(preloadPickupTimer.milliseconds() > 75) {
                         preloadPickupInProgress = false;
                     }

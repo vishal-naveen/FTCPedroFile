@@ -85,6 +85,20 @@ public class FieldcentricTELE extends OpMode {
     private boolean isManualResetActive = false;
     private boolean lastLeftBumper1 = false; // for gamepad1 left bumper
 
+    private int intakeCloseState = 0;
+    private ElapsedTime intakeCloseTimer = new ElapsedTime();
+    private boolean intakeCloseInProgress = false;
+
+    private boolean isArmExtended = false;
+
+
+    private void updateArmExtensionState() {
+        double armPosition = NintakeArm.getPosition();
+        // Check if arm is in extended positions
+        isArmExtended = (armPosition == positions_motor.NIntakeArmExtendedFull ||
+                armPosition == positions_motor.NIntakeArmExtendedBack);
+    }
+
     private void cancelGroundTimer() {
         if (isGroundTimerActive) {
             isGroundTimerActive = false;
@@ -244,8 +258,29 @@ public class FieldcentricTELE extends OpMode {
         if(gamepad2.dpad_left && !lastDpadLeft) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
         }
-        if(gamepad2.dpad_right && !lastDpadRight) {
-            NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+        if(gamepad2.dpad_right && !lastDpadRight && !intakeCloseInProgress) {
+            intakeCloseState = 0;
+            intakeCloseTimer.reset();
+            intakeCloseInProgress = true;
+        }
+        lastDpadRight = gamepad2.dpad_right;
+
+// Add this state machine in the loop() method
+        if(intakeCloseInProgress) {
+            switch(intakeCloseState) {
+                case 0:
+                    NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+                    if(intakeCloseTimer.milliseconds() > 100) {
+                        intakeCloseState = 1;
+                        intakeCloseTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+                    intakeCloseInProgress = false;
+                    break;
+            }
         }
         lastDpadLeft = gamepad2.dpad_left;
         lastDpadRight = gamepad2.dpad_right;
@@ -333,8 +368,11 @@ public class FieldcentricTELE extends OpMode {
             cancelGroundTimer();
             switch(transferState) {
                 case 0:
+                    updateArmExtensionState(); // Update arm state before starting transfer
                     NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
+                    NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+
                     if(transferTimer.milliseconds() > 500) {
                         transferState = 1;
                         transferTimer.reset();
@@ -342,23 +380,37 @@ public class FieldcentricTELE extends OpMode {
                     break;
 
                 case 1:
-
-                    NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
-                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                    NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
-                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-                        // Arm is not extended, wait less time
+                    if(isArmExtended) {
+                        if(transferTimer.milliseconds() <= 300) {
+                            // Do nothing and wait until 300ms has passed
+                        } else {
+                            // Execute movements after 300ms delay
+                            NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
+                            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+                            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+                            OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
+                            OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+                            OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                            if(transferTimer.milliseconds() > 200) {
+                                transferState = 2;
+                                transferTimer.reset();
+                            }
+                        }
+                    } else {
+                        // Execute movements immediately if not extended
+                        NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
+                        NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+                        OuttakeArm.setPosition(positions_motor.OuttakeArmNewTransfer);
+                        OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
+                        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                         if(transferTimer.milliseconds() > 200) {
                             transferState = 2;
                             transferTimer.reset();
                         }
-
+                    }
                     break;
 
                 case 2:
-                    // Close claw with different wait times based on arm position
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
                     if(transferTimer.milliseconds() > 400) {
                         transferState = 3;
@@ -375,7 +427,6 @@ public class FieldcentricTELE extends OpMode {
                     break;
 
                 case 4:
-//                    NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
                     OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
