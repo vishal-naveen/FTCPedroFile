@@ -31,14 +31,14 @@ public class Push3Specimen {
     private static final Pose pushBlock2 = new Pose(13.5, 21.6, Math.toRadians(0));
 
     private static final Pose pushBlock3Up = new Pose(55, 14.2, Math.toRadians(-7));
-    private static final Pose pushBlock3 = new Pose(12.5, 14.2, Math.toRadians(-7));
+    private static final Pose pushBlock3 = new Pose(14.5, 14.2, Math.toRadians(-7));
 
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
 
     private static final Pose pushBlock3Pick = new Pose(16.1, 35, Math.toRadians(0));
     private static final Pose pickUp = new Pose(12.5, 35, Math.toRadians(0));
 
-    private static final Pose pickUpAlt = new Pose(11.775, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt = new Pose(11.975, 25.75, Math.toRadians(0));
 
     private static final Pose pickUpAlt2 = new Pose(11.525, 25.85, Math.toRadians(0));
 

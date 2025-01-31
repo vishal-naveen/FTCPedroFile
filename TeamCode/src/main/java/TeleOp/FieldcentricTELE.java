@@ -260,13 +260,7 @@ public class FieldcentricTELE extends OpMode {
         }
 
         // Intake Arm Controls
-        if(gamepad2.left_stick_y > 0.25) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
-        }
-        if(gamepad2.left_stick_y < -0.25) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmExtendedFull);
-            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
-        }
+
 
 //        if(gamepad2.b)
 //        {
@@ -356,7 +350,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristTransfer);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                         // Arm is not extended, wait less time
-                        if(transferTimer.milliseconds() > 500) {
+                        if(transferTimer.milliseconds() > 200) {
                             transferState = 2;
                             transferTimer.reset();
                         }
@@ -381,7 +375,7 @@ public class FieldcentricTELE extends OpMode {
                     break;
 
                 case 4:
-                    NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
+//                    NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
                     OuttakeArm.setPosition(positions_motor.OuttakeArmBucket);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristBucket);
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
@@ -408,6 +402,22 @@ public class FieldcentricTELE extends OpMode {
             NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
         }
 
+
+        if(gamepad2.left_stick_y > 0.5) {
+            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+        }
+        if(gamepad2.left_stick_y < -0.5) {
+            NintakeArm.setPosition(positions_motor.NIntakeArmExtendedFull);
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
+        }
+
+        if(gamepad2.right_stick_y > 0.5) {
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+        }
+        if(gamepad2.right_stick_y < -0.5) {
+            NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
+        }
+
         // Outtake Claw Controls
         if(gamepad2.left_trigger > 0.25) {
             OuttakeClaw.setPosition(positions_motor.OuttakeClawOpen);
@@ -417,12 +427,7 @@ public class FieldcentricTELE extends OpMode {
         }
 
         // Intake Wrist Controls
-        if(gamepad2.right_stick_y > 0.25) {
-            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-        }
-        if(gamepad2.right_stick_y < -0.25) {
-            NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
-        }
+
         if(gamepad2.back) {
             cancelGroundTimer();
 //            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);

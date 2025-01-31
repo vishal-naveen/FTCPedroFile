@@ -136,7 +136,7 @@ public class Commands {
     public static Command preloadcloseClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(75), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.preloadPickUpSpecimen(outtakeSubsystem)
         );
     }
