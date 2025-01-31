@@ -31,7 +31,7 @@ public class Push3Specimen {
     private static final Pose pushBlock2 = new Pose(13.5, 21.6, Math.toRadians(0));
 
     private static final Pose pushBlock3Up = new Pose(55, 14.2, Math.toRadians(-7));
-    private static final Pose pushBlock3 = new Pose(14.5, 14.2, Math.toRadians(-7));
+    private static final Pose pushBlock3 = new Pose(14.15, 14.2, Math.toRadians(-7));
 
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
 
@@ -97,7 +97,7 @@ public class Push3Specimen {
 
     public static PathChain paths() {
 
-        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(3.8, 26.8), new Point(blueLineUp)));
+        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(21.8, 74), new Point(13.2, 31.9),new Point(blueLineUp)));
         blueLineDirect.setLinearHeadingInterpolation(preload.getHeading(), blueLineUp.getHeading());
 
         blueLineUpToPushBlock1 = new Path(new BezierCurve(new Point(blueLineUp), new Point(61.6, 24.4), new Point(pushBlock1)));

@@ -70,7 +70,7 @@ public class specimenPLUS_MAIN extends CommandOpMode {
                                 .withTimeout(3000),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(25))
+                                .andThen(Commands.sleep(150))
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
                                 .andThen(Commands.flick(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
@@ -82,7 +82,7 @@ public class specimenPLUS_MAIN extends CommandOpMode {
 
                         // Second scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(25))
+                                .andThen(Commands.sleep(100))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
@@ -93,7 +93,7 @@ public class specimenPLUS_MAIN extends CommandOpMode {
 
                         // Third scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(25))
+                                .andThen(Commands.sleep(100))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(300))
@@ -103,7 +103,7 @@ public class specimenPLUS_MAIN extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, score3ToPickUp)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(25))
+                                .andThen(Commands.sleep(100))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))
@@ -113,7 +113,6 @@ public class specimenPLUS_MAIN extends CommandOpMode {
                                 .andThen(Commands.followPath(follower, score4ToPickUp)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(50))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore5))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore5ToScore5).withTimeout(300))

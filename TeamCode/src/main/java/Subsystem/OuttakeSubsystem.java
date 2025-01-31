@@ -32,14 +32,20 @@ public class OuttakeSubsystem extends SubsystemBase {
     private ElapsedTime preloadPickupTimer = new ElapsedTime();
 
     public void preloadPickUpFull() {
-        preloadPickupState = 0;
-        preloadPickupTimer.reset();
-        preloadPickupInProgress = true;
+//        preloadPickupState = 0;
+//        preloadPickupTimer.reset();
+//        preloadPickupInProgress = true;
+        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+        OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
     }
     public void pickUpFull() {
-        pickupState = 0;
-        pickupTimer.reset();
-        pickupInProgress = true;
+//        pickupState = 0;
+//        pickupTimer.reset();
+//        pickupInProgress = true;
+        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
+        OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
     }
 
 
@@ -168,26 +174,20 @@ public class OuttakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if(pickupInProgress) {
+
             switch(pickupState) {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    if(pickupTimer.milliseconds() > 90) {
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    if(pickupTimer.milliseconds() > 500) {
                         pickupState = 1;
                         pickupTimer.reset();  // Reset timer for next state
                     }
                     break;
 
                 case 1:
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > 500) {
-                        pickupState = 2;
-                        pickupTimer.reset();  // Reset timer for next state
-                    }
-                    break;
-
-                case 2:
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-                    if(pickupTimer.milliseconds() > 150) {  // Added appropriate delay
+                    if(pickupTimer.milliseconds() > 50) {
                         pickupInProgress = false;
                     }
                     break;

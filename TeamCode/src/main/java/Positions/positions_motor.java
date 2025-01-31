@@ -89,7 +89,7 @@ public class positions_motor {
     public static final double OuttakeArmAutoLoading = 0.8;
     public static final double OuttakeArmHighBarFlick = 0.18;
 
-    public static final double OuttakeArmPickUpSpecimen = 0.9785;
+    public static final double OuttakeArmPickUpSpecimen = 0.985;
 
     public static final double OuttakeArmNewTransfer = 0.93;
 

@@ -254,7 +254,6 @@ public class FieldcentricTELE extends OpMode {
         }
         lastRightBumper = gamepad2.right_bumper;
 
-        // Intake Claw Controls
         if(gamepad2.dpad_left && !lastDpadLeft) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
         }
@@ -263,14 +262,14 @@ public class FieldcentricTELE extends OpMode {
             intakeCloseTimer.reset();
             intakeCloseInProgress = true;
         }
+        lastDpadLeft = gamepad2.dpad_left;
         lastDpadRight = gamepad2.dpad_right;
 
-// Add this state machine in the loop() method
         if(intakeCloseInProgress) {
             switch(intakeCloseState) {
                 case 0:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
-                    if(intakeCloseTimer.milliseconds() > 100) {
+                    if(intakeCloseTimer.milliseconds() > 200) {
                         intakeCloseState = 1;
                         intakeCloseTimer.reset();
                     }
@@ -282,28 +281,6 @@ public class FieldcentricTELE extends OpMode {
                     break;
             }
         }
-        lastDpadLeft = gamepad2.dpad_left;
-        lastDpadRight = gamepad2.dpad_right;
-
-        if(!transferInProgress) {
-            if(gamepad2.dpad_left && !lastDpadLeft) {
-                NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-            }
-            if(gamepad2.dpad_right && !lastDpadRight) {
-                NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
-            }
-        }
-
-        // Intake Arm Controls
-
-
-//        if(gamepad2.b)
-//        {
-//        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-//        OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-//        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
-//
-//        }
 
         if(gamepad2.b && !lastB && !pickupInProgress) {
             pickupState = 0;
@@ -412,7 +389,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.OuttakeClawClose);
-                    if(transferTimer.milliseconds() > 400) {
+                    if(transferTimer.milliseconds() > 200) {
                         transferState = 3;
                         transferTimer.reset();
                     }
