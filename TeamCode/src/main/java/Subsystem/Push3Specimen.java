@@ -10,19 +10,19 @@ public class Push3Specimen {
     // Poses
     private static final Pose startPose = new Pose(8.4, 62.8, Math.toRadians(0));
     private static final Pose preload = new Pose(42, 76.2, Math.toRadians(0));
-    private static final Pose preloadBefore = new Pose(36, 76.2, Math.toRadians(0));
+    private static final Pose preloadBefore = new Pose(35, 76.2, Math.toRadians(0));
     private static final Pose preloadToBackPos = new Pose(23.3, 68.1, Math.toRadians(0));
 
     // Score poses updated with before positions
-    private static final Pose scoreBlock1 = new Pose(41.25, 77.2, Math.toRadians(0));
-    private static final Pose scoreBlockBefore1 = new Pose(36, 77.2, Math.toRadians(0));
-    private static final Pose scoreBlock2 = new Pose(41.25, 76.8, Math.toRadians(0));
-    private static final Pose scoreBlockBefore2 = new Pose(37, 76.8, Math.toRadians(0));
-    private static final Pose scoreBlock3 = new Pose(41.25, 76.4, Math.toRadians(0));
-    private static final Pose scoreBlockBefore3 = new Pose(36, 76.4, Math.toRadians(0));
+    private static final Pose scoreBlock1 = new Pose(40, 77.2, Math.toRadians(0));
+    private static final Pose scoreBlockBefore1 = new Pose(35.5, 77.2, Math.toRadians(0));
+    private static final Pose scoreBlock2 = new Pose(40, 76.8, Math.toRadians(0));
+    private static final Pose scoreBlockBefore2 = new Pose(35.5, 76.8, Math.toRadians(0));
+    private static final Pose scoreBlock3 = new Pose(40, 76.4, Math.toRadians(0));
+    private static final Pose scoreBlockBefore3 = new Pose(35.5, 76.4, Math.toRadians(0));
 
-    private static final Pose scoreBlock4 = new Pose(41.25, 76, Math.toRadians(0));
-    private static final Pose scoreBlockBefore4 = new Pose(36, 76, Math.toRadians(0));
+    private static final Pose scoreBlock4 = new Pose(40, 76, Math.toRadians(0));
+    private static final Pose scoreBlockBefore4 = new Pose(35.5, 76, Math.toRadians(0));
 
     private static final Pose blueLineUp = new Pose(60, 34.8, Math.toRadians(0));
     private static final Pose pushBlock1 = new Pose(15, 28, Math.toRadians(0));
@@ -30,19 +30,19 @@ public class Push3Specimen {
     private static final Pose pushBlock2Up = new Pose(57.5, 21.6, Math.toRadians(0));
     private static final Pose pushBlock2 = new Pose(13.5, 21.6, Math.toRadians(0));
 
-    private static final Pose pushBlock3Up = new Pose(55, 14.2, Math.toRadians(-7));
-    private static final Pose pushBlock3 = new Pose(17.15, 14.2, Math.toRadians(-7));
+    private static final Pose pushBlock3Up = new Pose(55, 13.4, Math.toRadians(-7));
+    private static final Pose pushBlock3 = new Pose(14.8, 13.4, Math.toRadians(-7));
 
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
 
     private static final Pose pushBlock3Pick = new Pose(16.1, 35, Math.toRadians(0));
     private static final Pose pickUp = new Pose(12.5, 35, Math.toRadians(0));
 
-    private static final Pose pickUpAlt = new Pose(12, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt = new Pose(10.8, 25.75, Math.toRadians(0));
 
-    private static final Pose pickUpAlt2 = new Pose(10.525, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt2 = new Pose(10.1, 25.85, Math.toRadians(-6));
 
-    private static final Pose pickUpAlt3 = new Pose(10.3, 25.75, Math.toRadians(0));
+    private static final Pose pickUpAlt3 = new Pose(9.2, 25.95, Math.toRadians(-6));
 
 
     private static final Pose parkPickUp = new Pose(22.8, 42.5, Math.toRadians(50));
@@ -97,7 +97,7 @@ public class Push3Specimen {
 
     public static PathChain paths() {
 
-        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(21.8, 74), new Point(13.2, 31.9),new Point(blueLineUp)));
+        blueLineDirect = new Path(new BezierCurve(new Point(preload), new Point(21.8, 74), new Point(13.2, 25),new Point(blueLineUp)));
         blueLineDirect.setLinearHeadingInterpolation(preload.getHeading(), blueLineUp.getHeading());
 
         blueLineUpToPushBlock1 = new Path(new BezierCurve(new Point(blueLineUp), new Point(61.6, 24.4), new Point(pushBlock1)));
@@ -123,11 +123,11 @@ public class Push3Specimen {
         pushToScoreBefore1.setLinearHeadingInterpolation(pushBlock3.getHeading(), scoreBlockBefore1.getHeading());
 
         preloadBeforePath = new Path(new BezierLine(new Point(startPose), new Point(preloadBefore)));
-        preloadBeforePath.setLinearHeadingInterpolation(preloadBefore.getHeading(), preload.getHeading());
+        preloadBeforePath.setLinearHeadingInterpolation(startPose.getHeading(), preloadBefore.getHeading());
 
         // Preload paths
         scorePreload = new Path(new BezierLine(new Point(preloadBefore), new Point(preload)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preloadBefore.getHeading());
+        scorePreload.setLinearHeadingInterpolation(preloadBefore.getHeading(), preload.getHeading());
 
 
 
@@ -145,14 +145,14 @@ public class Push3Specimen {
         pushBlock2ToPushBlock3.setLinearHeadingInterpolation(pushBlock2.getHeading(), pushBlock3.getHeading());
 
         pushBlockToDirect = new Path(new BezierCurve(new Point(pushBlock3), new Point(100, 9.2), new Point(pushBlock3Direct)));
-        pushBlockToDirect.setLinearHeadingInterpolation(pushBlock2.getHeading(), pushBlock3.getHeading());
+        pushBlockToDirect.setLinearHeadingInterpolation(pushBlock3.getHeading(), pushBlock3Direct.getHeading());
 
         // Score 1 paths
 
 
         //push to pick up
         pushBlock3ToPickUp = new Path(new BezierCurve(new Point(pushBlock3), new Point(27.2, 24), new Point(pushBlock3Pick)));
-        pushBlock3ToPickUp.setLinearHeadingInterpolation(pushBlock3.getHeading(), pickUp.getHeading());
+        pushBlock3ToPickUp.setLinearHeadingInterpolation(pushBlock3.getHeading(), pushBlock3Pick.getHeading());
 
 
 
@@ -164,38 +164,38 @@ public class Push3Specimen {
         scoreBefore1ToScore1.setLinearHeadingInterpolation(scoreBlockBefore1.getHeading(), scoreBlock1.getHeading());
 
         score1ToPickUp = new Path(new BezierCurve(new Point(scoreBlock1), new Point(17.9, 69.2),new Point(pickUpAlt)));
-        score1ToPickUp.setLinearHeadingInterpolation(scoreBlock1.getHeading(), pickUp.getHeading());
+        score1ToPickUp.setLinearHeadingInterpolation(scoreBlock1.getHeading(), pickUpAlt.getHeading());
 
 
 
         // Score 2 paths
         pickUpToScoreBefore2 = new Path(new BezierLine(new Point(pickUpAlt), new Point(scoreBlockBefore2)));
-        pickUpToScoreBefore2.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlockBefore2.getHeading());
+        pickUpToScoreBefore2.setLinearHeadingInterpolation(pickUpAlt.getHeading(), scoreBlockBefore2.getHeading());
 
         scoreBefore2ToScore2 = new Path(new BezierLine(new Point(scoreBlockBefore2), new Point(scoreBlock2)));
         scoreBefore2ToScore2.setLinearHeadingInterpolation(scoreBlockBefore2.getHeading(), scoreBlock2.getHeading());
 
-        score2ToPickUp = new Path(new BezierCurve(new Point(scoreBlock2), new Point(17.9, 69.2),new Point(pickUpAlt)));
-        score2ToPickUp.setLinearHeadingInterpolation(scoreBlock2.getHeading(), pickUp.getHeading());
+        score2ToPickUp = new Path(new BezierCurve(new Point(scoreBlock2), new Point(17.9, 69.2),new Point(pickUpAlt2)));
+        score2ToPickUp.setLinearHeadingInterpolation(scoreBlock2.getHeading(), pickUpAlt2.getHeading());
 
         // Score 3 paths
-        pickUpToScoreBefore3 = new Path(new BezierLine(new Point(pickUpAlt),  new Point(scoreBlockBefore3)));
-        pickUpToScoreBefore3.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlockBefore3.getHeading());
+        pickUpToScoreBefore3 = new Path(new BezierLine(new Point(pickUpAlt2),  new Point(scoreBlockBefore3)));
+        pickUpToScoreBefore3.setLinearHeadingInterpolation(pickUpAlt2.getHeading(), scoreBlockBefore3.getHeading());
 
         scoreBefore3ToScore3 = new Path(new BezierLine(new Point(scoreBlockBefore3), new Point(scoreBlock3)));
         scoreBefore3ToScore3.setLinearHeadingInterpolation(scoreBlockBefore3.getHeading(), scoreBlock3.getHeading());
 
-        score3ToPickUp = new Path(new BezierCurve(new Point(scoreBlock3), new Point(17.9, 69.2), new Point(pickUpAlt)));
-        score3ToPickUp.setLinearHeadingInterpolation(scoreBlock3.getHeading(), pickUp.getHeading());
+        score3ToPickUp = new Path(new BezierCurve(new Point(scoreBlock3), new Point(17.9, 69.2), new Point(pickUpAlt3)));
+        score3ToPickUp.setLinearHeadingInterpolation(scoreBlock3.getHeading(), pickUpAlt3.getHeading());
 
-        pickUpToScoreBefore4 = new Path(new BezierLine(new Point(pickUpAlt), new Point(scoreBlockBefore4)));
-        pickUpToScoreBefore4.setLinearHeadingInterpolation(pickUp.getHeading(), scoreBlockBefore3.getHeading());
+        pickUpToScoreBefore4 = new Path(new BezierLine(new Point(pickUpAlt3), new Point(scoreBlockBefore4)));
+        pickUpToScoreBefore4.setLinearHeadingInterpolation(pickUpAlt3.getHeading(), scoreBlockBefore4.getHeading());
 
         scoreBefore4ToScore4 = new Path(new BezierLine(new Point(scoreBlockBefore4), new Point(scoreBlock4)));
-        scoreBefore4ToScore4.setLinearHeadingInterpolation(scoreBlockBefore3.getHeading(), scoreBlock3.getHeading());
+        scoreBefore4ToScore4.setLinearHeadingInterpolation(scoreBlockBefore4.getHeading(), scoreBlock4.getHeading());
 
         score4ToPickUp = new Path(new BezierCurve(new Point(scoreBlock4), new Point(22.5, 64.9), new Point(parkPickUp)));
-        score4ToPickUp.setLinearHeadingInterpolation(scoreBlock3.getHeading(), parkPickUp.getHeading());
+        score4ToPickUp.setLinearHeadingInterpolation(scoreBlock4.getHeading(), parkPickUp.getHeading());
 
         // Park path
         park = new Path(new BezierLine(new Point(pickUp), new Point(parkPos)));

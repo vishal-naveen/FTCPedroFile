@@ -146,7 +146,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
     public void retractSpecimenInit() {
         NintakeArm.setPosition(Constants.NIntakeArmExtendedBack);
-        NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
+//        NintakeWrist.setPosition(Constants.NIntakeWristPickUp);
         NintakeWristPivot.setPosition(Constants.NIntakeWristPivotTransfer);
     }
 

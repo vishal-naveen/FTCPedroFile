@@ -25,6 +25,10 @@ public class OuttakeSubsystem extends SubsystemBase {
     private boolean pickupInProgress = false;
     private ElapsedTime pickupTimer = new ElapsedTime();
 
+    private int backState = 0;
+    private boolean backProgress = false;
+    private ElapsedTime backTimer = new ElapsedTime();
+
 
 
     private int preloadPickupState = 0;
@@ -48,11 +52,17 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
     }
 
+    public void pickUpFullPreload() {
+        pickupState = 0;
+        pickupTimer.reset();
+        pickupInProgress = true;
+    }
+
 
     public void pickUpPOS() {
-        OuttakeArm.setPosition(Constants.OuttakeArmPickUpSpecimen);
-        OuttakeWrist.setPosition(Constants.OuttakeWristPickUpSpecimen);
-        OuttakeWristPivot.setPosition(Constants.OuttakeWristPivotSpecimenPickUp);
+        backState = 0;
+        backTimer.reset();
+        backProgress = true;
     }
 
     public enum OuttakeState {
@@ -189,6 +199,27 @@ public class OuttakeSubsystem extends SubsystemBase {
                     OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
                     if(pickupTimer.milliseconds() > 50) {
                         pickupInProgress = false;
+                    }
+                    break;
+            }
+        }
+
+        if(backProgress) {
+
+            switch(backState) {
+                case 0:
+                    OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+                    OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+                    if(backTimer.milliseconds() > 500) {
+                        backState = 1;
+                        backTimer.reset();  // Reset timer for next state
+                    }
+                    break;
+
+                case 1:
+                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
+                    if(backTimer.milliseconds() > 50) {
+                        backProgress = false;
                     }
                     break;
             }
