@@ -189,7 +189,7 @@ public class OuttakeSubsystem extends SubsystemBase {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > 500) {
+                    if(pickupTimer.milliseconds() > 250) {
                         pickupState = 1;
                         pickupTimer.reset();  // Reset timer for next state
                     }
@@ -208,12 +208,16 @@ public class OuttakeSubsystem extends SubsystemBase {
 
             switch(backState) {
                 case 0:
-                    OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
-                    if(backTimer.milliseconds() > 500) {
-                        backState = 1;
-                        backTimer.reset();  // Reset timer for next state
+                    if(backTimer.milliseconds() > 500)
+                    {
+                        OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
+                        OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+                        if(backTimer.milliseconds() > 1200) {
+                            backState = 1;
+                            backTimer.reset();  // Reset timer for next state
+                        }
                     }
+
                     break;
 
                 case 1:

@@ -74,7 +74,7 @@ public class positions_motor {
 
     public static final double OuttakeWristTransferAuto = 0.27;
 
-    public static final double OuttakeArmTransfer = 0.525;
+    public static final double OuttakeArmTransfer = 0.5125;
 
     public static final double OuttakeArmTransferAuto = 0.7;
 
@@ -91,7 +91,7 @@ public class positions_motor {
 
     public static final double OuttakeArmPickUpSpecimen = 0.985;
 
-    public static final double OuttakeArmNewTransfer = 0.93;
+    public static final double OuttakeArmNewTransfer = 0.9425;
 
     public static final double OuttakeArmNewTransferWAIT = 0.675;
     public static final double OuttakeArmPickUpGround = 0.2;

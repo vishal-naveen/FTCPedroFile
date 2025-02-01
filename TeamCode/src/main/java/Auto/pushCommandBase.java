@@ -54,8 +54,15 @@ public class pushCommandBase extends CommandOpMode {
                 new SequentialCommandGroup(
                         new WaitUntilCommand(this::opModeIsActive),
                         // Preload scoring sequence
-                        Commands.closeClawThenScorePreload(outtakeSubsystem)
-                                .andThen(Commands.sleep(200))
+//                        Commands.closeClawThenScorePreload(outtakeSubsystem)
+//                                .andThen(Commands.followPath(follower, preloadBeforePathPRE))
+//                                .andThen(Commands.flick(outtakeSubsystem))
+//                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
+//                                .andThen(Commands.openClaw(outtakeSubsystem)),
+
+                        Commands.followPath(follower, preloadBeforePathPRE)
+                                .andThen(Commands.sleep(500))
+                                .andThen(Commands.closeClawThenScorePreload(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, preloadBeforePath))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
