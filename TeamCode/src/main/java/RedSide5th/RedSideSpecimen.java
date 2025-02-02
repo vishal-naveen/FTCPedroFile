@@ -1,6 +1,5 @@
-package Auto;
+package RedSide5th;
 
-import static Subsystem.Push3Specimen.*;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.RunCommand;
@@ -14,15 +13,19 @@ import com.pedropathing.follower.Follower;
 
 import IntakeSubsystem.BucketSideAutoSubsystem;
 import IntakeSubsystem.CommandsBucket;
+import RedSide5th.REDPush3Specimen;
 import Subsystem.OuttakeSubsystem;
 import Subsystem.PathsPush3;
+import RedSide5th.REDPush3Specimen;
 import Subsystem.PathsPush3Chain;
 import Positions.Commands;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import static RedSide5th.REDPush3Specimen.*;
 
-@Autonomous(name="pushCommandBase15", group = "Auto Testing")
-public class pushCommandBase extends CommandOpMode {
+
+@Autonomous(name="RedSideSpecimen", group = "Auto Testing")
+public class RedSideSpecimen extends CommandOpMode {
     public PathChain chain;
     public Follower follower;
     private OuttakeSubsystem outtakeSubsystem;
@@ -40,8 +43,10 @@ public class pushCommandBase extends CommandOpMode {
         this.follower = new Follower(hardwareMap);
         this.follower.setStartingPose(new Pose(8.4, 62.8, Math.toRadians(0)));
 
-        PathsPush3.initializePaths(follower);
-        this.chain = PathsPush3.Push3Specimen;
+        // Initialize paths once and store the chain
+        this.chain = REDPathsPush3.initializePaths(follower);
+
+        // Import static path references
 
         if(opModeInInit()) {
             outtakeSubsystem.closeClaw();
@@ -90,7 +95,6 @@ public class pushCommandBase extends CommandOpMode {
 //                        Commands.sleep(10)
 //                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(500))
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
 //                                .andThen(Commands.sleep(10))
                                 .andThen(Commands.flick(outtakeSubsystem)),
@@ -106,7 +110,6 @@ public class pushCommandBase extends CommandOpMode {
                         // Second scoring sequence
                         Commands.sleep(10)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(500))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
 //                                .andThen(Commands.sleep(50))
                                 .andThen(Commands.flick(outtakeSubsystem))
@@ -119,7 +122,6 @@ public class pushCommandBase extends CommandOpMode {
                         // Third scoring sequence
                         Commands.sleep(10)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(500))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(300))
@@ -130,7 +132,6 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.sleep(10)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                                .andThen(Commands.sleep(500))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))

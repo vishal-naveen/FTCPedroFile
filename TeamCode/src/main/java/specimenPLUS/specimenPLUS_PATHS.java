@@ -28,7 +28,7 @@ public class specimenPLUS_PATHS {
     private static final Pose blueLineUp = new Pose(55, 31.4, Math.toRadians(0));
     private static final Pose pushBlock1 = new Pose(13, 25.6, Math.toRadians(0));
     private static final Pose pushBlock2 = new Pose(13, 18.75, Math.toRadians(0));
-    private static final Pose pushBlock3 = new Pose(14, 11, Math.toRadians(-7));
+    private static final Pose pushBlock3 = new Pose(12.5, 11, Math.toRadians(-7));
     private static final Pose pushBlock2Up = new Pose(52, 18.75, Math.toRadians(0));
     private static final Pose pushBlock3Up = new Pose(52, 11, Math.toRadians(-7));
     private static final Pose pushBlock3Direct = new Pose(4.8, 13, Math.toRadians(0));

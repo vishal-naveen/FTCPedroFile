@@ -189,7 +189,7 @@ public class OuttakeSubsystem extends SubsystemBase {
                 case 0:
                     OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
                     OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-                    if(pickupTimer.milliseconds() > 250) {
+                    if(pickupTimer.milliseconds() > 100) {
                         pickupState = 1;
                         pickupTimer.reset();  // Reset timer for next state
                     }

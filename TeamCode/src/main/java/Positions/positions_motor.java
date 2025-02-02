@@ -91,7 +91,7 @@ public class positions_motor {
 
     public static final double OuttakeArmPickUpSpecimen = 0.985;
 
-    public static final double OuttakeArmNewTransfer = 0.9425;
+    public static final double OuttakeArmNewTransfer = 0.9475;
 
     public static final double OuttakeArmNewTransferWAIT = 0.675;
     public static final double OuttakeArmPickUpGround = 0.2;

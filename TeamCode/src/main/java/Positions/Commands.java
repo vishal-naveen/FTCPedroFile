@@ -134,15 +134,13 @@ public class Commands {
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(150), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(125), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
         );
     }
 
     public static Command closeClawThenScorePreload(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(150), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimenPreload(outtakeSubsystem)
         );
     }
