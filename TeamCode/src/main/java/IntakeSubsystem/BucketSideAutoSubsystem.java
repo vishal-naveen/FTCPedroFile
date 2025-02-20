@@ -154,6 +154,11 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         NintakeClaw.setPosition(Constants.NIntakeClawOpen);
     }
 
+    public void armWall() {
+        NintakeArm.setPosition(Constants.NintakeArmWall);
+    }
+
+
     public void closeIntakeClaw() {
         NintakeClaw.setPosition(Constants.NIntakeClawClose);
     }

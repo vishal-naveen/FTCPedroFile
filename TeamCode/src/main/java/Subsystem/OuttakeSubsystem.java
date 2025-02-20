@@ -1,16 +1,12 @@
 package Subsystem;
 
-import static Positions.Constants.lengthWait;
-
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.Constants;
@@ -35,6 +31,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     private boolean preloadPickupInProgress = false;
     private ElapsedTime preloadPickupTimer = new ElapsedTime();
 
+    private DistanceSensor sensor;
+
     public void preloadPickUpFull() {
 //        preloadPickupState = 0;
 //        preloadPickupTimer.reset();
@@ -57,6 +55,8 @@ public class OuttakeSubsystem extends SubsystemBase {
         pickupTimer.reset();
         pickupInProgress = true;
     }
+
+
 
 
     public void pickUpPOS() {
@@ -118,6 +118,7 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
+        sensor = hardwareMap.get(DistanceSensor.class, "sensor");
 
 //        viperMotor = hardwareMap.get(DcMotorEx.class, "viper1motor");
 //        viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -152,6 +153,16 @@ public class OuttakeSubsystem extends SubsystemBase {
         OuttakeArm.setPosition(OuttakeState.SCORE.armPos);
         OuttakeWrist.setPosition(OuttakeState.SCORE.wristPos);
         OuttakeWristPivot.setPosition(OuttakeState.SCORE.wristPivotPos);
+    }
+
+    public boolean distance() {
+        double a = sensor.getDistance(DistanceUnit.CM);
+        boolean b = false;
+        if(a <= 1.5 && a >= 0.5)
+        {
+            b = true;
+        }
+        return b;
     }
 
     public void preloadPosition() {

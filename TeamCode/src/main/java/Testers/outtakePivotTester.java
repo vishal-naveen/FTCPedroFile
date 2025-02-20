@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import Positions.positions_motor;
 import Subsystem.OuttakeWristSubsystem;
 
-@TeleOp(name="Testers.ServoTester")
-public class ServoTester extends OpMode {
+@TeleOp(name="outtakePivotTester")
+public class outtakePivotTester extends OpMode {
 
     private Servo testServo = null;
     private Servo armServo = null;
@@ -18,12 +18,15 @@ public class ServoTester extends OpMode {
     private Servo OuttakeArmRight = null;
     private Servo OuttakeWrist = null;
     private Servo OuttakeWristPivot = null;
+    private double INCREMENT = 0.05;   // Default increment value
+
+    // For touchpad edge detection to cycle the increment value
+    private boolean previousTouchpad = false;
 
     @Override
     public void init() {
-        testServo = hardwareMap.get(Servo.class, "NintakeArm");
+        testServo = hardwareMap.get(Servo.class, "OuttakeWristPivot");
 //        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
-        OuttakeArm = hardwareMap.get(Servo.class, "OuttakeArm");
 //        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
 //        OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
 //
@@ -58,6 +61,28 @@ public class ServoTester extends OpMode {
 //            OuttakeArmRight.setPosition(positions_motor.OuttakeArmNewHighBarFLICK);
 //        }
 
+
+        if (gamepad2.touchpad && !previousTouchpad) {
+            if (INCREMENT == 0.05) {
+                INCREMENT = 0.1;
+            } else if (INCREMENT == 0.1) {
+                INCREMENT = 0.0025;
+            } else {
+                INCREMENT = 0.05;
+            }
+        }
+        previousTouchpad = gamepad2.touchpad;
+
+        if (gamepad2.left_bumper) {
+            double newPos = testServo.getPosition() + INCREMENT;
+            testServo.setPosition(newPos);
+        }
+        // Right bumper: Decrease servo position by INCREMENT
+        if (gamepad2.right_bumper) {
+            double newPos = testServo.getPosition() - INCREMENT;
+            testServo.setPosition(newPos);
+        }
+
         // Gamepad 2 controls
         if (gamepad2.dpad_down) {
             testServo.setPosition(0);
@@ -83,10 +108,10 @@ public class ServoTester extends OpMode {
         if(gamepad2.y) {
             testServo.setPosition(0.7);
         }
-        if(gamepad2.left_bumper) {
+        if(gamepad2.left_trigger>0.25) {
             testServo.setPosition(0.8);
         }
-        if(gamepad2.right_bumper) {
+        if(gamepad2.right_trigger>0.25) {
             testServo.setPosition(0.9);
         }
         if(gamepad2.start) {

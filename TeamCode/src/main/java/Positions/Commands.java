@@ -9,7 +9,8 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import Subsystem.OuttakeSubsystem;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
+
+import java.util.function.BooleanSupplier;
 
 
 public class Commands {
@@ -169,6 +170,18 @@ public class Commands {
         return new InstantCommand(() -> {
             outtakeSubsystem.closeClaw();
         }, outtakeSubsystem);
+    }
+
+    public static Command getDistance(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.distance();
+        }, outtakeSubsystem);
+    }
+
+    public static BooleanSupplier getDistance1(OuttakeSubsystem outtakeSubsystem) {
+        return (BooleanSupplier) new SequentialCommandGroup(
+                Commands.getDistance(outtakeSubsystem)
+        );
     }
 
     public static Command flick(OuttakeSubsystem outtakeSubsystem) {

@@ -30,7 +30,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package LimelightTest;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
@@ -66,9 +66,8 @@ import java.util.List;
  *   and the ip address the Limelight device assigned the Control Hub and which is displayed in small text
  *   below the name of the Limelight on the top level configuration screen.
  */
-@TeleOp(name = "Sensor: Limelight3A", group = "Sensor")
-@Disabled
-public class SensorLimelight3A extends LinearOpMode {
+@TeleOp(name = "PIPE8Sensor: Limelight3A", group = "Sensor")
+public class eightSensorLimelight3A extends LinearOpMode {
 
     private Limelight3A limelight;
 
@@ -79,7 +78,7 @@ public class SensorLimelight3A extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(8);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.

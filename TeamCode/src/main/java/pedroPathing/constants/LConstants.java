@@ -7,10 +7,10 @@ public class LConstants {
     static {
         ThreeWheelConstants.forwardTicksToInches = 0.003;
         ThreeWheelConstants.strafeTicksToInches = 0.003;
-        ThreeWheelConstants.turnTicksToInches = 0.003;
-        ThreeWheelConstants.leftY = 6.1;
-        ThreeWheelConstants.rightY = -6.1;
-        ThreeWheelConstants.strafeX = -5.2;
+        ThreeWheelConstants.turnTicksToInches = 0.0029;
+        ThreeWheelConstants.leftY = 6;
+        ThreeWheelConstants.rightY = -6;
+        ThreeWheelConstants.strafeX = -4.375;
         ThreeWheelConstants.leftEncoder_HardwareMapName = "FL";
         ThreeWheelConstants.rightEncoder_HardwareMapName = "BR";
         ThreeWheelConstants.strafeEncoder_HardwareMapName = "BL";

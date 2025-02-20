@@ -84,6 +84,10 @@ public class CommandsBucket {
         return new InstantCommand(() -> subsystem.openIntakeClaw(), subsystem);
     }
 
+    public static Command armWall(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.armWall(), subsystem);
+    }
+
     public static Command closeIntakeClaw(BucketSideAutoSubsystem subsystem) {
         return new InstantCommand(() -> subsystem.closeIntakeClaw(), subsystem);
     }
@@ -174,6 +178,12 @@ public class CommandsBucket {
         );
     }
 
+    public static Command armWallLength1(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                armWall(subsystem)
+        );
+    }
+
 
     public static Command transferSequence(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
@@ -201,6 +211,12 @@ public class CommandsBucket {
     public static Command justPickUPCross(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 justClawGrab(subsystem)
+        );
+    }
+
+    public static Command armWallLength(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                armWallLength1(subsystem)
         );
     }
 

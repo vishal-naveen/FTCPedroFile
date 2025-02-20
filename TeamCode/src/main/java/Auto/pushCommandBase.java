@@ -73,6 +73,7 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.followPath(follower, blueLineDirect)
                                 .andThen(Commands.pickUpPOS(outtakeSubsystem)),
                         Commands.followPath(follower, blueLineUpToPushBlock1),
+//                        CommandsBucket.armWallLength(bucketSubsystem),
                         Commands.followPath(follower, pushBlock1ToPushBlock2Up),
                         Commands.followPath(follower, pushBlock2UpToPushBlock2),
                         Commands.followPath(follower, pushBlock2ToPushBlock3Up)
@@ -101,7 +102,7 @@ public class pushCommandBase extends CommandOpMode {
 
 
                         Commands.pickUpPOS(outtakeSubsystem)
-                                .andThen(Commands.followPath(follower, score1ToPickUp)),
+                                .andThen(Commands.followPath(follower, score1ToPickUp).withTimeout(3000)),
 
                         // Second scoring sequence
                         Commands.sleep(10)
@@ -114,7 +115,7 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.pickUpPOS(outtakeSubsystem)
-                                .andThen(Commands.followPath(follower, score2ToPickUp)),
+                                .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(3000)),
 
                         // Third scoring sequence
                         Commands.sleep(10)
@@ -126,7 +127,7 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.pickUpPOS(outtakeSubsystem)
-                                .andThen(Commands.followPath(follower, score3ToPickUp)),
+                                .andThen(Commands.followPath(follower, score3ToPickUp).withTimeout(3000)),
 
                         Commands.sleep(10)
                                 .andThen(Commands.closeClawThenScore(outtakeSubsystem))
