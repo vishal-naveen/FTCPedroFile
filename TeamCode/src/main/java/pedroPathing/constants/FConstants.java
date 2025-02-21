@@ -1,5 +1,6 @@
 package pedroPathing.constants;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.Localizers;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.util.CustomFilteredPIDFCoefficients;
@@ -23,18 +24,18 @@ public class FConstants {
         FollowerConstants.mass = 12.33771;
 
         FollowerConstants.xMovement = 61.4678;
-        FollowerConstants.yMovement = 48.5517;
+        FollowerConstants.yMovement = 47.5517;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -33.8571;
-        FollowerConstants.lateralZeroPowerAcceleration = -71.1028;
+        FollowerConstants.forwardZeroPowerAcceleration = -35.9571;
+        FollowerConstants.lateralZeroPowerAcceleration = -75.1028;
 
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.02,0);
-        FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.3,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.2,0,0.02,0);
+        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.2,0,0.02,0); // Not being used, @see useSecondaryTranslationalPID
 
         FollowerConstants.headingPIDFCoefficients.setCoefficients(2,0,0.1,0);
-        FollowerConstants.useSecondaryHeadingPID = false;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(5,0,0.5,0); // Not being used, @see useSecondaryHeadingPID
+        FollowerConstants.useSecondaryHeadingPID = true;
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
 
         FollowerConstants.drivePIDFCoefficients.setCoefficients(0.012,0,0.00001,0.6,0);
         FollowerConstants.useSecondaryDrivePID = false;

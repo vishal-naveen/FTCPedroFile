@@ -31,8 +31,8 @@ public class Push3Specimen {
     private static final Pose pushBlock2Up = new Pose(57.5, 21.6, Math.toRadians(0));
     private static final Pose pushBlock2 = new Pose(13.5, 21.6, Math.toRadians(0));
 
-    private static final Pose pushBlock3Up = new Pose(55, 13.4, Math.toRadians(-7));
-    private static final Pose pushBlock3 = new Pose(14, 13.4, Math.toRadians(-7));
+    private static final Pose pushBlock3Up = new Pose(55, 13.4, Math.toRadians(0));
+    private static final Pose pushBlock3 = new Pose(14, 13.4, Math.toRadians(0));
 
     private static final Pose pushBlock3Direct = new Pose(5.8, 13, Math.toRadians(0));
 
@@ -41,9 +41,9 @@ public class Push3Specimen {
 
     private static final Pose pickUpAlt = new Pose(11.5, 25.75, Math.toRadians(0));
 
-    private static final Pose pickUpAlt2 = new Pose(11, 25.75, Math.toRadians(-6));
+    private static final Pose pickUpAlt2 = new Pose(11, 25.75, Math.toRadians(0));
 
-    private static final Pose pickUpAlt3 = new Pose(11, 25.75, Math.toRadians(-6));
+    private static final Pose pickUpAlt3 = new Pose(11, 25.75, Math.toRadians(0));
 
 
     private static final Pose parkPickUp = new Pose(22.8, 42.5, Math.toRadians(0));

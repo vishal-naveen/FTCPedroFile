@@ -1,9 +1,10 @@
 // OuttakeSubsystem.java
 package TeleOp.Organized.Subsystems;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.positions_motor;
@@ -28,8 +29,11 @@ public class OuttakeSubsystem {
         claw = hardwareMap.get(Servo.class, "OuttakeClaw");
     }
 
-    public void handleControls(Gamepad gamepad) {
-        // Wrist pivot control
+    public void initialize() {
+        // No initialization needed for servos in this case
+    }
+
+    public void handleControls(Gamepad gamepad, ViperSubsystem viper) {
         if (gamepad.right_bumper && !lastRightBumper) {
             isHorizontal = !isHorizontal;
             wristPivot.setPosition(isHorizontal ?
@@ -38,7 +42,6 @@ public class OuttakeSubsystem {
         }
         lastRightBumper = gamepad.right_bumper;
 
-        // Pickup sequence
         if (gamepad.b && !lastB && !pickupInProgress) {
             pickupState = 0;
             pickupTimer.reset();
@@ -65,7 +68,6 @@ public class OuttakeSubsystem {
             }
         }
 
-        // Preset positions
         if (gamepad.a) {
             arm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
             wrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
@@ -86,12 +88,15 @@ public class OuttakeSubsystem {
             wristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
         }
         if (gamepad.back) {
+            viper.cancelGroundTimer();
             arm.setPosition(positions_motor.OuttakeArmBucket);
             wrist.setPosition(positions_motor.OuttakeWristBucket);
             wristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+            viper.getMotor().setTargetPosition(positions_motor.VIPER_HIGHBASKET);
+            viper.getMotor().setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viper.getMotor().setPower(1);
         }
 
-        // Claw control
         if (gamepad.left_trigger > 0.25) {
             claw.setPosition(positions_motor.OuttakeClawOpen);
         }

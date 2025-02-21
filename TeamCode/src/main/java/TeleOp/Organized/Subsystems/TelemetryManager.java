@@ -3,47 +3,51 @@ package TeleOp.Organized.Subsystems;
 
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.RunCommand;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import TeleOp.Organized.Subsystems.*;
+import TeleOp.FieldcentricTELE;
+import TeleOp.Organized.fieldOrganized;
 
 public class TelemetryManager {
     private final Telemetry telemetry;
     private final DriveSubsystem drive;
     private final ViperSubsystem viper;
     private final AnalogInput ultra;
+    private final CommandOpMode opMode;  // Add reference to OpMode
+    private double dist;
+    private double distInches;
 
-    // Define the timeout constant here since it's private in ViperSubsystem
     private static final double GROUND_POWER_TIMEOUT = 5000;
 
     public TelemetryManager(Telemetry telemetry, DriveSubsystem drive,
-                            ViperSubsystem viper, AnalogInput ultra) {
+                            ViperSubsystem viper, AnalogInput ultra, CommandOpMode opMode) {
         this.telemetry = telemetry;
         this.drive = drive;
         this.viper = viper;
         this.ultra = ultra;
+        this.opMode = opMode;  // Store OpMode reference
     }
 
-    public void initialize(CommandOpMode opMode) {
-        opMode.schedule(new RunCommand(this::update));
+    public void initialize() {
+        opMode.schedule(new RunCommand(this::update));  // Schedule parameterless update
     }
 
-    public void update() {
-        double dist = 100 * (ultra.getVoltage() / 3.3);
-        double distInches = dist / 2.54;
+    public void update() {  // Parameterless method for scheduling
+        dist = 100 * (ultra.getVoltage() / 3.3);
+        distInches = dist / 2.54;
 
-        Motor motor = viper.getMotor();
-//        telemetry.addData("Auto State", /* Add autoState from AutoSequenceManager */);
-//        telemetry.addData("Current Cycle", /* Add currentCycle from AutoSequenceManager */);
+        DcMotor motor = viper.getMotor();
+        // Access autoState and currentCycle via reflection or cast to FieldcentricTELE
+        // For simplicity, assuming FieldcentricTELE has public fields or getters
+        fieldOrganized teleOp = (fieldOrganized) opMode;
+        telemetry.addData("Auto State", teleOp.getAutoState());
+        telemetry.addData("Current Cycle", teleOp.getCurrentCycle());
         telemetry.addData("Follower Busy", drive.getFollower().isBusy());
-        telemetry.addData("viper power", motor.get());
-
-        // Use the custom getTargetPosition method from the modified ViperSubsystem class
-        telemetry.addData("viper target", viper.getTargetPosition());
-
+        telemetry.addData("viper power", motor.getPower());
+        telemetry.addData("viper target", motor.getTargetPosition());
         telemetry.addData("viper pos", motor.getCurrentPosition());
         telemetry.addData("Ground Timer Active", viper.isGroundTimerActive());
         if (viper.isGroundTimerActive()) {
@@ -53,5 +57,9 @@ public class TelemetryManager {
         telemetry.addData("sensor cm", dist);
         telemetry.addData("sensor Inches", distInches);
         telemetry.update();
+    }
+
+    public double getDistInches() {
+        return distInches;
     }
 }

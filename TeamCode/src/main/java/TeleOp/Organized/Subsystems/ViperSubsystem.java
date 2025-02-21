@@ -1,71 +1,46 @@
 // ViperSubsystem.java
 package TeleOp.Organized.Subsystems;
 
-import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import Positions.positions_motor;
 
 public class ViperSubsystem {
-    public final Motor motor;
-    public boolean isAtTarget = false;
-    public int downState = 0;
-    public ElapsedTime downTimer = new ElapsedTime();
-    public boolean downInProgress = false;
-    public boolean lastStart = false;
-    public ElapsedTime groundPowerTimer = new ElapsedTime();
-    public boolean isGroundTimerActive = false;
-    public int lastPosition = 0;
-    public ElapsedTime stallTimer = new ElapsedTime();
-    public boolean isStallCheckActive = false;
-    public boolean isManualResetActive = false;
-    public boolean lastLeftBumper = false;
+    private final DcMotor motor;
+    private boolean isAtTarget = false;
+    private int downState = 0;
+    private ElapsedTime downTimer = new ElapsedTime();
+    private boolean downInProgress = false;
+    private boolean lastStart = false;
+    private ElapsedTime groundPowerTimer = new ElapsedTime();
+    private boolean isGroundTimerActive = false;
+    private int lastPosition = 0;
+    private ElapsedTime stallTimer = new ElapsedTime();
+    private boolean isStallCheckActive = false;
+    private boolean isManualResetActive = false;
+    private boolean lastLeftBumper = false;
 
-    // Added to track current mode and target position
-    public Motor.RunMode currentRunMode;
-    public int targetPosition = 0;
+    private static final double VIPER_HOLDING_POWER = 0.1;
+    private static final double GROUND_POWER_TIMEOUT = 5000;
+    private static final int POSITION_TOLERANCE = 20;
+    private static final int STALL_POSITION_THRESHOLD = 5;
+    private static final double STALL_TIME_THRESHOLD = 250;
 
-    public static final double VIPER_HOLDING_POWER = 0.1;
-    public static final double GROUND_POWER_TIMEOUT = 5000;
-    public static final int POSITION_TOLERANCE = 20;
-    public static final int STALL_POSITION_THRESHOLD = 5;
-    public static final double STALL_TIME_THRESHOLD = 250;
-
-    public ViperSubsystem(Motor motor) {
+    public ViperSubsystem(DcMotor motor) {
         this.motor = motor;
-        this.currentRunMode = Motor.RunMode.RawPower; // Default mode
     }
 
     public void initialize() {
-        setRunMode(Motor.RunMode.RawPower);
-        motor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
-        motor.resetEncoder();
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
-    // Custom method to set run mode and track it
-    public void setRunMode(Motor.RunMode mode) {
-        currentRunMode = mode;
-        motor.setRunMode(mode);
-    }
-
-    // Custom method to set target position and track it
-    public void setTargetPosition(int position) {
-        targetPosition = position;
-        motor.setTargetPosition(position);
-    }
-
-    // Custom method to get current run mode
-    public Motor.RunMode getRunMode() {
-        return currentRunMode;
-    }
-
-    // Custom method to get target position
-    public int getTargetPosition() {
-        return targetPosition;
-    }
-
-    public void handleControls(Gamepad gamepad1, Gamepad gamepad2) {
+    public void handleControls(Gamepad gamepad1, Gamepad gamepad2, OuttakeSubsystem outtake) {
         updateMotorState();
 
         if (gamepad2.start && !lastStart && !downInProgress) {
@@ -77,14 +52,19 @@ public class ViperSubsystem {
 
         if (downInProgress) {
             switch (downState) {
-                case 0:  // Added case 0 to match original intent
-                    downState = 1;
-                    downTimer.reset();
+                case 0:
+                    outtake.getArm().setPosition(positions_motor.OuttakeArmNewTransferWAIT);
+                    outtake.getWrist().setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+                    outtake.getWristPivot().setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    if (downTimer.milliseconds() > 750) {
+                        downState = 1;
+                        downTimer.reset();
+                    }
                     break;
                 case 1:
-                    setRunMode(Motor.RunMode.PositionControl);
-                    setTargetPosition(positions_motor.VIPER_GROUND);
-                    motor.set(1.0);
+                    motor.setTargetPosition(positions_motor.VIPER_GROUND);
+                    motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    motor.setPower(1);
                     groundPowerTimer.reset();
                     isGroundTimerActive = true;
                     downInProgress = false;
@@ -93,11 +73,11 @@ public class ViperSubsystem {
         }
 
         if (gamepad1.touchpad) {
-            motor.set(0);
+            motor.setPower(0);
             cancelGroundTimer();
         }
         if (gamepad1.y) {
-            motor.set(-0.3);
+            motor.setPower(-0.3);
             cancelGroundTimer();
         }
 
@@ -105,19 +85,18 @@ public class ViperSubsystem {
             isManualResetActive = true;
             lastPosition = motor.getCurrentPosition();
             stallTimer.reset();
-            setRunMode(Motor.RunMode.RawPower);
-            motor.set(-0.5);
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setPower(-0.5);
         }
         lastLeftBumper = gamepad1.left_bumper;
 
         checkManualReset();
     }
 
-    public void updateMotorState() {
-        // Check if running in position control mode
-        if (getRunMode() == Motor.RunMode.PositionControl) {
+    private void updateMotorState() {
+        if (motor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
             int currentPos = motor.getCurrentPosition();
-            int targetPos = getTargetPosition();
+            int targetPos = motor.getTargetPosition();
 
             if (targetPos == positions_motor.VIPER_GROUND) {
                 if (!isStallCheckActive) {
@@ -126,8 +105,8 @@ public class ViperSubsystem {
                     stallTimer.reset();
                 } else if (stallTimer.milliseconds() > STALL_TIME_THRESHOLD) {
                     if (Math.abs(currentPos - lastPosition) < STALL_POSITION_THRESHOLD) {
-                        motor.stopMotor();
-                        motor.resetEncoder();
+                        motor.setPower(0);
+                        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                         isStallCheckActive = false;
                         cancelGroundTimer();
                         return;
@@ -140,17 +119,17 @@ public class ViperSubsystem {
             }
 
             isAtTarget = Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE;
-            motor.set(isAtTarget ? VIPER_HOLDING_POWER : 1.0);
+            motor.setPower(isAtTarget ? VIPER_HOLDING_POWER : 1.0);
         }
     }
 
-    public void checkManualReset() {
+    private void checkManualReset() {
         if (isManualResetActive && stallTimer.milliseconds() > STALL_TIME_THRESHOLD) {
             int currentPos = motor.getCurrentPosition();
             if (Math.abs(currentPos - lastPosition) < STALL_POSITION_THRESHOLD) {
-                motor.stopMotor();
-                motor.resetEncoder();
-                setRunMode(Motor.RunMode.RawPower);
+                motor.setPower(0);
+                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 isManualResetActive = false;
             }
             lastPosition = currentPos;
@@ -165,7 +144,7 @@ public class ViperSubsystem {
         }
     }
 
-    public Motor getMotor() { return motor; }
+    public DcMotor getMotor() { return motor; }
     public boolean isGroundTimerActive() { return isGroundTimerActive; }
     public double getGroundTimerSeconds() { return groundPowerTimer.milliseconds() / 1000.0; }
 }

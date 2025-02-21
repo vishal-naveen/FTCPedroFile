@@ -1,5 +1,6 @@
 package pedroPathing.constants;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.*;
 import com.pedropathing.localization.constants.*;
 
