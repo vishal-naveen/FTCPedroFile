@@ -1,13 +1,8 @@
 package TeleOp;
 
-import com.arcrobotics.ftclib.command.CommandBase;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.Point;
@@ -16,7 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class AutoPaths extends SubsystemBase {
+public class AutoPaths {
     private final Follower follower;
     private final AnalogInput ultra;
     private final Telemetry telemetry;
@@ -25,6 +20,10 @@ public class AutoPaths extends SubsystemBase {
     private boolean autoSequenceActive = false;
     private int currentCycle = 0;
     private int maxCycles = 3;
+    private ElapsedTime pathTimer = new ElapsedTime();
+    private static final double PATH_TIMEOUT = 3000; // 3 seconds timeout
+    private boolean isFollowingPath = false;
+    private Path currentPath = null;
 
     public AutoPaths(HardwareMap hardwareMap, Follower follower, Telemetry telemetry) {
         this.follower = follower;
@@ -34,12 +33,12 @@ public class AutoPaths extends SubsystemBase {
     }
 
     private void initializePaths() {
-        Pose startPose = new Pose(30, 0, Math.toRadians(0));
-        Pose scorePose = new Pose(0, 0, Math.toRadians(0));
+        Pose startPose = new Pose(0, 0, Math.toRadians(0));
+        Pose scorePose = new Pose(10, 10, Math.toRadians(0));
 
-        scorePath = new Path(new BezierCurve(new Point(startPose), new Point(scorePose)));
+        scorePath = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePath.setConstantHeadingInterpolation(startPose.getHeading());
-        pickPath = new Path(new BezierCurve(new Point(scorePose), new Point(startPose)));
+        pickPath = new Path(new BezierLine(new Point(scorePose), new Point(startPose)));
         pickPath.setConstantHeadingInterpolation(startPose.getHeading());
     }
 
@@ -47,138 +46,95 @@ public class AutoPaths extends SubsystemBase {
         return (100 * (ultra.getVoltage() / 3.3)) / 2.54;
     }
 
-    public double getRawVoltage() {
-        return ultra.getVoltage();
-    }
-
     public boolean isActive() {
         return autoSequenceActive;
-    }
-
-    public void setActive(boolean active) {
-        this.autoSequenceActive = active;
     }
 
     public int getCurrentCycle() {
         return currentCycle;
     }
+    public void startFollowingScorePath() {
+        if (!isFollowingPath) {
+            follower.followPath(scorePath);
+            isFollowingPath = true;
+            currentPath = scorePath;
+            pathTimer.reset();
+        }
+    }
 
-    public void resetCycle() {
+    public void startAuto() {
+        autoSequenceActive = true;
         currentCycle = 0;
+        follower.startTeleopDrive();
     }
 
-    public void incrementCycle() {
-        currentCycle++;
+    public void stopAuto() {
+        autoSequenceActive = false;
+        currentCycle = 0;
+        follower.breakFollowing();
+        follower.startTeleopDrive();
+        isFollowingPath = false;
+        currentPath = null;
     }
 
-    @Override
-    public void periodic() {
-        telemetry.addData("Auto Active", isActive());
-        telemetry.addData("Current Cycle", getCurrentCycle());
-        telemetry.addData("Distance", "%.2f", getDistanceInches());
+    private boolean isPathComplete() {
+        return !follower.isBusy() ||
+                getDistanceInches() <= 10 ||
+                pathTimer.milliseconds() >= PATH_TIMEOUT;
     }
 
-    public static class FollowPathCommand extends CommandBase {
-        private final Follower follower;
-        private final Path path;
-        private final AutoPaths subsystem;
-        private final ElapsedTime timer = new ElapsedTime();
-        private Double timeout = null;
-
-        public FollowPathCommand(AutoPaths subsystem, Path path) {
-            this.subsystem = subsystem;
-            this.follower = subsystem.follower;
-            this.path = path;
-            addRequirements(subsystem);
+    public void executeScoreCycle() {
+        if (!isFollowingPath) {
+            // Start following score path
+            follower.followPath(scorePath);
+            isFollowingPath = true;
+            currentPath = scorePath;
+            pathTimer.reset();
+        } else if (isPathComplete()) {
+            if (currentPath == scorePath) {
+                // Switch to pick path after a small delay
+                follower.followPath(pickPath);
+                currentPath = pickPath;
+                pathTimer.reset();
+            } else if (currentPath == pickPath) {
+                // Cycle complete
+                currentCycle++;
+                if (currentCycle >= maxCycles) {
+                    stopAuto();
+                } else {
+                    // Start next cycle
+                    follower.followPath(scorePath);
+                    currentPath = scorePath;
+                    pathTimer.reset();
+                }
+            }
         }
+    }
 
-        public FollowPathCommand withTimeout(double timeoutMs) {
-            this.timeout = timeoutMs;
-            return this;
-        }
-
-        @Override
-        public void initialize() {
-            follower.followPath(path);
-            timer.reset();
-        }
-
-        @Override
-        public void execute() {
+    public void update() {
+        if (isActive()) { // Changed to check autoSequenceActive directly
             follower.update();
-        }
+            executeScoreCycle(); // Always call this to handle the sequence
 
-        @Override
-        public boolean isFinished() {
-            if (timeout != null && timer.milliseconds() >= timeout) {
-                return true;
-            }
-            return !follower.isBusy() || subsystem.getDistanceInches() <= 10;
-        }
-
-        @Override
-        public void end(boolean interrupted) {
-            if (interrupted) {
-                follower.breakFollowing();
-            }
         }
     }
 
-    public class StartAutoCommand extends InstantCommand {
-        public StartAutoCommand() {
-            super(() -> {
-                setActive(true);
-                resetCycle();
-                follower.startTeleopDrive();
-            }, AutoPaths.this);
+    public void setManualDrive(double x, double y, double rotate, double power) {
+        if (!isActive()) {
+            follower.setTeleOpMovementVectors(
+                    y * power,
+                    x * power,
+                    rotate * power,
+                    true
+            );
         }
     }
 
-    public class StopAutoCommand extends InstantCommand {
-        public StopAutoCommand() {
-            super(() -> {
-                setActive(false);
-                resetCycle();
-                follower.breakFollowing();
-                follower.startTeleopDrive();
-            }, AutoPaths.this);
-        }
-    }
-
-    public Command getScoreCycleCommand() {
-        return new SequentialCommandGroup(
-                new FollowPathCommand(this, scorePath).withTimeout(3000),
-                new WaitCommand(100),
-                new FollowPathCommand(this, pickPath).withTimeout(3000),
-                new InstantCommand(this::incrementCycle),
-                new InstantCommand(() -> {
-                    if (getCurrentCycle() >= maxCycles) {
-                        new StopAutoCommand().schedule();
-                    }
-                })
-        );
-    }
-
-    public Command getManualDriveCommand(double x, double y, double rotate, double power) {
-        return new InstantCommand(() -> {
-            if (!isActive()) {
-                follower.setTeleOpMovementVectors(
-                        y * power,
-                        x * power,
-                        rotate * power,
-                        true
-                );
-            }
-        });
-    }
-
-    public Command getResetHeadingCommand() {
-        return new InstantCommand(() -> {
-            follower.setCurrentPoseWithOffset(new Pose(
-                    follower.getPose().getX(),
-                    follower.getPose().getY(),
-                    Math.toRadians(0)
-            ));
-        });
+    public void resetHeading() {
+        follower.setCurrentPoseWithOffset(new Pose(
+                follower.getPose().getX(),
+                follower.getPose().getY(),
+                Math.toRadians(0)
+        ));
     }
 }

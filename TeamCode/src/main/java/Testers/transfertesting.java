@@ -51,10 +51,10 @@ public class transfertesting extends OpMode {
 
     @Override
     public void init() {
-        frontLeft = hardwareMap.get(DcMotor.class, "FL");
-        frontRight = hardwareMap.get(DcMotor.class, "FR");
-        backLeft = hardwareMap.get(DcMotor.class, "BL");
-        backRight = hardwareMap.get(DcMotor.class, "BR");
+        frontLeft = hardwareMap.get(DcMotor.class, "leftFront");
+        frontRight = hardwareMap.get(DcMotor.class, "rightFront");
+        backLeft = hardwareMap.get(DcMotor.class, "leftRear");
+        backRight = hardwareMap.get(DcMotor.class, "rightRear");
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
 
