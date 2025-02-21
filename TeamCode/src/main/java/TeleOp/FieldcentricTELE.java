@@ -175,7 +175,12 @@
             Constants.setConstants(FConstants.class, LConstants.class);
             follower = new Follower(hardwareMap);
             follower.setStartingPose(RobotPose.stopPose);
-            autoPaths = new AutoPaths(hardwareMap, follower, telemetry);
+            try {
+                autoPaths = new AutoPaths(hardwareMap, follower, telemetry, gamepad1);
+            } catch (Exception e) {
+                telemetry.addData("Error", "Failed to initialize AutoPaths: " + e.getMessage());
+                telemetry.update();
+            }
 
             this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
             this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
@@ -215,11 +220,21 @@
             if (gamepad1.b && !bPressed && !autoPaths.isActive()) {
                 bPressed = true;
                 autoPaths.startAuto();
-                autoPaths.startFollowingScorePath(); // New method to trigger path following
+                autoPaths.startFollowingScorePath();
             }
             if (!gamepad1.b) {
-                bPressed = false; // Reset when button is released
+                bPressed = false;
             }
+
+            if (gamepad1.a) {
+                follower.setCurrentPoseWithOffset(new Pose(0, 0, Math.toRadians(0)));
+            }
+            autoPaths.setManualDrive(
+                    -gamepad1.left_stick_x,
+                    -gamepad1.left_stick_y,
+                    -gamepad1.right_stick_x,
+                    power
+            );
 
             // Check for joystick movement to cancel auto
             if (autoPaths.isActive() && (
@@ -231,21 +246,37 @@
             }
 
             // Field Centric Drive Control
-            if (!autoPaths.isActive()) {
-                if (gamepad1.a) {
-                    follower.setCurrentPoseWithOffset(new Pose(
-                            follower.getPose().getX(),
-                            follower.getPose().getY(),
-                            Math.toRadians(0)
-                    ));
-                }
-                follower.setTeleOpMovementVectors(
-                        -gamepad1.left_stick_y * power,
-                        -gamepad1.left_stick_x * power,
-                        -gamepad1.right_stick_x * power,
-                        false
-                );
-            }
+//            if (!autoPaths.isActive()) {
+//                if (gamepad1.a) {
+//                    follower.setCurrentPoseWithOffset(new Pose(
+//                            follower.getPose().getX(),
+//                            follower.getPose().getY(),
+//                            Math.toRadians(0)
+//                    ));
+//                }
+//                follower.setTeleOpMovementVectors(
+//                        -gamepad1.left_stick_y * power,
+//                        -gamepad1.left_stick_x * power,
+//                        -gamepad1.right_stick_x * power,
+//                        false
+//                );
+//            }
+
+//            if (!autoPaths.isActive()) {
+//                if (gamepad1.a) {
+//                    follower.setCurrentPoseWithOffset(new Pose(
+//                            0,
+//                            0,
+//                            Math.toRadians(0)
+//                    ));
+//                }
+//                follower.setTeleOpMovementVectors(
+//                        -gamepad1.left_stick_y * power,
+//                        -gamepad1.left_stick_x * power,
+//                        -gamepad1.right_stick_x * power,
+//                        false
+//                );
+//            }
 
             // Wrist Pivot Controls
             if (gamepad2.left_bumper && !lastLeftBumper) {
@@ -516,6 +547,7 @@
                         (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);
             }
             telemetry.addData("Distance (inches)", "%.2f", autoPaths.getDistanceInches());
+            telemetry.addData("HardwareMap", hardwareMap != null ? "Initialized" : "Null");
             telemetry.update();
         }
     }
