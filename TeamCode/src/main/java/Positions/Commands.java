@@ -22,7 +22,7 @@ public class Commands {
         private final PathChain pathChain;
         private final boolean isPathChain;
 
-        public FollowPathCommand(Follower follower, Path path, double power) {
+        public FollowPathCommand(Follower follower, Path path) {
             this.follower = follower;
             this.path = path;
             this.pathChain = null;
@@ -62,8 +62,8 @@ public class Commands {
 
 
     // Path following methods
-    public static Command followPath(Follower follower, Path path, double power) {
-        return new FollowPathCommand(follower, path, power);
+    public static Command followPath(Follower follower, Path path) {
+        return new FollowPathCommand(follower, path);
     }
 
 
