@@ -182,7 +182,7 @@ public class FieldcentricTELE extends OpMode {
             telemetry.update();
         }
 
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
         this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");

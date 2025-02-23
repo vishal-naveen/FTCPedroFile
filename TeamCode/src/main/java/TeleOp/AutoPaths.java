@@ -45,7 +45,7 @@ public class AutoPaths {
         this.gamepad = gamepad;
         try {
             this.ultra = hardwareMap.get(AnalogInput.class, "ultra");
-            this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
+            this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
         } catch (Exception e) {
             telemetry.addData("Error", "Failed to initialize hardware: " + e.getMessage());
             throw new IllegalStateException("Hardware initialization failed", e);

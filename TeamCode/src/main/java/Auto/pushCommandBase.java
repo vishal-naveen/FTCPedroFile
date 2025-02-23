@@ -26,18 +26,17 @@ public class pushCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;
     private OuttakeSubsystem outtakeSubsystem;
-
     private BucketSideAutoSubsystem bucketSubsystem;
 
-
+    private double slowPower = 0.2;
 
     @Override
     public void initialize() {
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
+        this.follower = new Follower(hardwareMap);
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
         this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
         Constants.setConstants(FConstants.class, LConstants.class);
-        this.follower = new Follower(hardwareMap);
         this.follower.setStartingPose(new Pose(8.4, 62.8, Math.toRadians(0)));
 
         PathsPush3.initializePaths(follower);
@@ -53,66 +52,49 @@ public class pushCommandBase extends CommandOpMode {
                 new RunCommand(follower::update),
                 new SequentialCommandGroup(
                         new WaitUntilCommand(this::opModeIsActive),
-                        // Preload scoring sequence
-//                        Commands.closeClawThenScorePreload(outtakeSubsystem)
-//                                .andThen(Commands.followPath(follower, preloadBeforePathPRE))
-//                                .andThen(Commands.flick(outtakeSubsystem))
-//                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
-//                                .andThen(Commands.openClaw(outtakeSubsystem)),
                         Commands.closeClawThenScorePreload(outtakeSubsystem)
-                                .andThen( Commands.followPath(follower, preloadBeforePath))
+                                .andThen(Commands.followPath(follower, preloadBeforePath))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
-
                         Commands.followPath(follower, blueLineDirect)
                                 .andThen(Commands.pickUpPOS(outtakeSubsystem)),
                         Commands.followPath(follower, blueLineUpToPushBlock1),
-//                        CommandsBucket.armWallLength(bucketSubsystem),
                         Commands.followPath(follower, pushBlock1ToPushBlock2Up),
                         Commands.followPath(follower, pushBlock2UpToPushBlock2),
                         Commands.followPath(follower, pushBlock2ToPushBlock3Up),
                         Commands.followPath(follower, pushBlock3UpToPushBlock3)
                                 .withTimeout(2000),
+//                        Commands.setMaxPower(outtakeSubsystem, slowPower),
                         Commands.followPath(follower, pushBlock3ToFinal)
                                 .withTimeout(100),
+//                        Commands.setMaxPower(outtakeSubsystem, 1),
 
-                        // First scoring sequence
-
-//                        Commands.pickUpSpecimen(outtakeSubsystem)
-//                                .andThen(Commands.followPath(follower, pushBlock3ToPickUp)),
-
-//                        Commands.sleep(10)
-//                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
                         Commands.closeClawThenScoreCorner(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
                                 .andThen(Commands.flick(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
-
-
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score1ToPickUpBefore).withTimeout(1500))
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,0.2))
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, slowPower))
                                 .andThen(Commands.followPath(follower, score1ToPickUp).withTimeout(100)),
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
-                        // Second scoring sequence
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, 1)),
+
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-//                                .andThen(Commands.sleep(50))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score2ToPickUpBefore).withTimeout(1500))
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,0.2))
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, slowPower))
                                 .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(100)),
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, 1)),
 
-                        // Third scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
                                 .andThen(Commands.flick(outtakeSubsystem))
@@ -121,16 +103,15 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score3ToPickUpBefore).withTimeout(1500))
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,0.2))
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, slowPower))
                                 .andThen(Commands.followPath(follower, score3ToPickUp).withTimeout(100)),
-//                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
+//                                .andThen(Commands.setMaxPower(outtakeSubsystem, 1)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
-
 
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score4ToPickUp))

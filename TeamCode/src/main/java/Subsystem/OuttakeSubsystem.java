@@ -1,47 +1,39 @@
 package Subsystem;
 
-import static Subsystem.FiveSpecimenPaths.follower;
-
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import Positions.positions_motor;
 
 public class OuttakeSubsystem extends SubsystemBase {
     private final Servo OuttakeArmLeft, OuttakeArmRight, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
     private Telemetry telemetry;
-
+    private final Follower follower;
     private int pickupState = 0;
     private boolean pickupInProgress = false;
     private ElapsedTime pickupTimer = new ElapsedTime();
-
     private int backState = 0;
     private boolean backProgress = false;
     private ElapsedTime backTimer = new ElapsedTime();
-
     private int preloadPickupState = 0;
     private boolean preloadPickupInProgress = false;
     private ElapsedTime preloadPickupTimer = new ElapsedTime();
-
-    private int pickUpFullState = 0;          // New state for pickUpFull sequence
-    private boolean pickUpFullInProgress = false;  // New flag for pickUpFull sequence
-    private ElapsedTime pickUpFullTimer = new ElapsedTime();  // New timer for pickUpFull sequence
-
-    private int directState = 0;          // New state for pickUpFull sequence
-    private boolean directInProgress = false;  // New flag for pickUpFull sequence
-    private ElapsedTime directFullTimer = new ElapsedTime();  // New timer for pickUpFull sequence
-
+    private int pickUpFullState = 0;
+    private boolean pickUpFullInProgress = false;
+    private ElapsedTime pickUpFullTimer = new ElapsedTime();
+    private int directState = 0;
+    private boolean directInProgress = false;
+    private ElapsedTime directFullTimer = new ElapsedTime();
     private DistanceSensor sensor;
 
-    public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
+    public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry, Follower follower) {
         this.telemetry = telemetry;
-
+        this.follower = follower;
         OuttakeArmLeft = hardwareMap.get(Servo.class, "OuttakeArmLeft");
         OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
         OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
@@ -127,7 +119,6 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public void prepareScoreViper() {
-        // Only lift the viper to high bar position
     }
 
     public void completeScoringPosition() {
@@ -140,8 +131,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     public boolean distance() {
         double a = sensor.getDistance(DistanceUnit.CM);
         boolean b = false;
-        if(a <= 1.5 && a >= 0.5)
-        {
+        if(a <= 1.5 && a >= 0.5) {
             b = true;
         }
         return b;
@@ -152,7 +142,9 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public void setMaxSpeed(double speed) {
-        follower.setMaxPower(speed);
+        if (follower != null) {
+            follower.setMaxPower(speed);
+        }
     }
 
     public void setClaw(ClawState state) {

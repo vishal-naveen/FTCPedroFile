@@ -33,7 +33,7 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
 
     @Override
     public void initialize() {
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
         this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
         Constants.setConstants(FConstants.class, LConstants.class);

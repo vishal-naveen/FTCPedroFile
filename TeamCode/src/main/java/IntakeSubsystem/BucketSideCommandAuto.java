@@ -30,7 +30,7 @@ public class BucketSideCommandAuto extends CommandOpMode {
     @Override
     public void initialize() {
         bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
-        outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry);
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
