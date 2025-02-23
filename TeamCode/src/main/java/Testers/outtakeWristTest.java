@@ -31,28 +31,23 @@ public class outtakeWristTest extends OpMode {
         testServo = hardwareMap.get(Servo.class, "OuttakeWrist");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
         OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
-        OuttakeArmLeft = hardwareMap.get(Servo.class, "leftArmServo");
-        OuttakeArmRight = hardwareMap.get(Servo.class, "rightArmServo");
+        OuttakeArmLeft = hardwareMap.get(Servo.class, "OuttakeArmLeft");
+        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
 //
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-//        OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
-        OuttakeArmLeft.setPosition(0);
-        OuttakeArmRight.setPosition(1);
-        OuttakeWrist.setPosition(0);
-        OuttakeWristPivot.setPosition(0);
 
     }
 
     @Override
     public void loop() {
 
-        viperMotor.setTargetPosition(200);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(0.5);
+//        viperMotor.setTargetPosition(200);
+//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        viperMotor.setPower(0.5);
         // Gamepad 1 controls
 //        if(gamepad1.b) {
 //            OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
@@ -89,15 +84,11 @@ public class outtakeWristTest extends OpMode {
         if (gamepad2.left_bumper) {
             double newPos = testServo.getPosition() + INCREMENT;
             testServo.setPosition(newPos);
-            OuttakeArmLeft.setPosition(0);
-            OuttakeArmRight.setPosition(1);
         }
         // Right bumper: Decrease servo position by INCREMENT
         if (gamepad2.right_bumper) {
             double newPos = testServo.getPosition() - INCREMENT;
             testServo.setPosition(newPos);
-            OuttakeArmLeft.setPosition(0);
-            OuttakeArmRight.setPosition(1);
         }
 
         // Gamepad 2 controls

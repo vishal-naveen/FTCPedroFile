@@ -23,8 +23,8 @@ public class doubleArmTester extends OpMode {
     @Override
     public void init() {
         // Map your servos using the names set in the robot configuration
-        leftArmServo = hardwareMap.get(Servo.class, "leftArmServo");
-        rightArmServo = hardwareMap.get(Servo.class, "rightArmServo");
+        leftArmServo = hardwareMap.get(Servo.class, "OuttakeArmLeft");
+        rightArmServo = hardwareMap.get(Servo.class, "OuttakeArmRight");
 
         // Initialize both servos to their starting positions
         leftArmServo.setPosition(leftArmPos);

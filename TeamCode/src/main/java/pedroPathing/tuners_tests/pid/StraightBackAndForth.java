@@ -12,6 +12,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -34,6 +35,8 @@ import pedroPathing.constants.LConstants;
 public class StraightBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
+    private Servo Arm;
+
     public static double DISTANCE = 40;
 
     private boolean forward = true;
@@ -49,6 +52,9 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void init() {
+
+        Arm = hardwareMap.get(Servo.class, "NintakeArm");
+
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
 
@@ -64,6 +70,8 @@ public class StraightBackAndForth extends OpMode {
                             + " inches forward. The robot will go forward and backward continuously"
                             + " along the path. Make sure you have enough room.");
         telemetryA.update();
+
+        Arm.setPosition(0.1);
     }
 
     /**

@@ -21,8 +21,8 @@ import Positions.Commands;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name="pushCommandBase15", group = "Auto Testing")
-public class pushCommandBase extends CommandOpMode {
+@Autonomous(name="directScoringTestPushCommandBase", group = "Auto Testing")
+public class directScoringTestPushCommandBase extends CommandOpMode {
     public PathChain chain;
     public Follower follower;
     private OuttakeSubsystem outtakeSubsystem;
@@ -60,9 +60,8 @@ public class pushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
 //                                .andThen(Commands.openClaw(outtakeSubsystem)),
                         Commands.closeClawThenScorePreload(outtakeSubsystem)
-                                .andThen( Commands.followPath(follower, preloadBeforePath))
+                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(2500))
                                 .andThen(Commands.flick(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
 
@@ -85,7 +84,6 @@ public class pushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pushToScoreBefore1))
 //                                .andThen(Commands.sleep(10))
                                 .andThen(Commands.flick(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)

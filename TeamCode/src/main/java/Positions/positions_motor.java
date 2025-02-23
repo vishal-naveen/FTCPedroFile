@@ -8,15 +8,25 @@ public class positions_motor {
     public static final int VIPER_GROUND = 25;
     public static final int VIPER_HIGHBAR = 300;
 
-    public static final int STATE_VIPER_HIGHBAR = 410;
+    public static final double STATE_VIPER_HIGHBAR = 410;
 
-    public static final int STATE_OUTTAKEARMLEFT_HIGHBAR = 0;
-    public static final int STATE_OUTTAKEARMLEFT_PICKUP = 1;
-    public static final int STATE_OUTTAKEARMRIGHT_HIGHBAR = 1;
-    public static final int STATE_OUTTAKEARMRIGHT_PICKUP = 0;
-    public static final int STATE_OUTTAKEWRIST_HIGHBAR = 410;
+    public static final double STATE_OUTTAKEARMLEFT_HIGHBAR = 0.2;
+ public static final double STATE_OUTTAKEARMLEFT_FLICK = 0;
+    public static final double STATE_OUTTAKEARMLEFT_PICKUP = 1;
+    public static final double STATE_OUTTAKEARMRIGHT_HIGHBAR = 0.8;
+ public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
+    public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
 
-    public static final int STATE_OUTTAKEWRIST_PICKUP = 410;
+
+ public static final double STATE_OUTTAKEWRIST_HIGHBAR = 0.3;
+
+    public static final double STATE_OUTTAKEWRIST_PICKUP = 0.495;
+
+ public static final double STATE_OUTTAKEWRISTPIVOT_PICKUP = 0.7144;
+ public static final double STATE_OUTTAKEWRISTPIVOT_HIGHBAR = 0.055;
+
+ public static final double STATE_OUTTAKECLAW_OPEN = 0.52;
+ public static final double STATE_OUTTAKECLAW_CLOSE = 0.15;
 
 
 

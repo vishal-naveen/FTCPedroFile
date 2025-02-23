@@ -23,12 +23,11 @@ public class AutoPaths {
     private Path pickPath;
     private boolean autoSequenceActive = false;
     private int currentCycle = 0;
-    private int maxCycles = 3;
     private ElapsedTime pathTimer = new ElapsedTime();
     private static final double PATH_TIMEOUT = 3000;
     private static final double STOP_DISTANCE = 5.0;
     private static final double JOYSTICK_THRESHOLD = 0.1;
-    private static final double JOYSTICK_DEBOUNCE_TIME = 200;
+    private static final double JOYSTICK_DEBOUNCE_TIME = 100; // Reduced for responsiveness
     private boolean isFollowingPath = false;
     private Path currentPath = null;
     private Gamepad gamepad;
@@ -68,7 +67,7 @@ public class AutoPaths {
             telemetry.addData("Warning", "Ultrasonic sensor not initialized");
             return Double.MAX_VALUE;
         }
-        return (100 * (ultra.getVoltage() / 3.3)) / 2.54; // Reverted to original working formula
+        return (100 * (ultra.getVoltage() / 3.3)) / 2.54;
     }
 
     public boolean isActive() {
@@ -123,16 +122,23 @@ public class AutoPaths {
         return !follower.isBusy() || pathTimer.milliseconds() >= PATH_TIMEOUT;
     }
 
+    //issue. telegram check
     private boolean followPathWithDistanceCheck(Path path) {
         follower.followPath(path);
-        while (follower.isBusy() && !isJoystickActive()) { // Removed Thread.sleep(10)
+        while (follower.isBusy() && !isJoystickActive()) {
             follower.update();
             telemetry.addData("Distance (inches)", "%.2f", getDistanceInches());
             telemetry.addData("Joystick Active", isJoystickActive());
             telemetry.update();
 
-            if (isTooClose()) {
+            if (path == pickPath && isTooClose()) {
                 follower.breakFollowing();
+                return false;
+            }
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return false;
             }
         }
@@ -143,6 +149,8 @@ public class AutoPaths {
         return true;
     }
 
+    //ts buns. still working
+    //NEED TO FIX  <----------
     private void transitionToManual() {
         if (!isTransitioningToManual) {
             isTransitioningToManual = true;
@@ -166,20 +174,19 @@ public class AutoPaths {
                 Commands.openClaw(outtakeSubsystem);
                 pathTimer.reset();
                 if (!followPathWithDistanceCheck(pickPath)) {
-                    stopAuto();
+
+                    currentCycle++;
+                    isFollowingPath = false;
                     return;
                 }
             } else if (currentPath == pickPath) {
                 currentCycle++;
-                if (currentCycle >= maxCycles) {
+                currentPath = scorePath;
+                pathTimer.reset();
+                isFollowingPath = false;
+                if (!followPathWithDistanceCheck(scorePath)) {
                     stopAuto();
-                } else {
-                    currentPath = scorePath;
-                    pathTimer.reset();
-                    if (!followPathWithDistanceCheck(scorePath)) {
-                        stopAuto();
-                        return;
-                    }
+                    return;
                 }
             }
         }
@@ -193,11 +200,7 @@ public class AutoPaths {
             telemetry.addData("Is Too Close", isTooClose());
             telemetry.addData("Joystick Active", isJoystickActive());
             telemetry.addData("Transition Progress", "%.2f", transitionProgress);
-
-            if (isTooClose()) {
-                stopAuto();
-                return;
-            }
+            telemetry.addData("Current Cycle", currentCycle);
 
             if (isJoystickActive()) {
                 if (!isTransitioningToManual) {

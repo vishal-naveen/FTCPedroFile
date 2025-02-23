@@ -29,12 +29,15 @@ public class Commands {
             this.isPathChain = false;
         }
 
+
         public FollowPathCommand(Follower follower, PathChain pathChain) {
             this.follower = follower;
             this.path = null;
             this.pathChain = pathChain;
             this.isPathChain = true;
         }
+
+
 
         @Override
         public void initialize() {
@@ -65,6 +68,7 @@ public class Commands {
 
 
 
+
     // Add this to your Commands class
     public static Command preloadPosition(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
@@ -90,6 +94,12 @@ public class Commands {
     public static Command pickUpSpecimen(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
             outtakeSubsystem.pickUpFull();
+        }, outtakeSubsystem);
+    }
+
+    public static Command directPlacment(OuttakeSubsystem outtakeSubsystem) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.directPlacement();
         }, outtakeSubsystem);
     }
 
@@ -126,6 +136,12 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
+    public static Command setMaxPower(OuttakeSubsystem outtakeSubsystem, double speed) {
+        return new InstantCommand(() -> {
+            outtakeSubsystem.setMaxSpeed(speed);
+        }, outtakeSubsystem);
+    }
+
     public static Command completeScorePosition(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
             outtakeSubsystem.completeScoringPosition();
@@ -134,9 +150,18 @@ public class Commands {
 
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
+                new WaitCommand(250),
+                Commands.closeClaw(outtakeSubsystem),
+                new WaitCommand(250), // Wait for 500 milliseconds (0.5 seconds)
+                Commands.pickUpSpecimen(outtakeSubsystem)
+        );
+    }
+
+    public static Command closeClawThenDirect(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
                 Commands.closeClaw(outtakeSubsystem),
                 new WaitCommand(125), // Wait for 500 milliseconds (0.5 seconds)
-                Commands.pickUpSpecimen(outtakeSubsystem)
+                Commands.directPlacment(outtakeSubsystem)
         );
     }
 

@@ -1,5 +1,7 @@
 package Subsystem;
 
+import static Subsystem.FiveSpecimenPaths.follower;
+
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,12 +11,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import Positions.Constants;
 import Positions.positions_motor;
 
 public class OuttakeSubsystem extends SubsystemBase {
-    private final Servo OuttakeArm, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
-//    private final DcMotorEx viperMotor;
+    private final Servo OuttakeArmLeft, OuttakeArmRight, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
     private Telemetry telemetry;
 
     private int pickupState = 0;
@@ -25,29 +25,42 @@ public class OuttakeSubsystem extends SubsystemBase {
     private boolean backProgress = false;
     private ElapsedTime backTimer = new ElapsedTime();
 
-
-
     private int preloadPickupState = 0;
     private boolean preloadPickupInProgress = false;
     private ElapsedTime preloadPickupTimer = new ElapsedTime();
 
+    private int pickUpFullState = 0;          // New state for pickUpFull sequence
+    private boolean pickUpFullInProgress = false;  // New flag for pickUpFull sequence
+    private ElapsedTime pickUpFullTimer = new ElapsedTime();  // New timer for pickUpFull sequence
+
+    private int directState = 0;          // New state for pickUpFull sequence
+    private boolean directInProgress = false;  // New flag for pickUpFull sequence
+    private ElapsedTime directFullTimer = new ElapsedTime();  // New timer for pickUpFull sequence
+
     private DistanceSensor sensor;
 
-    public void preloadPickUpFull() {
-//        preloadPickupState = 0;
-//        preloadPickupTimer.reset();
-//        preloadPickupInProgress = true;
-        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-        OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+    public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
+        this.telemetry = telemetry;
+
+        OuttakeArmLeft = hardwareMap.get(Servo.class, "OuttakeArmLeft");
+        OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
+        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
+        OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
+        OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
+        sensor = hardwareMap.get(DistanceSensor.class, "sensor");
     }
+
+    public void preloadPickUpFull() {
+        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+    }
+
     public void pickUpFull() {
-//        pickupState = 0;
-//        pickupTimer.reset();
-//        pickupInProgress = true;
-        OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-        OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
-        OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+        pickUpFullState = 0;
+        pickUpFullTimer.reset();
+        pickUpFullInProgress = true;
     }
 
     public void pickUpFullPreload() {
@@ -56,8 +69,11 @@ public class OuttakeSubsystem extends SubsystemBase {
         pickupInProgress = true;
     }
 
-
-
+    public void directPlacement() {
+        directState = 0;
+        directFullTimer.reset();
+        directInProgress = true;
+    }
 
     public void pickUpPOS() {
         backState = 0;
@@ -66,30 +82,23 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public enum OuttakeState {
-        PICKUP(Constants.OuttakeArmPickUpSpecimen,
-               Constants.OuttakeWristPickUpSpecimen,
-               Constants.OuttakeWristPivotSpecimenPickUp,
-               Constants.VIPER_GROUND),
-        SCORE(Constants.OuttakeArmNewHighBar,
-              Constants.OuttakeWristNewHighBar,
-              Constants.OuttakeWristPivotHighBar,
-              Constants.VIPER_HIGHBAR),
+        PICKUP(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP,
+                positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP,
+                positions_motor.STATE_OUTTAKEWRIST_PICKUP,
+                positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP,
+                positions_motor.VIPER_GROUND),
+        SCORE(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR,
+                positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR,
+                positions_motor.STATE_OUTTAKEWRIST_HIGHBAR,
+                positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR,
+                positions_motor.STATE_VIPER_HIGHBAR);
 
-        PRELOAD(Constants.OuttakeArmPedroAuto,         // 0.6
-                Constants.OuttakeWristPedroAuto,        // 0
-                Constants.OuttakeWristPivotPedro,    // 0
-                Constants.VIPER_GROUND),
+        private final double armLeftPos, armRightPos, wristPos, wristPivotPos, viperPos;
 
-        FLICK(Constants.OuttakeArmNewHighBarFLICK,     // 0.15
-                Constants.OuttakeWristNewHighBarFLICK,    // 0.8
-                Constants.OuttakeWristPivotHighBar,       // 0
-                Constants.VIPER_HIGHBAR);
-
-
-        private final double armPos, wristPos, wristPivotPos, viperPos;
-
-        OuttakeState(double armPos, double wristPos, double wristPivotPos, int viperPos) {
-            this.armPos = armPos;
+        OuttakeState(double armLeftPos, double armRightPos, double wristPos,
+                     double wristPivotPos, double viperPos) {
+            this.armLeftPos = armLeftPos;
+            this.armRightPos = armRightPos;
             this.wristPos = wristPos;
             this.wristPivotPos = wristPivotPos;
             this.viperPos = viperPos;
@@ -97,8 +106,8 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public enum ClawState {
-        OPEN(Constants.OuttakeClawOpen),
-        CLOSED(Constants.OuttakeClawClose);
+        OPEN(positions_motor.STATE_OUTTAKECLAW_OPEN),
+        CLOSED(positions_motor.STATE_OUTTAKECLAW_CLOSE);
 
         private final double position;
         ClawState(double position) {
@@ -109,50 +118,23 @@ public class OuttakeSubsystem extends SubsystemBase {
     private OuttakeState currentState = OuttakeState.SCORE;
     private ClawState clawState = ClawState.CLOSED;
 
-
-
-    public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
-        this.telemetry = telemetry;
-
-        OuttakeArm = hardwareMap.get(Servo.class, "OuttakeArm");
-        OuttakeWrist = hardwareMap.get(Servo.class, "OuttakeWrist");
-        OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
-        OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
-        sensor = hardwareMap.get(DistanceSensor.class, "sensor");
-
-//        viperMotor = hardwareMap.get(DcMotorEx.class, "viper1motor");
-//        viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-//        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-
-
     public void setToState(OuttakeState state) {
         currentState = state;
-        OuttakeArm.setPosition(state.armPos);
+        OuttakeArmLeft.setPosition(state.armLeftPos);
+        OuttakeArmRight.setPosition(state.armRightPos);
         OuttakeWrist.setPosition(state.wristPos);
         OuttakeWristPivot.setPosition(state.wristPivotPos);
-
-//        viperMotor.setTargetPosition((int)state.viperPos);
-//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        viperMotor.setPower(1);
     }
-
-
 
     public void prepareScoreViper() {
         // Only lift the viper to high bar position
-//        viperMotor.setTargetPosition((int)OuttakeState.SCORE.viperPos);
-//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        viperMotor.setPower(1);
     }
 
     public void completeScoringPosition() {
-        // Set arm and wrist positions after viper is lifted
-        OuttakeArm.setPosition(OuttakeState.SCORE.armPos);
-        OuttakeWrist.setPosition(OuttakeState.SCORE.wristPos);
-        OuttakeWristPivot.setPosition(OuttakeState.SCORE.wristPivotPos);
+        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
     }
 
     public boolean distance() {
@@ -166,7 +148,11 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public void preloadPosition() {
-        setToState(OuttakeState.PRELOAD);
+        setToState(OuttakeState.PICKUP);
+    }
+
+    public void setMaxSpeed(double speed) {
+        follower.setMaxPower(speed);
     }
 
     public void setClaw(ClawState state) {
@@ -178,7 +164,6 @@ public class OuttakeSubsystem extends SubsystemBase {
         setToState(OuttakeState.SCORE);
     }
 
-
     public void openClaw() {
         setClaw(ClawState.OPEN);
     }
@@ -186,28 +171,30 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void closeClaw() {
         setClaw(ClawState.CLOSED);
     }
+
     public void flick() {
-        setToState(OuttakeState.FLICK);
+        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
+        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
+        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
     }
-
-
 
     @Override
     public void periodic() {
         if(pickupInProgress) {
-
             switch(pickupState) {
                 case 0:
-                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
                     if(pickupTimer.milliseconds() > 100) {
                         pickupState = 1;
-                        pickupTimer.reset();  // Reset timer for next state
+                        pickupTimer.reset();
                     }
                     break;
 
                 case 1:
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     if(pickupTimer.milliseconds() > 50) {
                         pickupInProgress = false;
                     }
@@ -216,23 +203,21 @@ public class OuttakeSubsystem extends SubsystemBase {
         }
 
         if(backProgress) {
-
             switch(backState) {
                 case 0:
-                    if(backTimer.milliseconds() > 500)
-                    {
-                        OuttakeArm.setPosition(positions_motor.OuttakeArmPickUpSpecimen);
-                        OuttakeWrist.setPosition(positions_motor.OuttakeWristPickUpSpecimen);
+                    if(backTimer.milliseconds() > 500) {
+                        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP);
+                        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP);
+                        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_PICKUP);
                         if(backTimer.milliseconds() > 1200) {
                             backState = 1;
-                            backTimer.reset();  // Reset timer for next state
+                            backTimer.reset();
                         }
                     }
-
                     break;
 
                 case 1:
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotSpecimenPickUp);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     if(backTimer.milliseconds() > 50) {
                         backProgress = false;
                     }
@@ -243,8 +228,9 @@ public class OuttakeSubsystem extends SubsystemBase {
         if(preloadPickupInProgress) {
             switch(preloadPickupState) {
                 case 0:
-                    OuttakeArm.setPosition(positions_motor.OuttakeArmNewHighBar);
-                    OuttakeWrist.setPosition(positions_motor.OuttakeWristNewHighBar);
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
                     if(preloadPickupTimer.milliseconds() > 300) {
                         preloadPickupState = 1;
                         preloadPickupTimer.reset();
@@ -252,7 +238,7 @@ public class OuttakeSubsystem extends SubsystemBase {
                     break;
 
                 case 1:
-                    OuttakeWristPivot.setPosition(positions_motor.OuttakeWristPivotHighBar);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     if(preloadPickupTimer.milliseconds() > 75) {
                         preloadPickupInProgress = false;
                     }
@@ -260,15 +246,67 @@ public class OuttakeSubsystem extends SubsystemBase {
             }
         }
 
+        if(pickUpFullInProgress) {
+            switch(pickUpFullState) {
+                case 0:
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+                    if(pickUpFullTimer.milliseconds() > 5) {
+                        pickUpFullState = 1;
+                        pickUpFullTimer.reset();
+                    }
+                    break;
 
+                case 1:
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+                    if(pickUpFullTimer.milliseconds() > 50) {
+                        pickUpFullInProgress = false;
+                    }
+                    break;
+            }
+        }
+
+        if(directInProgress) {
+            switch(directState) {
+                case 0:
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+                    if(directFullTimer.milliseconds() > 500) {
+                        directState = 1;
+                        directFullTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+                    if(directFullTimer.milliseconds() > 1800) {
+                        directState = 2;
+                        directFullTimer.reset();
+                    }
+                    break;
+
+                case 2:
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
+                    if(directFullTimer.milliseconds() > 50) {
+                        directState = 3;
+                        directFullTimer.reset();
+                        directInProgress = false;
+                    }
+                    break;
+            }
+        }
 
         telemetry.addData("Outtake State", currentState);
         telemetry.addData("Claw State", clawState);
         telemetry.addData("Pickup State", pickupState);
         telemetry.addData("Pickup Timer", pickupTimer.milliseconds());
         telemetry.addData("Pickup In Progress", pickupInProgress);
-        telemetry.addData("Outtake State", currentState);
-        telemetry.addData("Claw State", clawState);
+        telemetry.addData("PickUpFull State", pickUpFullState);
+        telemetry.addData("PickUpFull Timer", pickUpFullTimer.milliseconds());
+        telemetry.addData("PickUpFull In Progress", pickUpFullInProgress);
         telemetry.update();
     }
 }
