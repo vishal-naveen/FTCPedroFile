@@ -231,7 +231,7 @@ public class AutoPaths {
 
     public void setManualDrive(double x, double y, double rotate, double power) {
         if (!isActive() || isTransitioningToManual) {
-            follower.setTeleOpMovementVectors(y * power, x * power, rotate * power, true);
+            follower.setTeleOpMovementVectors(y * power, x * power, rotate * power, false);
         }
     }
 

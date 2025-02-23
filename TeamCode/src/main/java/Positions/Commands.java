@@ -22,7 +22,7 @@ public class Commands {
         private final PathChain pathChain;
         private final boolean isPathChain;
 
-        public FollowPathCommand(Follower follower, Path path) {
+        public FollowPathCommand(Follower follower, Path path, double power) {
             this.follower = follower;
             this.path = path;
             this.pathChain = null;
@@ -62,8 +62,8 @@ public class Commands {
 
 
     // Path following methods
-    public static Command followPath(Follower follower, Path path) {
-        return new FollowPathCommand(follower, path);
+    public static Command followPath(Follower follower, Path path, double power) {
+        return new FollowPathCommand(follower, path, power);
     }
 
 
@@ -150,9 +150,18 @@ public class Commands {
 
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                new WaitCommand(250),
+                new WaitCommand(750),
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(250), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
+                Commands.pickUpSpecimen(outtakeSubsystem)
+        );
+    }
+
+    public static Command closeClawThenScoreCorner(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                new WaitCommand(100),
+                Commands.closeClaw(outtakeSubsystem),
+                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
         );
     }

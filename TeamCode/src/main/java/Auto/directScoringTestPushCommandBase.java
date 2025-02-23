@@ -72,8 +72,9 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
                         Commands.followPath(follower, pushBlock1ToPushBlock2Up),
                         Commands.followPath(follower, pushBlock2UpToPushBlock2),
                         Commands.followPath(follower, pushBlock2ToPushBlock3Up),
-                        Commands.followPath(follower, pushBlock3UpToPushBlock3)
-                                .withTimeout(2000),
+                        Commands.followPath(follower, pushBlock3UpToPushBlock3),
+                        Commands.followPath(follower, pushBlock3ToFinal)
+                                .withTimeout(200),
 
                         // First scoring sequence
 
@@ -83,11 +84,8 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
 //                        Commands.sleep(10)
 //                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
-//                                .andThen(Commands.sleep(10))
-                                .andThen(Commands.flick(outtakeSubsystem)),
-                        Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
-//                                .raceWith(time>100)
+                                .andThen(Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(2500))
+                                .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
 
@@ -97,13 +95,11 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem,0.2))
                                 .andThen(Commands.followPath(follower, score1ToPickUp).withTimeout(100)),
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
-                        // Second scoring sequence
+
+
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-//                                .andThen(Commands.sleep(50))
+                                .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(2500))
                                 .andThen(Commands.flick(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.pickUpPOS(outtakeSubsystem)
@@ -114,10 +110,8 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
 
                         // Third scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
+                                .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(2500))
                                 .andThen(Commands.flick(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.pickUpPOS(outtakeSubsystem)
@@ -127,10 +121,8 @@ public class directScoringTestPushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
-                                .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
+                                .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(2500))
                                 .andThen(Commands.flick(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
 

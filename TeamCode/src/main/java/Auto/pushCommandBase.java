@@ -75,6 +75,8 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.followPath(follower, pushBlock2ToPushBlock3Up),
                         Commands.followPath(follower, pushBlock3UpToPushBlock3)
                                 .withTimeout(2000),
+                        Commands.followPath(follower, pushBlock3ToFinal)
+                                .withTimeout(100),
 
                         // First scoring sequence
 
@@ -83,13 +85,10 @@ public class pushCommandBase extends CommandOpMode {
 
 //                        Commands.sleep(10)
 //                                .andThen(Commands.closeClawThenScore(outtakeSubsystem))
-                        Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
+                        Commands.closeClawThenScoreCorner(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
-//                                .andThen(Commands.sleep(10))
                                 .andThen(Commands.flick(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
-//                                .raceWith(time>100)
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
 
@@ -101,7 +100,6 @@ public class pushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
                         // Second scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
 //                                .andThen(Commands.sleep(50))
                                 .andThen(Commands.flick(outtakeSubsystem))
@@ -116,7 +114,6 @@ public class pushCommandBase extends CommandOpMode {
 
                         // Third scoring sequence
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(300))
@@ -129,7 +126,6 @@ public class pushCommandBase extends CommandOpMode {
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem,1)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)
-                                .andThen(Commands.sleep(250))
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
                                 .andThen(Commands.flick(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))
