@@ -40,8 +40,8 @@ public class BucketSidePaths {
     private static final Pose pickUpBlock1Pos = new Pose(24, 123.5, Math.toRadians(170));
     private static final Pose pickUpBlock2Pos = new Pose(25.5, 133.3, Math.toRadians(175));
 
-    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 123.6, Math.toRadians(260));
-    private static final Pose pickUpBlock3Pos = new Pose(45.9, 128.5, Math.toRadians(260));
+    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 115.6, Math.toRadians(260));
+    private static final Pose pickUpBlock3Pos = new Pose(45.9, 117.5, Math.toRadians(260));
     private static final Pose park = new Pose(62.6, 95.2, Math.toRadians(270));
 
     // Paths

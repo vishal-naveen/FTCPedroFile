@@ -28,22 +28,17 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     private boolean isArmExtended = false;
     private boolean isPivotHorizontal = false;
 
-    private int viperDownState = 0;
-    private ElapsedTime viperDownTimer = new ElapsedTime();
-    private boolean viperDownInProgress = false;
-
-    private boolean isViperAtTarget = false;
-    private static final int POSITION_TOLERANCE = 20;
+    private ElapsedTime viperTimer = new ElapsedTime();
+    private boolean viperMoving = false;
+    private static final double VIPER_MOVE_TIMEOUT = 5000; // 5 seconds timeout
     private static final double VIPER_HOLDING_POWER = 0.1;
-
-    private ElapsedTime groundPowerTimer = new ElapsedTime();
-    private boolean isGroundTimerActive = false;
-    private static final double GROUND_POWER_TIMEOUT = 5000;
+    private static final int POSITION_TOLERANCE = 50; // Increased from 20 to 50 for more leniency
 
     private int lastViperPosition = 0;
-    private ElapsedTime positionChangeTimer = new ElapsedTime();
-    private static final int POSITION_CHANGE_THRESHOLD = 5;
-    private static final long POSITION_TIMEOUT = 750;
+    private ElapsedTime stallTimer = new ElapsedTime();
+    private boolean stallCheckActive = false;
+    private static final int STALL_THRESHOLD = 5; // Ticks
+    private static final double STALL_TIMEOUT = 250; // 250ms
 
     public BucketSideAutoSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -62,8 +57,8 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
         viperMotor = hardwareMap.get(DcMotorEx.class, "viper1motor");
         viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void startTransfer() {
@@ -73,40 +68,6 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         updateArmExtensionState();
         updatePivotState();
     }
-
-//    private void updateViperMotorState() {
-//        if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-//            int currentPos = viperMotor.getCurrentPosition();
-//            int targetPos = viperMotor.getTargetPosition();
-//
-//            if (targetPos < 50) {
-//                int positionDelta = Math.abs(currentPos - lastViperPosition);
-//                if (positionDelta <= POSITION_CHANGE_THRESHOLD) {
-//                    if (positionChangeTimer.time() > POSITION_TIMEOUT) {
-//                        viperMotor.setPower(0);
-//                        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//                        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//                        positionChangeTimer.reset();
-//                        return;
-//                    }
-//                } else {
-//                    positionChangeTimer.reset();
-//                }
-//            } else {
-//                positionChangeTimer.reset();
-//            }
-//
-//            if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
-//                isViperAtTarget = true;
-//                viperMotor.setPower(VIPER_HOLDING_POWER);
-//            } else {
-//                isViperAtTarget = false;
-//                viperMotor.setPower(1);
-//            }
-//
-//            lastViperPosition = currentPos;
-//        }
-//    }
 
     private void updateArmExtensionState() {
         double leftArmPosition = IntakeArmLeft.getPosition();
@@ -120,10 +81,44 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         isPivotHorizontal = Math.abs(pivotPosition - positions_motor.NIntakeWristPivotHorizontal) < 0.05;
     }
 
-    private void cancelGroundTimer() {
-        if (isGroundTimerActive) {
-            isGroundTimerActive = false;
-            groundPowerTimer.reset();
+    private void updateViperMotor() {
+        if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION && viperMoving) {
+            int currentPos = viperMotor.getCurrentPosition();
+            int targetPos = viperMotor.getTargetPosition();
+
+            // Stall detection for ground position
+            if (targetPos == positions_motor.VIPER_GROUND) {
+                int positionDelta = Math.abs(currentPos - lastViperPosition);
+                if (!stallCheckActive) {
+                    stallCheckActive = true;
+                    lastViperPosition = currentPos;
+                    stallTimer.reset();
+                } else if (stallTimer.milliseconds() > STALL_TIMEOUT) {
+                    if (positionDelta < STALL_THRESHOLD) {
+                        viperMotor.setPower(0);
+                        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        viperMoving = false;
+                        stallCheckActive = false;
+                        return;
+                    }
+                    lastViperPosition = currentPos;
+                    stallTimer.reset();
+                }
+            } else {
+                stallCheckActive = false;
+            }
+
+            // Position control
+            if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
+                viperMotor.setPower(VIPER_HOLDING_POWER);
+                viperMoving = false;
+            } else if (viperTimer.milliseconds() > VIPER_MOVE_TIMEOUT) {
+                viperMotor.setPower(0);
+                viperMoving = false;
+            } else {
+                viperMotor.setPower(1.0); // Full power to ensure movement
+            }
         }
     }
 
@@ -213,16 +208,16 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     }
 
     public void viperDown() {
-//        viperDownState = 0;
-//        viperDownTimer.reset();
-//        viperDownInProgress = true;
         OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
         OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
         viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1.0);
+        viperTimer.reset();
+        viperMoving = true;
+        stallCheckActive = false; // Reset stall check
     }
 
     public void setHighBucket() {
@@ -232,13 +227,19 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
         viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1.0);
+        viperTimer.reset();
+        viperMoving = true;
+        stallCheckActive = false;
     }
 
     public void setHighBucketViper() {
         viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1.0);
+        viperTimer.reset();
+        viperMoving = true;
+        stallCheckActive = false;
     }
 
     public void setPickupPOS() {
@@ -263,17 +264,19 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     public void parkOuttake() {
         viperMotor.setTargetPosition(0);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(1.0);
         OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+        viperTimer.reset();
+        viperMoving = true;
+        stallCheckActive = false;
     }
 
     @Override
     public void periodic() {
-//        updateViperMotorState();
+        updateViperMotor();
 
         if (transferInProgress) {
-            cancelGroundTimer();
             switch (transferState) {
                 case 0:
                     updateArmExtensionState();
@@ -339,7 +342,10 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
+                    viperMotor.setPower(1.0);
+                    viperTimer.reset();
+                    viperMoving = true;
+                    stallCheckActive = false;
                     if (transferTimer.milliseconds() > 1000) {
                         transferState = 5;
                         transferTimer.reset();
@@ -353,35 +359,5 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     break;
             }
         }
-
-        if (viperDownInProgress) {
-            switch (viperDownState) {
-                case 0:
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-                    if (viperDownTimer.milliseconds() > 750) {
-                        viperDownState = 1;
-                        viperDownTimer.reset();
-                    }
-                    break;
-
-                case 1:
-                    viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
-                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
-//                    groundPowerTimer.reset();
-//                    isGroundTimerActive = true;
-//                    viperDownInProgress = false;
-                    break;
-            }
-        }
-
-//        if (isGroundTimerActive && groundPowerTimer.milliseconds() > GROUND_POWER_TIMEOUT) {
-//            viperMotor.setPower(0);
-//            isGroundTimerActive = false;
-//        }
-
     }
 }
