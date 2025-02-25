@@ -12,7 +12,7 @@ import Positions.positions_motor;
 
 public class OuttakeSubsystem extends SubsystemBase {
     private final Servo OuttakeArmLeft, OuttakeArmRight, OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
-    private Telemetry telemetry;
+    private final Telemetry telemetry; // Can be null
     private final Follower follower;
     private int pickupState = 0;
     private boolean pickupInProgress = false;
@@ -32,7 +32,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     private DistanceSensor sensor;
 
     public OuttakeSubsystem(HardwareMap hardwareMap, Telemetry telemetry, Follower follower) {
-        this.telemetry = telemetry;
+        this.telemetry = telemetry; // Telemetry might be null
         this.follower = follower;
         OuttakeArmLeft = hardwareMap.get(Servo.class, "OuttakeArmLeft");
         OuttakeArmRight = hardwareMap.get(Servo.class, "OuttakeArmRight");
@@ -167,7 +167,7 @@ public class OuttakeSubsystem extends SubsystemBase {
     public void flick() {
         OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
-        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
     }
 
@@ -291,14 +291,17 @@ public class OuttakeSubsystem extends SubsystemBase {
             }
         }
 
-        telemetry.addData("Outtake State", currentState);
-        telemetry.addData("Claw State", clawState);
-        telemetry.addData("Pickup State", pickupState);
-        telemetry.addData("Pickup Timer", pickupTimer.milliseconds());
-        telemetry.addData("Pickup In Progress", pickupInProgress);
-        telemetry.addData("PickUpFull State", pickUpFullState);
-        telemetry.addData("PickUpFull Timer", pickUpFullTimer.milliseconds());
-        telemetry.addData("PickUpFull In Progress", pickUpFullInProgress);
-        telemetry.update();
+        // Null-safe telemetry calls
+        if (telemetry != null) {
+//            telemetry.addData("Outtake State", currentState);
+//            telemetry.addData("Claw State", clawState);
+//            telemetry.addData("Pickup State", pickupState);
+//            telemetry.addData("Pickup Timer", pickupTimer.milliseconds());
+//            telemetry.addData("Pickup In Progress", pickupInProgress);
+//            telemetry.addData("PickUpFull State", pickUpFullState);
+//            telemetry.addData("PickUpFull Timer", pickUpFullTimer.milliseconds());
+//            telemetry.addData("PickUpFull In Progress", pickUpFullInProgress);
+//            telemetry.update();
+        }
     }
 }

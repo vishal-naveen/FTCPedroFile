@@ -55,7 +55,7 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.closeClawThenScorePreload(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, preloadBeforePath))
                                 .andThen(Commands.flick(outtakeSubsystem))
-                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(300))
+                                .andThen(Commands.followPath(follower, scorePreload).withTimeout(250))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
                         Commands.followPath(follower, blueLineDirect)
@@ -92,7 +92,7 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score2ToPickUpBefore).withTimeout(1500))
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem, slowPower))
-                                .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(100)),
+                                .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(175)),
 //                                .andThen(Commands.setMaxPower(outtakeSubsystem, 1)),
 
                         Commands.closeClawThenScore(outtakeSubsystem)

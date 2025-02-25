@@ -17,8 +17,8 @@ public class positions_motor {
  public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
     public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
 
- public static final double STATE_OUTTAKEARMLEFT_TRANSFER_WAIT = 0.6;
- public static final double STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT = 0.4;
+ public static final double STATE_OUTTAKEARMLEFT_TRANSFER_WAIT = 0.7;
+ public static final double STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT = 0.3;
 
  public static final double STATE_OUTTAKEARMLEFT_TRANSFER = 0.8425;
  public static final double STATE_OUTTAKEARMRIGHT_TRANSFER = 0.1575;
@@ -26,15 +26,17 @@ public class positions_motor {
 
  public static final double STATE_OUTTAKEWRIST_HIGHBAR = 0.3;
 
+ public static final double STATE_OUTTAKEWRIST_FLICK = 0.5;
+
     public static final double STATE_OUTTAKEWRIST_PICKUP = 0.495;
 
- public static final double STATE_OUTTAKEWRIST_TRANSFER = 0.4167;
+ public static final double STATE_OUTTAKEWRIST_TRANSFER = 0.349;
 
  public static final double STATE_OUTTAKEWRISTPIVOT_PICKUP = 0.7144;
  public static final double STATE_OUTTAKEWRISTPIVOT_HIGHBAR = 0.055;
 
- public static final double STATE_OUTTAKECLAW_OPEN = 0.52;
- public static final double STATE_OUTTAKECLAW_CLOSE = 0.15;
+ public static final double STATE_OUTTAKECLAW_OPEN = 0.6378;
+ public static final double STATE_OUTTAKECLAW_CLOSE = 0.36;
 
 
  public static final double STATE_INTAKELEFTARM_CLOSE = 0.9;
@@ -61,12 +63,12 @@ public class positions_motor {
     public static final double NIntakeWristPickUp = 0.9;
 
     public static final double NIntakeWristPickUpBefore = 0.6;
-    public static final double NIntakeWristTransfer = 0.165;
+    public static final double NIntakeWristTransfer = 0.19;
     public static final double NIntakeWristPivotHorizontal = 0.205;
 
     public static final double NIntakeWristPivotVertical = 0.555;
 
-    public static final double NIntakeWristPivotTransfer = 0.9;
+    public static final double NIntakeWristPivotTransfer = 0.875;
     public static final double NIntakeClawOpen = 0.8;
 
     public static final double NIntakeClawOpenTransfer = 0.75;

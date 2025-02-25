@@ -75,7 +75,6 @@ public class FieldcentricTELE extends OpMode {
     private boolean lastStart = false;
 
     private static final double VIPER_HOLDING_POWER = 0.1;
-    private static final double VIPER_MAX_POWER = 1.0;
 
     private ElapsedTime groundPowerTimer = new ElapsedTime();
     private boolean isGroundTimerActive = false;
@@ -83,6 +82,7 @@ public class FieldcentricTELE extends OpMode {
 
     private boolean isManualResetActive = false;
     private boolean lastLeftBumper1 = false;
+    private boolean isStallCheckActive = false;
 
     private int intakeCloseState = 0;
     private ElapsedTime intakeCloseTimer = new ElapsedTime();
@@ -93,6 +93,12 @@ public class FieldcentricTELE extends OpMode {
 
     private boolean bPressed = false;
 
+
+    private int lastViperPosition = 0;
+    private ElapsedTime positionChangeTimer = new ElapsedTime();
+    private static final int POSITION_CHANGE_THRESHOLD = 5;
+    private static final long POSITION_TIMEOUT = 750; // 500ms timeout
+
     private void updatePivotState() {
         double pivotPosition = NintakeWristPivot.getPosition();
         isPivotHorizontal = Math.abs(pivotPosition - positions_motor.NIntakeWristPivotHorizontal) < 0.05;
@@ -101,15 +107,15 @@ public class FieldcentricTELE extends OpMode {
     private void updateArmExtensionState() {
         double leftArmPosition = IntakeArmLeft.getPosition();
         double rightArmPosition = IntakeArmRight.getPosition();
-        isArmExtended = (Math.abs(leftArmPosition - positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL) < 0.05 &&
-                Math.abs(rightArmPosition - positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL) < 0.05);
+        // Check if both arms are at extended positions (assuming opposite directions)
+        isArmExtended = (leftArmPosition == positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL &&
+                rightArmPosition == positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
     }
 
     private void cancelGroundTimer() {
         if (isGroundTimerActive) {
             isGroundTimerActive = false;
             groundPowerTimer.reset();
-            viperMotor.setPower(0); // Ensure motor stops when timer is canceled
         }
     }
 
@@ -117,17 +123,42 @@ public class FieldcentricTELE extends OpMode {
         if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
             int currentPos = viperMotor.getCurrentPosition();
             int targetPos = viperMotor.getTargetPosition();
-            double powerToApply = (Math.abs(currentPos - targetPos) > POSITION_TOLERANCE) ? VIPER_MAX_POWER : VIPER_HOLDING_POWER;
 
+            // Stall detection for ground position
+            if (targetPos == positions_motor.VIPER_GROUND) {
+                int positionDelta = Math.abs(currentPos - lastViperPosition);
+                if (!isStallCheckActive) {
+                    isStallCheckActive = true;
+                    lastViperPosition = currentPos;
+                    positionChangeTimer.reset(); // Using existing timer
+                } else if (positionChangeTimer.milliseconds() > 250) { // 250ms stall threshold
+                    if (positionDelta < 5) { // 5 ticks threshold
+                        viperMotor.setPower(0);
+                        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        isStallCheckActive = false;
+                        cancelGroundTimer();
+                        viperDownInProgress = false; // Reset state machine if active
+                        return;
+                    }
+                    lastViperPosition = currentPos;
+                    positionChangeTimer.reset();
+                }
+            } else {
+                isStallCheckActive = false; // Disable stall check for non-ground positions
+            }
+
+            // Standard position control
             if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
                 isViperAtTarget = true;
-                viperMotor.setPower(VIPER_HOLDING_POWER); // Hold position
+                viperMotor.setPower(VIPER_HOLDING_POWER);
             } else {
                 isViperAtTarget = false;
-                viperMotor.setPower(VIPER_MAX_POWER); // Move to target
+                viperMotor.setPower(1);
             }
+
+            lastViperPosition = currentPos;
         }
-        // If not in RUN_TO_POSITION mode, power is controlled manually elsewhere
     }
 
     private void checkManualReset() {
@@ -136,7 +167,6 @@ public class FieldcentricTELE extends OpMode {
             viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             isManualResetActive = false;
-            isViperAtTarget = false; // Reset target state
         }
     }
 
@@ -147,19 +177,18 @@ public class FieldcentricTELE extends OpMode {
         follower.setStartingPose(RobotPose.stopPose);
         follower.setMaxPower(0.9);
         try {
-            autoPaths = new AutoPaths(hardwareMap, follower, gamepad1);
+            autoPaths = new AutoPaths(hardwareMap, follower, gamepad1); // Telemetry removed from AutoPaths
         } catch (Exception e) {
-            // No telemetry for AutoPaths error; silently handle
+            // Silently handle exception since AutoPaths doesn't use telemetry
         }
 
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, null, this.follower); // No telemetry
-        this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, null); // No telemetry
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
+        this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); // Reset encoder first
-        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Start in manual mode
-        viperMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); // Brake when power is 0
+        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         IntakeArmLeft = hardwareMap.get(Servo.class, "IntakeArmLeft");
         IntakeArmRight = hardwareMap.get(Servo.class, "IntakeArmRight");
@@ -188,6 +217,8 @@ public class FieldcentricTELE extends OpMode {
         CommandScheduler.getInstance().run();
         follower.update();
         autoPaths.update();
+
+
 
         boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
                 Math.abs(gamepad1.left_stick_y) > 0.1 ||
@@ -366,7 +397,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(VIPER_MAX_POWER); // Ensure power is set
+                    viperMotor.setPower(1);
                     if (transferTimer.milliseconds() > 1000) {
                         transferState = 5;
                         transferTimer.reset();
@@ -424,7 +455,7 @@ public class FieldcentricTELE extends OpMode {
             OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
             viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
             viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            viperMotor.setPower(VIPER_MAX_POWER); // Ensure power is set
+            viperMotor.setPower(1);
         }
 
         if (gamepad2.start && !lastStart && !viperDownInProgress) {
@@ -437,9 +468,9 @@ public class FieldcentricTELE extends OpMode {
         if (viperDownInProgress) {
             switch (viperDownState) {
                 case 0:
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_PICKUP);
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     if (viperDownTimer.milliseconds() > 750) {
                         viperDownState = 1;
@@ -450,7 +481,7 @@ public class FieldcentricTELE extends OpMode {
                 case 1:
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_GROUND);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(VIPER_MAX_POWER); // Ensure power is set
+                    viperMotor.setPower(1);
                     groundPowerTimer.reset();
                     isGroundTimerActive = true;
                     viperDownInProgress = false;
@@ -459,13 +490,11 @@ public class FieldcentricTELE extends OpMode {
         }
 
         if (gamepad1.touchpad) {
-            viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Switch to manual mode
             viperMotor.setPower(0);
             cancelGroundTimer();
         }
 
         if (gamepad1.y) {
-            viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER); // Switch to manual mode
             viperMotor.setPower(-0.3);
             cancelGroundTimer();
         }
@@ -479,8 +508,8 @@ public class FieldcentricTELE extends OpMode {
         }
         lastLeftBumper1 = gamepad1.left_bumper;
 
-        // Check if ground timer expires
-        if (isGroundTimerActive && groundPowerTimer.milliseconds() >= GROUND_POWER_TIMEOUT) {
+        if (isGroundTimerActive && groundPowerTimer.milliseconds() > GROUND_POWER_TIMEOUT) {
+            // Timer expired, stop the motor
             viperMotor.setPower(0);
             isGroundTimerActive = false;
         }
@@ -488,12 +517,20 @@ public class FieldcentricTELE extends OpMode {
         updateViperMotorState();
         checkManualReset();
 
-        // Viper-specific telemetry
-        telemetry.addData("Viper Power", viperMotor.getPower());
-        telemetry.addData("Viper Target", viperMotor.getTargetPosition());
-        telemetry.addData("Viper Position", viperMotor.getCurrentPosition());
-        telemetry.addData("Viper Mode", viperMotor.getMode().toString());
-        telemetry.addData("Is Viper At Target", isViperAtTarget);
+        // Viper-specific telemetry (and other original telemetry)
+//        telemetry.addData("Auto Active", autoPaths.isActive());
+        telemetry.addData("viper power", viperMotor.getPower());
+        telemetry.addData("viper target", viperMotor.getTargetPosition());
+        telemetry.addData("viper pos", viperMotor.getCurrentPosition());
+        telemetry.addData("Ground Timer Active", isGroundTimerActive);
+        telemetry.addData("intake wrist pivot", NintakeWristPivot.getPosition());
+        telemetry.addData("IntakeArmLeft pos", IntakeArmLeft.getPosition());
+        telemetry.addData("IntakeArmRight pos", IntakeArmRight.getPosition());
+        if (isGroundTimerActive) {
+            telemetry.addData("Time until power off",
+                    (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);
+        }
+//        telemetry.addData("HardwareMap", hardwareMap != null ? "Initialized" : "Null");
         telemetry.update();
     }
 }

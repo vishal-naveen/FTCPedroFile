@@ -59,6 +59,16 @@ public class doubleArmTester extends OpMode {
             rightArmPos += INCREMENT;
         }
 
+        if(gamepad2.a)
+        {
+            leftArmPos = 0.5;
+        }
+
+        if(gamepad2.b)
+        {
+            rightArmPos = 0.5;
+        }
+
         // Clamp the positions so they remain within the valid range [0, 1]
         leftArmPos = Math.max(0, Math.min(1, leftArmPos));
         rightArmPos = Math.max(0, Math.min(1, rightArmPos));
