@@ -150,9 +150,9 @@ public class Commands {
 
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                new WaitCommand(750),
+                new WaitCommand(650),
                 Commands.closeClaw(outtakeSubsystem),
-                new WaitCommand(200), // Wait for 500 milliseconds (0.5 seconds)
+                new WaitCommand(300), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
         );
     }

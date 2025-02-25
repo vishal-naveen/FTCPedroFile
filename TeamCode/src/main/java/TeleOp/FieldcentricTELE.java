@@ -1,5 +1,6 @@
 package TeleOp;
 
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
@@ -30,7 +31,8 @@ public class FieldcentricTELE extends OpMode {
 
     private DcMotor viperMotor = null;
 
-    private Servo NintakeArm = null;
+    private Servo IntakeArmLeft = null;  // Dual intake arms
+    private Servo IntakeArmRight = null;
     private Servo NintakeWrist = null;
     private Servo NintakeWristPivot = null;
     private Servo NintakeClaw = null;
@@ -96,9 +98,11 @@ public class FieldcentricTELE extends OpMode {
     }
 
     private void updateArmExtensionState() {
-        double armPosition = NintakeArm.getPosition();
-        isArmExtended = (armPosition == positions_motor.NIntakeArmExtendedFull ||
-                armPosition == positions_motor.NIntakeArmExtendedBack);
+        double leftArmPosition = IntakeArmLeft.getPosition();
+        double rightArmPosition = IntakeArmRight.getPosition();
+        // Check if both arms are at extended positions (assuming opposite directions)
+        isArmExtended = (leftArmPosition == positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL &&
+                rightArmPosition == positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
     }
 
     private void cancelGroundTimer() {
@@ -137,6 +141,7 @@ public class FieldcentricTELE extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(RobotPose.stopPose);
+        follower.setMaxPower(0.9);
         try {
             autoPaths = new AutoPaths(hardwareMap, follower, telemetry, gamepad1);
         } catch (Exception e) {
@@ -152,7 +157,8 @@ public class FieldcentricTELE extends OpMode {
         viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        NintakeArm = hardwareMap.get(Servo.class, "NintakeArm");
+        IntakeArmLeft = hardwareMap.get(Servo.class, "IntakeArmLeft");
+        IntakeArmRight = hardwareMap.get(Servo.class, "IntakeArmRight");
         NintakeWrist = hardwareMap.get(Servo.class, "NintakeWrist");
         NintakeWristPivot = hardwareMap.get(Servo.class, "NintakeWristPivot");
         NintakeClaw = hardwareMap.get(Servo.class, "NintakeClaw");
@@ -175,6 +181,7 @@ public class FieldcentricTELE extends OpMode {
         ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        CommandScheduler.getInstance().run();
         follower.update();
         autoPaths.update();
 
@@ -188,6 +195,7 @@ public class FieldcentricTELE extends OpMode {
             if (gamepad1.b && !bPressed) {
                 bPressed = true;
                 autoPaths.startAuto();
+                follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
             }
         } else if (hasJoystickInput) {
             autoPaths.cancelSequence();
@@ -198,7 +206,7 @@ public class FieldcentricTELE extends OpMode {
         }
 
         if (gamepad1.a) {
-            follower.setCurrentPoseWithOffset(new Pose(0, 0, Math.toRadians(0)));
+            follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
         }
 
         if (gamepad2.left_bumper && !lastLeftBumper) {
@@ -296,7 +304,8 @@ public class FieldcentricTELE extends OpMode {
                     updateArmExtensionState();
                     NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
-                    NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+                    IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);  // Adjust for transfer
+                    IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
                     if (transferTimer.milliseconds() > 500) {
                         transferState = 1;
                         transferTimer.reset();
@@ -309,7 +318,8 @@ public class FieldcentricTELE extends OpMode {
                         } else {
                             NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                             NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+                            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
+                            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
@@ -365,19 +375,23 @@ public class FieldcentricTELE extends OpMode {
         }
 
         if (gamepad1.dpad_up) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmSpecimenPickUp);
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);  // Replace with appropriate position
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
             NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
         }
 
         if (gamepad1.dpad_down) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmExtendedBack);
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);  // Extended back
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
         }
 
         if (gamepad2.left_stick_y > 0.5) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmTransfer);
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);  // Transfer position
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
         }
         if (gamepad2.left_stick_y < -0.5) {
-            NintakeArm.setPosition(positions_motor.NIntakeArmExtendedFull);
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
 
@@ -461,12 +475,13 @@ public class FieldcentricTELE extends OpMode {
         checkManualReset();
 
         telemetry.addData("Auto Active", autoPaths.isActive());
-        telemetry.addData("Current Cycle", autoPaths.getCurrentCycle());
         telemetry.addData("viper power", viperMotor.getPower());
         telemetry.addData("viper target", viperMotor.getTargetPosition());
         telemetry.addData("viper pos", viperMotor.getCurrentPosition());
         telemetry.addData("Ground Timer Active", isGroundTimerActive);
         telemetry.addData("intake wrist pivot", NintakeWristPivot.getPosition());
+        telemetry.addData("IntakeArmLeft pos", IntakeArmLeft.getPosition());
+        telemetry.addData("IntakeArmRight pos", IntakeArmRight.getPosition());
         if (isGroundTimerActive) {
             telemetry.addData("Time until power off",
                     (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);

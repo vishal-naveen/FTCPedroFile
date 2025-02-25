@@ -29,12 +29,18 @@ public class positions_motor {
  public static final double STATE_OUTTAKECLAW_CLOSE = 0.15;
 
 
+ public static final double STATE_INTAKELEFTARM_CLOSE = 0;
+ public static final double STATE_INTAKELEFTARM_EXTEND_FULL = 0;
+
+ public static final double STATE_INTAKERIGHTARM_CLOSE = 0;
+ public static final double STATE_INTAKERIGHTARM_EXTEND_FULL = 0;
+
 
    //2650
     public static final int VIPER_HIGHBASKET = 2600;
 
     // Servo positions
-    public static final double NIntakeArmExtendedFull = 0.7;
+    public static final double NIntakeArmExtendedFull = 0.1;
     public static final double NIntakeArmExtendedThird = 0.4;
 
     public static final double NIntakeArmTransfer = 0.295;
@@ -42,7 +48,7 @@ public class positions_motor {
     public static final double NintakeArmWall = 0.45;
 
     public static final double NIntakeArmSpecimenPickUp = 0.3;
-    public static final double NIntakeArmExtendedBack = 0.1;
+    public static final double NIntakeArmExtendedBack = 0.8;
 
     public static final double NIntakeWristPickUp = 0.9;
 
