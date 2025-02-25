@@ -17,10 +17,18 @@ public class positions_motor {
  public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
     public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
 
+ public static final double STATE_OUTTAKEARMLEFT_TRANSFER_WAIT = 0.6;
+ public static final double STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT = 0.4;
+
+ public static final double STATE_OUTTAKEARMLEFT_TRANSFER = 0.8425;
+ public static final double STATE_OUTTAKEARMRIGHT_TRANSFER = 0.1575;
+
 
  public static final double STATE_OUTTAKEWRIST_HIGHBAR = 0.3;
 
     public static final double STATE_OUTTAKEWRIST_PICKUP = 0.495;
+
+ public static final double STATE_OUTTAKEWRIST_TRANSFER = 0.4167;
 
  public static final double STATE_OUTTAKEWRISTPIVOT_PICKUP = 0.7144;
  public static final double STATE_OUTTAKEWRISTPIVOT_HIGHBAR = 0.055;
@@ -29,11 +37,11 @@ public class positions_motor {
  public static final double STATE_OUTTAKECLAW_CLOSE = 0.15;
 
 
- public static final double STATE_INTAKELEFTARM_CLOSE = 0;
- public static final double STATE_INTAKELEFTARM_EXTEND_FULL = 0;
+ public static final double STATE_INTAKELEFTARM_CLOSE = 0.9;
+ public static final double STATE_INTAKELEFTARM_EXTEND_FULL = 0.4;
 
- public static final double STATE_INTAKERIGHTARM_CLOSE = 0;
- public static final double STATE_INTAKERIGHTARM_EXTEND_FULL = 0;
+ public static final double STATE_INTAKERIGHTARM_CLOSE = 0.45;
+ public static final double STATE_INTAKERIGHTARM_EXTEND_FULL = 0.95;
 
 
    //2650
@@ -53,12 +61,12 @@ public class positions_motor {
     public static final double NIntakeWristPickUp = 0.9;
 
     public static final double NIntakeWristPickUpBefore = 0.6;
-    public static final double NIntakeWristTransfer = 0.25;
-    public static final double NIntakeWristPivotHorizontal = 0.235;
+    public static final double NIntakeWristTransfer = 0.165;
+    public static final double NIntakeWristPivotHorizontal = 0.205;
 
-    public static final double NIntakeWristPivotVertical = 0.585;
+    public static final double NIntakeWristPivotVertical = 0.555;
 
-    public static final double NIntakeWristPivotTransfer = 1;
+    public static final double NIntakeWristPivotTransfer = 0.9;
     public static final double NIntakeClawOpen = 0.8;
 
     public static final double NIntakeClawOpenTransfer = 0.75;
@@ -132,5 +140,5 @@ public class positions_motor {
     public static final double OuttakeWristPivotHighBar = 0;
 
     public static final double OuttakeClawOpen = 0.1;
-    public static final double OuttakeClawClose = 0.55;
+    public static final double OuttakeClawClose = 0.6;
 }

@@ -10,15 +10,12 @@ import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import Positions.Commands;
 import Subsystem.OuttakeSubsystem;
 import static Subsystem.Push3Specimen.*;
 
 public class AutoPaths {
     private final Follower follower;
-    private final Telemetry telemetry;
     private final OuttakeSubsystem outtakeSubsystem;
     private final Gamepad gamepad;
     private boolean autoSequenceActive = false;
@@ -40,15 +37,14 @@ public class AutoPaths {
     private final Path scoreBefore2ToScore2;
     private final Path score2ToPickUp;
 
-    public AutoPaths(HardwareMap hardwareMap, Follower follower, Telemetry telemetry, Gamepad gamepad) throws IllegalArgumentException {
-        if (hardwareMap == null || follower == null || telemetry == null || gamepad == null) {
+    public AutoPaths(HardwareMap hardwareMap, Follower follower, Gamepad gamepad) throws IllegalArgumentException {
+        if (hardwareMap == null || follower == null || gamepad == null) {
             throw new IllegalArgumentException("Inputs cannot be null");
         }
         this.follower = follower;
         follower.setMaxPower(0.9);
-        this.telemetry = telemetry;
         this.gamepad = gamepad;
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, null, this.follower); // No telemetry
 
         startToScoreBefore1 = new Path(new BezierLine(
                 new Point(follower.getPose()),
@@ -104,6 +100,7 @@ public class AutoPaths {
                 pickUp.getHeading()
         );
     }
+
     public boolean isActive() {
         return autoSequenceActive;
     }
@@ -150,10 +147,6 @@ public class AutoPaths {
     public void update() {
         CommandScheduler.getInstance().run();
         follower.update();
-
-        telemetry.addData("Auto Active", autoSequenceActive);
-        telemetry.addData("Follower Busy", follower.isBusy());
-        telemetry.update();
     }
 
     public void setManualDrive(double x, double y, double rotate, double power) {
