@@ -10,10 +10,10 @@ public class positions_motor {
 
     public static final double STATE_VIPER_HIGHBAR = 410;
 
-    public static final double STATE_OUTTAKEARMLEFT_HIGHBAR = 0.2;
+    public static final double STATE_OUTTAKEARMLEFT_HIGHBAR = 0.15;
  public static final double STATE_OUTTAKEARMLEFT_FLICK = 0;
     public static final double STATE_OUTTAKEARMLEFT_PICKUP = 1;
-    public static final double STATE_OUTTAKEARMRIGHT_HIGHBAR = 0.8;
+    public static final double STATE_OUTTAKEARMRIGHT_HIGHBAR = 0.85;
  public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
     public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
 

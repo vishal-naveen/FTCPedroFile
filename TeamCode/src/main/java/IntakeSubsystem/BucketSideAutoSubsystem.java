@@ -31,8 +31,6 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     private ElapsedTime viperTimer = new ElapsedTime();
     private boolean viperMoving = false;
     private static final double VIPER_MOVE_TIMEOUT = 5000; // 5 seconds timeout
-    private static final double VIPER_HOLDING_POWER = 0.1;
-    private static final int POSITION_TOLERANCE = 50; // Increased from 20 to 50 for more leniency
 
     private int lastViperPosition = 0;
     private ElapsedTime stallTimer = new ElapsedTime();
@@ -96,8 +94,6 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 } else if (stallTimer.milliseconds() > STALL_TIMEOUT) {
                     if (positionDelta < STALL_THRESHOLD) {
                         viperMotor.setPower(0);
-                        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         viperMoving = false;
                         stallCheckActive = false;
                         return;
@@ -109,15 +105,12 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 stallCheckActive = false;
             }
 
-            // Position control
-            if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
-                viperMotor.setPower(VIPER_HOLDING_POWER);
-                viperMoving = false;
-            } else if (viperTimer.milliseconds() > VIPER_MOVE_TIMEOUT) {
+            // Timeout check
+            if (viperTimer.milliseconds() > VIPER_MOVE_TIMEOUT) {
                 viperMotor.setPower(0);
                 viperMoving = false;
             } else {
-                viperMotor.setPower(1.0); // Full power to ensure movement
+                viperMotor.setPower(1.0); // Full power until timeout or stall
             }
         }
     }
