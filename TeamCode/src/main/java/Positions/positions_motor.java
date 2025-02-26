@@ -13,6 +13,9 @@ public class positions_motor {
     public static final double STATE_OUTTAKEARMLEFT_HIGHBAR = 0.15;
  public static final double STATE_OUTTAKEARMLEFT_FLICK = 0;
     public static final double STATE_OUTTAKEARMLEFT_PICKUP = 1;
+
+ public static final double STATE_OUTTAKEARMLEFT_HIGHBASEKT = 0.1;
+ public static final double STATE_OUTTAKEARMRIGHT_HIGHBASKET = 0.9;
     public static final double STATE_OUTTAKEARMRIGHT_HIGHBAR = 0.85;
  public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
     public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
@@ -48,6 +51,8 @@ public class positions_motor {
 
    //2650
     public static final int VIPER_HIGHBASKET = 2600;
+
+ public static final int VIPER_HIGHBASKET_HIGHER = 2775;
 
     // Servo positions
     public static final double NIntakeArmExtendedFull = 0.1;

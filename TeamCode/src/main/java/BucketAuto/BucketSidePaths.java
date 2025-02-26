@@ -36,12 +36,12 @@ public class BucketSidePaths {
 
     // Poses
     private static final Pose startPose = new Pose(9, 111, Math.toRadians(180));
-    private static final Pose scorePose = new Pose(18, 127.6, Math.toRadians(140));
-    private static final Pose pickUpBlock1Pos = new Pose(24, 123.5, Math.toRadians(170));
-    private static final Pose pickUpBlock2Pos = new Pose(25.5, 133.3, Math.toRadians(175));
+    private static final Pose scorePose = new Pose(16.5, 129, Math.toRadians(140));
+    private static final Pose pickUpBlock1Pos = new Pose(26, 123.5, Math.toRadians(175));
+    private static final Pose pickUpBlock2Pos = new Pose(26, 133.3, Math.toRadians(175));
 
-    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 115.6, Math.toRadians(260));
-    private static final Pose pickUpBlock3Pos = new Pose(45.9, 117.5, Math.toRadians(260));
+    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 115.6, Math.toRadians(270));
+    private static final Pose pickUpBlock3Pos = new Pose(45.9, 121, Math.toRadians(270));
     private static final Pose park = new Pose(62.6, 95.2, Math.toRadians(270));
 
     // Paths

@@ -63,6 +63,11 @@ public class CommandsBucket {
         return new InstantCommand(() -> subsystem.startTransfer(), subsystem);
     }
 
+    public static Command startTransferHigher(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.startTransferHigher(), subsystem);
+    }
+
+
     public static Command extendIntake(BucketSideAutoSubsystem subsystem) {
         return new InstantCommand(() -> subsystem.extendIntake(), subsystem);
     }
@@ -192,11 +197,26 @@ public class CommandsBucket {
         );
     }
 
+    public static Command transferSequenceHigher(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                startTransferHigher(subsystem),
+                new WaitCommand(2500)
+        );
+    }
+
     public static Command pickupAndTransfer(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 pickupSequence(subsystem),
                 new WaitCommand(500),
                 transferSequence(subsystem)
+        );
+    }
+
+    public static Command pickupAndTransferHigher(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                pickupSequence(subsystem),
+                new WaitCommand(500),
+                transferSequenceHigher(subsystem)
         );
     }
 
@@ -222,7 +242,7 @@ public class CommandsBucket {
 
     public static Command justTransferCross(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
-                transferSequence(subsystem)
+                transferSequenceHigher(subsystem)
         );
     }
 

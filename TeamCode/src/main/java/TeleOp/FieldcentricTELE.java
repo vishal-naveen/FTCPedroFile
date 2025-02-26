@@ -343,7 +343,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                    if (transferTimer.milliseconds() > 1000) {
+                    if (transferTimer.milliseconds() > 500) {
                         transferState = 1;
                         transferTimer.reset();
                     }
@@ -351,12 +351,12 @@ public class FieldcentricTELE extends OpMode {
 
                 case 1:
                     if (isArmExtended) {
-                        if (transferTimer.milliseconds() <= 1000) {
+                        if (transferTimer.milliseconds() <= 500) {
                         } else {
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                            if (transferTimer.milliseconds() > 1000) {
+                            if (transferTimer.milliseconds() > 500) {
                                 transferState = 2;
                                 transferTimer.reset();
                             }
@@ -368,7 +368,7 @@ public class FieldcentricTELE extends OpMode {
                         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                         OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                        if (transferTimer.milliseconds() > 1000) {
+                        if (transferTimer.milliseconds() > 500) {
                             transferState = 2;
                             transferTimer.reset();
                         }
@@ -377,7 +377,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                    if (transferTimer.milliseconds() > 1000) {
+                    if (transferTimer.milliseconds() > 500) {
                         transferState = 3;
                         transferTimer.reset();
                     }
@@ -385,7 +385,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 3:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-                    if (transferTimer.milliseconds() > 1000) {
+                    if (transferTimer.milliseconds() > 500) {
                         transferState = 4;
                         transferTimer.reset();
                     }
@@ -398,7 +398,7 @@ public class FieldcentricTELE extends OpMode {
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     viperMotor.setPower(1);
-                    if (transferTimer.milliseconds() > 1000) {
+                    if (transferTimer.milliseconds() > 100) {
                         transferState = 5;
                         transferTimer.reset();
                     }
