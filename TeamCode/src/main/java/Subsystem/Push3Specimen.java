@@ -49,7 +49,7 @@ public class Push3Specimen {
     private static final Pose pickUpAlt3 = new Pose(11, 25.75, Math.toRadians(0));
 
 
-    private static final Pose parkPickUp = new Pose(22.8, 42.5, Math.toRadians(0));
+    private static final Pose parkPickUp = new Pose(12, 29, Math.toRadians(0));
     private static final Pose parkPos = new Pose(13.5, 31.4, Math.toRadians(0));
 
 //    private static final Pose currentPose = new Pose(follower.getXOffset(), follower.getYOffset(), Math.toRadians(follower.getHeadingOffset()));
@@ -245,7 +245,7 @@ public class Push3Specimen {
         scoreBefore4ToScore4 = new Path(new BezierLine(new Point(scoreBlockBefore4), new Point(scoreBlock4)));
         scoreBefore4ToScore4.setLinearHeadingInterpolation(scoreBlockBefore4.getHeading(), scoreBlock4.getHeading());
 
-        score4ToPickUp = new Path(new BezierCurve(new Point(scoreBlock4), new Point(22.5, 64.9), new Point(parkPickUp)));
+        score4ToPickUp = new Path(new BezierCurve(new Point(scoreBlock4), new Point(20, 64.9), new Point(parkPickUp)));
         score4ToPickUp.setLinearHeadingInterpolation(scoreBlock4.getHeading(), parkPickUp.getHeading());
 
         directScore4 = new Path(new BezierLine(new Point(pickUpAlt), new Point(scoreBlock4)));

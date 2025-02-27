@@ -89,6 +89,10 @@ public class CommandsBucket {
         return new InstantCommand(() -> subsystem.openIntakeClaw(), subsystem);
     }
 
+    public static Command horizontal(BucketSideAutoSubsystem subsystem) {
+        return new InstantCommand(() -> subsystem.setPivotHorizontal(), subsystem);
+    }
+
     public static Command armWall(BucketSideAutoSubsystem subsystem) {
         return new InstantCommand(() -> subsystem.armWall(), subsystem);
     }
@@ -177,9 +181,13 @@ public class CommandsBucket {
                 openIntakeClaw(subsystem),
                 wristDown(subsystem),
                 new WaitCommand(500),
-                closeIntakeClaw(subsystem),
-                new WaitCommand(100),
-                IntakePivotHorizontal(subsystem)
+                closeIntakeClaw(subsystem)
+        );
+    }
+
+    public static Command pivotHor(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                horizontal(subsystem)
         );
     }
 
@@ -231,6 +239,12 @@ public class CommandsBucket {
     public static Command justPickUPCross(BucketSideAutoSubsystem subsystem) {
         return new SequentialCommandGroup(
                 justClawGrab(subsystem)
+        );
+    }
+
+    public static Command pivotHorizontal(BucketSideAutoSubsystem subsystem) {
+        return new SequentialCommandGroup(
+                pivotHor(subsystem)
         );
     }
 

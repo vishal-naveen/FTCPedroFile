@@ -20,8 +20,8 @@ public class positions_motor {
  public static final double STATE_OUTTAKEARMRIGHT_FLICK= 1;
     public static final double STATE_OUTTAKEARMRIGHT_PICKUP = 0;
 
- public static final double STATE_OUTTAKEARMLEFT_TRANSFER_WAIT = 0.7;
- public static final double STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT = 0.3;
+ public static final double STATE_OUTTAKEARMLEFT_TRANSFER_WAIT = 0.72;
+ public static final double STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT = 0.28;
 
  public static final double STATE_OUTTAKEARMLEFT_TRANSFER = 0.8425;
  public static final double STATE_OUTTAKEARMRIGHT_TRANSFER = 0.1575;
@@ -31,7 +31,7 @@ public class positions_motor {
 
  public static final double STATE_OUTTAKEWRIST_FLICK = 0.5;
 
-    public static final double STATE_OUTTAKEWRIST_PICKUP = 0.495;
+    public static final double STATE_OUTTAKEWRIST_PICKUP = 0.55;
 
  public static final double STATE_OUTTAKEWRIST_TRANSFER = 0.349;
 
@@ -48,11 +48,18 @@ public class positions_motor {
  public static final double STATE_INTAKERIGHTARM_CLOSE = 0.45;
  public static final double STATE_INTAKERIGHTARM_EXTEND_FULL = 0.95;
 
+     public static final double SPECIMEN_OUTTAKEARMLEFT_PRELOAD = 0.6575;
+    public static final double SPECIMEN_OUTTAKEARMRIGHT_PRELOAD = 0.3425;
+
+    public static final double SPECIMEN_OUTTAKEWRIST_PRELOAD = 0.1;
+
+    public static final double SPECIMEN_OUTTAKEWRISTPIVOT_PRELOAD = 0.4039;
+
 
    //2650
     public static final int VIPER_HIGHBASKET = 2600;
 
- public static final int VIPER_HIGHBASKET_HIGHER = 2775;
+ public static final int VIPER_HIGHBASKET_HIGHER = 2875;
 
     // Servo positions
     public static final double NIntakeArmExtendedFull = 0.1;
@@ -68,7 +75,7 @@ public class positions_motor {
     public static final double NIntakeWristPickUp = 0.9;
 
     public static final double NIntakeWristPickUpBefore = 0.6;
-    public static final double NIntakeWristTransfer = 0.19;
+    public static final double NIntakeWristTransfer = 0.175;
     public static final double NIntakeWristPivotHorizontal = 0.205;
 
     public static final double NIntakeWristPivotVertical = 0.555;

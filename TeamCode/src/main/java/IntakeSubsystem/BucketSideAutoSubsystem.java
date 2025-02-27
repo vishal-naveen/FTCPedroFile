@@ -32,6 +32,10 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     private boolean isArmExtended = false;
     private boolean isPivotHorizontal = false;
 
+    private int viperDownState = 0;
+    private ElapsedTime viperDownTimer = new ElapsedTime();
+    private boolean viperDownInProgress = false;
+
     public BucketSideAutoSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
 
@@ -143,6 +147,10 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
     }
 
+    public void setPivotHorizontal() {
+        NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
+    }
+
     public void armWall() {
         IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
         IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
@@ -168,13 +176,16 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     }
 
     public void viperDown() {
-        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
-        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
-        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-        viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
-        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+//        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
+//        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
+//        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+//        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+//        viperMotor.setTargetPosition(positions_motor.VIPER_GROUND);
+//        viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        viperMotor.setPower(1);
+        viperDownState = 0;
+        viperDownTimer.reset();
+        viperDownInProgress = true;
     }
 
     public void setHighBucket() {
@@ -380,6 +391,28 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
                     NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
                     transferInProgressHigher = false;
+                    break;
+            }
+        }
+
+        if (viperDownInProgress) {
+            switch (viperDownState) {
+                case 0:
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+                    if (viperDownTimer.milliseconds() > 750) {
+                        viperDownState = 1;
+                        viperDownTimer.reset();
+                    }
+                    break;
+
+                case 1:
+                    viperMotor.setTargetPosition((int)positions_motor.VIPER_GROUND);
+                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    viperMotor.setPower(1);
+                    viperDownInProgress = false;
                     break;
             }
         }

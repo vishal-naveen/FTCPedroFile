@@ -117,7 +117,6 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.pickUpPOS(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, score4ToPickUp))
-                                .alongWith(CommandsBucket.extendIntake(bucketSubsystem))
                 )
         );
     }

@@ -79,6 +79,12 @@ public class OuttakeSubsystem extends SubsystemBase {
                 positions_motor.STATE_OUTTAKEWRIST_PICKUP,
                 positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP,
                 positions_motor.VIPER_GROUND),
+
+        PRELOAD(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP,
+                positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP,
+                positions_motor.STATE_OUTTAKEWRIST_PICKUP,
+                positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP,
+                positions_motor.VIPER_GROUND),
         SCORE(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR,
                 positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR,
                 positions_motor.STATE_OUTTAKEWRIST_HIGHBAR,
@@ -138,7 +144,10 @@ public class OuttakeSubsystem extends SubsystemBase {
     }
 
     public void preloadPosition() {
-        setToState(OuttakeState.PICKUP);
+        OuttakeArmLeft.setPosition(positions_motor.SPECIMEN_OUTTAKEARMLEFT_PRELOAD);
+        OuttakeArmRight.setPosition(positions_motor.SPECIMEN_OUTTAKEARMRIGHT_PRELOAD);
+        OuttakeWrist.setPosition(positions_motor.SPECIMEN_OUTTAKEWRIST_PRELOAD);
+        OuttakeWristPivot.setPosition(positions_motor.SPECIMEN_OUTTAKEWRISTPIVOT_PRELOAD);
     }
 
     public void setMaxSpeed(double speed) {

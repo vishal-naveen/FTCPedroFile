@@ -107,9 +107,11 @@ public class FieldcentricTELE extends OpMode {
     private void updateArmExtensionState() {
         double leftArmPosition = IntakeArmLeft.getPosition();
         double rightArmPosition = IntakeArmRight.getPosition();
-        // Check if both arms are at extended positions (assuming opposite directions)
-        isArmExtended = (leftArmPosition == positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL &&
-                rightArmPosition == positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
+
+        // Check if both arms are within a tolerance of their fully extended positions
+        double tolerance = 0.1; // Adjust this value based on your servo's precision
+        isArmExtended = Math.abs(leftArmPosition - positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL) < tolerance &&
+                Math.abs(rightArmPosition - positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL) < tolerance;
     }
 
     private void cancelGroundTimer() {
@@ -308,7 +310,7 @@ public class FieldcentricTELE extends OpMode {
         if (gamepad2.x) {
             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
-            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
         }
 
         if (gamepad2.dpad_down) {
@@ -322,6 +324,7 @@ public class FieldcentricTELE extends OpMode {
             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
         }
 
         if (gamepad2.touchpad && !lastDpadUp && !transferInProgress) {
@@ -343,7 +346,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 150) {
                         transferState = 1;
                         transferTimer.reset();
                     }
@@ -351,12 +354,12 @@ public class FieldcentricTELE extends OpMode {
 
                 case 1:
                     if (isArmExtended) {
-                        if (transferTimer.milliseconds() <= 500) {
+                        if (transferTimer.milliseconds() <= 2000) {
                         } else {
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                            if (transferTimer.milliseconds() > 500) {
+                            if (transferTimer.milliseconds() > 200) {
                                 transferState = 2;
                                 transferTimer.reset();
                             }
@@ -368,7 +371,7 @@ public class FieldcentricTELE extends OpMode {
                         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                         OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                        if (transferTimer.milliseconds() > 500) {
+                        if (transferTimer.milliseconds() > 200) {
                             transferState = 2;
                             transferTimer.reset();
                         }
@@ -377,7 +380,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 150) {
                         transferState = 3;
                         transferTimer.reset();
                     }
@@ -385,7 +388,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 3:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 10) {
                         transferState = 4;
                         transferTimer.reset();
                     }
@@ -395,9 +398,10 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                    viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
-                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+//                    viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
+//                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                    viperMotor.setPower(1);
                     if (transferTimer.milliseconds() > 100) {
                         transferState = 5;
                         transferTimer.reset();
@@ -471,7 +475,7 @@ public class FieldcentricTELE extends OpMode {
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     if (viperDownTimer.milliseconds() > 750) {
                         viperDownState = 1;
                         viperDownTimer.reset();
