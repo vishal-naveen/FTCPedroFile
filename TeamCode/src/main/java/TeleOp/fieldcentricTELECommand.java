@@ -6,7 +6,6 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.button.GamepadButton;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
@@ -20,7 +19,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import IntakeSubsystem.BucketSideAutoSubsystem;
 import Positions.Commands;
@@ -31,7 +29,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @TeleOp(name="FieldcentricTELE_Command")
-public class FieldcentricTELE extends CommandOpMode {
+public class fieldcentricTELECommand extends CommandOpMode {
     // Subsystems
     private Follower follower;
     private OuttakeSubsystem outtakeSubsystem;
@@ -62,6 +60,10 @@ public class FieldcentricTELE extends CommandOpMode {
     private boolean isOutakeHorizontal = false;
     private boolean isWristHorizontal = false;
 
+    // Tracking for auto command
+    private SequentialCommandGroup currentAutoCommand = null;
+    private RunCommand joystickMonitor = null;
+
     @Override
     public void initialize() {
         // Initialize hardware
@@ -80,16 +82,14 @@ public class FieldcentricTELE extends CommandOpMode {
 
         // Schedule continuous commands
         schedule(new RunCommand(follower::update));
-        schedule(new RunCommand(() -> {
-            if (!isAutoSequenceActive) {
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            }
-        }));
 
-        // Set up default drive command
+        // Set zero power behavior for motors
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // Set up default drive command - always active but conditionally applies based on flag
         schedule(new RunCommand(() -> {
             if (!isAutoSequenceActive) {
                 follower.setTeleOpMovementVectors(
@@ -155,20 +155,20 @@ public class FieldcentricTELE extends CommandOpMode {
     }
 
     private void configureDriverBindings() {
-        // B button to start auto sequence
+        // B button to reset heading and start auto
         driver.getGamepadButton(GamepadKeys.Button.B)
                 .whenPressed(new InstantCommand(() -> {
+                    follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
                     if (!isAutoSequenceActive) {
                         startAutoSequence();
-                        follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
                     }
                 }));
 
         // A button to reset heading
         driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(new InstantCommand(() ->
-                        follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)))
-                ));
+                .whenPressed(new InstantCommand(() -> {
+                    follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
+                }));
 
         // Y button for up intake
         driver.getGamepadButton(GamepadKeys.Button.Y)
@@ -185,22 +185,22 @@ public class FieldcentricTELE extends CommandOpMode {
                     IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
                 }));
 
-        // Stop motor on touchpad
-//        driver.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
-//                .whenPressed(new InstantCommand(() -> {
-//                    viperMotor.setPower(0);
-//                    // Cancel ground timer if it's active
-//                }));
-
         // Y button for manual viper movement
         driver.getGamepadButton(GamepadKeys.Button.Y)
                 .whenPressed(new InstantCommand(() -> {
                     viperMotor.setPower(-0.3);
-                    // Cancel ground timer if it's active
                 }));
     }
 
     private void configureOperatorBindings() {
+        // B button to start auto sequence
+        operator.getGamepadButton(GamepadKeys.Button.B)
+                .whenPressed(new InstantCommand(() -> {
+                    if (!isAutoSequenceActive) {
+                        startAutoSequence();
+                    }
+                }));
+
         // Left bumper for wrist pivot toggle
         operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
                 .whenPressed(new InstantCommand(() -> {
@@ -230,10 +230,6 @@ public class FieldcentricTELE extends CommandOpMode {
                 .whenPressed(new InstantCommand(() ->
                         NintakeClaw.setPosition(positions_motor.NIntakeClawClose)
                 ));
-
-        // B button for pickup sequence
-        operator.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(createPickupCommand());
 
         // A button for outtake to pickup position
         operator.getGamepadButton(GamepadKeys.Button.A)
@@ -271,13 +267,22 @@ public class FieldcentricTELE extends CommandOpMode {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                 }));
 
-        // Touchpad for transfer sequence
-//        operator.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
-//                .whenPressed(createTransferCommand());
-
         // Start button for viper down sequence
         operator.getGamepadButton(GamepadKeys.Button.START)
-                .whenPressed(createViperDownCommand());
+                .whenPressed(new SequentialCommandGroup(
+                        new InstantCommand(() -> {
+                            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
+                            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
+                            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+                            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+                        }),
+                        new WaitCommand(750),
+                        new InstantCommand(() -> {
+                            viperMotor.setTargetPosition((int)positions_motor.VIPER_GROUND);
+                            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            viperMotor.setPower(1);
+                        })
+                ));
 
         // Back button for high bucket position
         operator.getGamepadButton(GamepadKeys.Button.BACK)
@@ -332,96 +337,20 @@ public class FieldcentricTELE extends CommandOpMode {
         }));
     }
 
-    private SequentialCommandGroup createPickupCommand() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
-                }),
-                new WaitCommand(250),
-                new InstantCommand(() -> {
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                })
-        );
-    }
-
-    private SequentialCommandGroup createTransferCommand() {
-        return new SequentialCommandGroup(
-                // Phase 1: Initial positioning
-                new InstantCommand(() -> {
-                    NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
-                    OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
-                    IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
-                    IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                    NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
-                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                }),
-                new WaitCommand(150),
-
-                // Phase 2: Move outtake to transfer position
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                }),
-                new WaitCommand(200),
-
-                // Phase 3: Close outtake claw
-                new InstantCommand(() -> OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE)),
-                new WaitCommand(150),
-
-                // Phase 4: Open intake claw
-                new InstantCommand(() -> NintakeClaw.setPosition(positions_motor.NIntakeClawOpen)),
-                new WaitCommand(10),
-
-                // Phase 5: Move to scoring position
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-                }),
-                new WaitCommand(100),
-
-                // Phase 6: Reset intake
-                new InstantCommand(() -> {
-                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
-                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-                })
-        );
-    }
-
-    private SequentialCommandGroup createViperDownCommand() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                }),
-                new WaitCommand(750),
-                new InstantCommand(() -> {
-                    viperMotor.setTargetPosition((int)positions_motor.VIPER_GROUND);
-                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
-                })
-        );
-    }
-
     private void startAutoSequence() {
+        // Don't start if already active
+        if (isAutoSequenceActive) return;
+
+        // Set flag first
         isAutoSequenceActive = true;
 
-        SequentialCommandGroup autoCommand = new SequentialCommandGroup(
+        // Create auto sequence - simple chained commands with timeouts
+        currentAutoCommand = new SequentialCommandGroup(
                 // First cycle
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
+                        .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                         .andThen(Commands.openClaw(outtakeSubsystem))
                         .andThen(Commands.pickUpPOS(outtakeSubsystem))
                         .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000)),
@@ -430,10 +359,7 @@ public class FieldcentricTELE extends CommandOpMode {
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
+                        .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                         .andThen(Commands.openClaw(outtakeSubsystem))
                         .andThen(Commands.pickUpPOS(outtakeSubsystem))
                         .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000)),
@@ -442,42 +368,62 @@ public class FieldcentricTELE extends CommandOpMode {
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
+                        .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                         .andThen(Commands.openClaw(outtakeSubsystem))
                         .andThen(Commands.pickUpPOS(outtakeSubsystem))
-                        .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000))
-                        .andThen(new InstantCommand(() -> {
-                            isAutoSequenceActive = false;
-                            follower.startTeleopDrive();
-                        }))
+                        .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000)),
+
+                // End sequence
+                new InstantCommand(() -> {
+                    telemetry.addData("Auto Sequence", "Complete");
+                    isAutoSequenceActive = false;
+                    currentAutoCommand = null;
+                })
         );
 
-        schedule(autoCommand);
+        // Schedule the auto command
+        schedule(currentAutoCommand);
 
-        // Check for joystick input to cancel
-        schedule(new RunCommand(() -> {
-            boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
-                    Math.abs(gamepad1.left_stick_y) > 0.1 ||
-                    Math.abs(gamepad1.right_stick_x) > 0.1;
+        // Create joystick monitor if not already running
+        if (joystickMonitor == null || !CommandScheduler.getInstance().isScheduled(joystickMonitor)) {
+            joystickMonitor = new RunCommand(() -> {
+                // Check for manual interruption
+                boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
+                        Math.abs(gamepad1.left_stick_y) > 0.1 ||
+                        Math.abs(gamepad1.right_stick_x) > 0.1;
 
-            if (isAutoSequenceActive && hasJoystickInput) {
-                cancelAutoSequence();
-            }
-        }));
+                if (isAutoSequenceActive && hasJoystickInput) {
+                    cancelAutoSequence();
+                }
+
+                // Check if sequence completed on its own but flag wasn't reset
+                if (currentAutoCommand != null && !CommandScheduler.getInstance().isScheduled(currentAutoCommand)) {
+                    isAutoSequenceActive = false;
+                    currentAutoCommand = null;
+                }
+            });
+            schedule(joystickMonitor);
+        }
     }
 
     private void cancelAutoSequence() {
-        CommandScheduler.getInstance().cancelAll();
-        isAutoSequenceActive = false;
-        follower.breakFollowing();
-        follower.setTeleOpMovementVectors(0, 0, 0, false);
-        follower.startTeleopDrive();
+        // Only proceed if auto is active
+        if (!isAutoSequenceActive) return;
 
-        // Reinitialize
-        initialize();
+        // Reset flag first to prevent recursion
+        isAutoSequenceActive = false;
+
+        // Cancel the specific command instead of all commands
+        if (currentAutoCommand != null) {
+            CommandScheduler.getInstance().cancel(currentAutoCommand);
+            currentAutoCommand = null;
+        }
+
+        // Set zero movement
+        follower.setTeleOpMovementVectors(0, 0, 0, false);
+
+        telemetry.addData("Auto Sequence", "Cancelled");
+        telemetry.update();
     }
 
     @Override

@@ -175,19 +175,7 @@ public class AutoPaths {
                 Commands.closeClawThenScore(outtakeSubsystem),
                 Commands.followPath(follower, pickUpToScoreBefore2),
                 Commands.flick(outtakeSubsystem),
-                new TwoPhaseDriveCommand(300),  // Two-phase approach for more reliable timing
-                Commands.openClaw(outtakeSubsystem),
-                Commands.pickUpPOS(outtakeSubsystem)
-                        .andThen(new ParallelRaceGroup(
-                                Commands.followPath(follower, score2ToPickUp),
-                                new WaitCommand(2000)
-                        ).andThen(new InstantCommand(() -> {
-                            // Force stopping when path is done or timed out
-                            follower.breakFollowing();
-                            follower.setTeleOpMovementVectors(0, 0, 0, false);
-                        }))),
-
-                // Second cycle
+                Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300),
                 Commands.closeClawThenScore(outtakeSubsystem),
                 Commands.followPath(follower, pickUpToScoreBefore2),
                 Commands.flick(outtakeSubsystem),
