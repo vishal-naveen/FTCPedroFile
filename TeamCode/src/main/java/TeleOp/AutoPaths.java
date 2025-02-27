@@ -30,7 +30,7 @@ public class AutoPaths {
     //a
     private final Pose scoreBefore3 = new Pose(35.5, 75.2, Math.toRadians(0));
     private final Pose score3 = new Pose(40, 75.2, Math.toRadians(0));
-
+//a
     private final Path startToScoreBefore1;
     private final Path scoreBefore1ToScore1;
     private final Path score1ToPickUp;
