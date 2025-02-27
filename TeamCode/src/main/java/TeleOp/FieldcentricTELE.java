@@ -133,7 +133,7 @@ public class FieldcentricTELE extends CommandOpMode {
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
     }
-
+//a
     private void initializePaths() {
         pickUpToScoreBefore2 = new Path(new BezierLine(
                 new Point(pickUp),
