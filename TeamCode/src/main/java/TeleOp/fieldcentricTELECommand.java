@@ -443,6 +443,7 @@ public class fieldcentricTELECommand extends CommandOpMode {
             telemetry.addData("viper target", viperMotor.getTargetPosition());
             telemetry.addData("viper pos", viperMotor.getCurrentPosition());
             telemetry.addData("Auto Active", isAutoSequenceActive);
+            telemetry.addData("Intake Pivot: ", NintakeWristPivot.getPosition());
         }
     }
 

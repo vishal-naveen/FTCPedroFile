@@ -191,7 +191,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
     public void setHighBucket() {
         OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBASEKT);
         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBASKET);
-        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
         viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -242,7 +242,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 600) {
                         transferState = 1;
                         transferTimer.reset();
                     }
@@ -250,13 +250,13 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 1:
                     if (isArmExtended) {
-                        if (transferTimer.milliseconds() <= 500) {
+                        if (transferTimer.milliseconds() <= 2000) {
                             // Wait
                         } else {
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                            if (transferTimer.milliseconds() > 500) {
+                            if (transferTimer.milliseconds() > 300) {
                                 transferState = 2;
                                 transferTimer.reset();
                             }
@@ -268,7 +268,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                         OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                        if (transferTimer.milliseconds() > 500) {
+                        if (transferTimer.milliseconds() > 300) {
                             transferState = 2;
                             transferTimer.reset();
                         }
@@ -277,7 +277,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 250) {
                         transferState = 3;
                         transferTimer.reset();
                     }
@@ -285,7 +285,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 3:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-                    if (transferTimer.milliseconds() > 500) {
+                    if (transferTimer.milliseconds() > 10) {
                         transferState = 4;
                         transferTimer.reset();
                     }
@@ -294,12 +294,12 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 case 4:
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBASEKT);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBASKET);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     viperMotor.setPower(1);
-                    if (transferTimer.milliseconds() > 250) {
+                    if (transferTimer.milliseconds() > 100) {
                         transferState = 5;
                         transferTimer.reset();
                     }
@@ -324,7 +324,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                    if (transferTimerHigher.milliseconds() > 500) {
+                    if (transferTimerHigher.milliseconds() > 600) {
                         transferStateHigher = 1;
                         transferTimerHigher.reset();
                     }
@@ -332,13 +332,13 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 1:
                     if (isArmExtended) {
-                        if (transferTimerHigher.milliseconds() <= 500) {
+                        if (transferTimerHigher.milliseconds() <= 2000) {
                             // Wait
                         } else {
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                            if (transferTimerHigher.milliseconds() > 500) {
+                            if (transferTimerHigher.milliseconds() > 300) {
                                 transferStateHigher  = 2;
                                 transferTimerHigher.reset();
                             }
@@ -350,7 +350,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                         OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                         OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                        if (transferTimerHigher.milliseconds() > 500) {
+                        if (transferTimerHigher.milliseconds() > 300) {
                             transferStateHigher = 2;
                             transferTimerHigher.reset();
                         }
@@ -359,7 +359,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                    if (transferTimerHigher.milliseconds() > 500) {
+                    if (transferTimerHigher.milliseconds() > 250) {
                         transferStateHigher = 3;
                         transferTimerHigher.reset();
                     }
@@ -367,7 +367,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
 
                 case 3:
                     NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
-                    if (transferTimerHigher.milliseconds() > 500) {
+                    if (transferTimerHigher.milliseconds() > 10) {
                         transferStateHigher = 4;
                         transferTimerHigher.reset();
                     }
@@ -376,12 +376,12 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                 case 4:
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBASEKT);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBASKET);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET_HIGHER);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     viperMotor.setPower(1);
-                    if (transferTimerHigher.milliseconds() > 250) {
+                    if (transferTimerHigher.milliseconds() > 100) {
                         transferStateHigher = 5;
                         transferTimerHigher.reset();
                     }

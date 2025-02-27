@@ -9,6 +9,7 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import Positions.Commands;
 import Subsystem.OuttakeSubsystem;
@@ -24,8 +25,8 @@ public class AutoPaths {
     private final Pose pickUp = new Pose(12, 28.75, Math.toRadians(0));
     private final Pose scoreBefore1 = new Pose(35.5, 75.2, Math.toRadians(0));
     private final Pose score1 = new Pose(40, 75.2, Math.toRadians(0));
-    private final Pose scoreBefore2 = new Pose(32.5, 76.7, Math.toRadians(0));
-    private final Pose score2 = new Pose(35, 76.7, Math.toRadians(0));
+    private final Pose scoreBefore2 = new Pose(38, 73.7, Math.toRadians(0));
+    private final Pose score2 = new Pose(42, 73.7, Math.toRadians(0));
     //a
     private final Pose scoreBefore3 = new Pose(35.5, 75.2, Math.toRadians(0));
     private final Pose score3 = new Pose(40, 75.2, Math.toRadians(0));
@@ -40,13 +41,13 @@ public class AutoPaths {
     private final Path scoreBefore3ToScore3;
     private final Path score3ToPickUp;
 
-    public AutoPaths(HardwareMap hardwareMap, Follower follower, Gamepad gamepad) throws IllegalArgumentException {
-        if (hardwareMap == null || follower == null || gamepad == null) {
+    public AutoPaths(HardwareMap hardwareMap, Follower follower, Gamepad gamepad, OuttakeSubsystem outtakeSubsystem) throws IllegalArgumentException {
+        if (hardwareMap == null || follower == null || gamepad == null || outtakeSubsystem == null) {
             throw new IllegalArgumentException("Inputs cannot be null");
         }
         this.follower = follower;
         this.gamepad = gamepad;
-        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, null, this.follower);
+        this.outtakeSubsystem = outtakeSubsystem;
 
         startToScoreBefore1 = new Path(new BezierLine(
                 new Point(pickUp),
@@ -154,10 +155,15 @@ public class AutoPaths {
     }
 
     public void update() {
-        CommandScheduler.getInstance().run();
-        follower.update();
+        // Only check if commands finished, don't call CommandScheduler.run() or follower.update()
         if (autoCommand != null && !autoCommand.isScheduled()) {
-            autoSequenceActive = false; // Reset state when command finishes or is interrupted
+            autoSequenceActive = false;
+        }
+    }
+
+    private void setServoPosition(Servo servo, double position) {
+        if (Math.abs(servo.getPosition() - position) > 0.01) {
+            servo.setPosition(position);
         }
     }
 

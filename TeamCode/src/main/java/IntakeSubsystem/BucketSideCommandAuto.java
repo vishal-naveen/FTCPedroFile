@@ -40,10 +40,11 @@ public class BucketSideCommandAuto extends CommandOpMode {
         chain = BucketPathInitializer.BucketSidePaths;
 
         if(opModeInInit()) {
-            bucketSubsystem.preloadOuttake();
+//            bucketSubsystem.preloadOuttake();
             bucketSubsystem.openIntakeClaw();
             bucketSubsystem.bucketAuto();
             bucketSubsystem.closeOuttakeClaw();
+            outtakeSubsystem.preloadPosition();
         }
 
         schedule(
@@ -58,7 +59,7 @@ public class BucketSideCommandAuto extends CommandOpMode {
                         CommandsBucket.followPath(follower, scorePreload),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(500),
                         CommandsBucket.extendIntake(bucketSubsystem),
 
                         // First cycle - Pickup pixel 1
@@ -66,13 +67,13 @@ public class BucketSideCommandAuto extends CommandOpMode {
 //                        CommandsBucket.sleep(250),
                         CommandsBucket.setViperDown(bucketSubsystem),
                         CommandsBucket.followPath(follower, pickUp1Path),
-                        CommandsBucket.sleep(500),
+                        CommandsBucket.sleep(350),
                         CommandsBucket.pickupAndTransferHigher(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.followPath(follower, score1Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(500),
                         CommandsBucket.extendIntake(bucketSubsystem),
 
 
@@ -81,13 +82,13 @@ public class BucketSideCommandAuto extends CommandOpMode {
                         CommandsBucket.setViperDown(bucketSubsystem),
                         CommandsBucket.sleep(100),
                         CommandsBucket.followPath(follower, pickUp2Path),
-                        CommandsBucket.sleep(500),
+                        CommandsBucket.sleep(350),
                         CommandsBucket.pickupAndTransferHigher(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.followPath(follower, score2Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(500),
                         CommandsBucket.extendIntakeCross(bucketSubsystem),
 
 
@@ -107,12 +108,11 @@ public class BucketSideCommandAuto extends CommandOpMode {
                         CommandsBucket.wristUp(bucketSubsystem),
                         CommandsBucket.sleep(100),
                         CommandsBucket.justTransferCross(bucketSubsystem),
-                        CommandsBucket.sleep(300),
-                        CommandsBucket.sleep(50),
+                        CommandsBucket.sleep(250),
                         CommandsBucket.followPath(follower, score3Path),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),
-                        CommandsBucket.sleep(750),
+                        CommandsBucket.sleep(500),
                         CommandsBucket.setWaitPOS(bucketSubsystem),
                         CommandsBucket.setViperDown(bucketSubsystem),
                         CommandsBucket.followPath(follower, parkPath),

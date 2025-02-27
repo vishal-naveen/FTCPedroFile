@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class positions_motor {
     // Viper slide positions
-    public static final int VIPER_GROUND = 25;
+    public static final int VIPER_GROUND = -200;
     public static final int VIPER_HIGHBAR = 300;
 
     public static final double STATE_VIPER_HIGHBAR = 410;
@@ -42,10 +42,10 @@ public class positions_motor {
  public static final double STATE_OUTTAKECLAW_CLOSE = 0.36;
 
 
- public static final double STATE_INTAKELEFTARM_CLOSE = 0.9;
+ public static final double STATE_INTAKELEFTARM_CLOSE = 0.975;
  public static final double STATE_INTAKELEFTARM_EXTEND_FULL = 0.4;
 
- public static final double STATE_INTAKERIGHTARM_CLOSE = 0.45;
+ public static final double STATE_INTAKERIGHTARM_CLOSE = 0.375;
  public static final double STATE_INTAKERIGHTARM_EXTEND_FULL = 0.95;
 
      public static final double SPECIMEN_OUTTAKEARMLEFT_PRELOAD = 0.6575;
@@ -57,7 +57,7 @@ public class positions_motor {
 
 
    //2650
-    public static final int VIPER_HIGHBASKET = 2600;
+    public static final int VIPER_HIGHBASKET = 2725;
 
  public static final int VIPER_HIGHBASKET_HIGHER = 2875;
 
@@ -75,12 +75,12 @@ public class positions_motor {
     public static final double NIntakeWristPickUp = 0.9;
 
     public static final double NIntakeWristPickUpBefore = 0.6;
-    public static final double NIntakeWristTransfer = 0.175;
-    public static final double NIntakeWristPivotHorizontal = 0.205;
+    public static final double NIntakeWristTransfer = 0.165 ;
+    public static final double NIntakeWristPivotHorizontal = 0.2722;
 
-    public static final double NIntakeWristPivotVertical = 0.555;
+    public static final double NIntakeWristPivotVertical = 0.6117;
 
-    public static final double NIntakeWristPivotTransfer = 0.875;
+    public static final double NIntakeWristPivotTransfer = 0.945;
     public static final double NIntakeClawOpen = 0.8;
 
     public static final double NIntakeClawOpenTransfer = 0.75;
