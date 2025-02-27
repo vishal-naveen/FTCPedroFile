@@ -1,20 +1,10 @@
 package TeleOp;
 
-import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.RunCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.command.button.GamepadButton;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -30,92 +20,172 @@ import Subsystem.OuttakeSubsystem;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@TeleOp(name="FieldcentricTELE_Command")
-public class FieldcentricTELE extends CommandOpMode {
-    // Subsystems
+@TeleOp(name="FieldcentricTELE")
+public class FieldcentricTELE extends OpMode {
     private Follower follower;
+    private AutoPaths autoPaths;
+    private double power = 1;
+
     private OuttakeSubsystem outtakeSubsystem;
     private BucketSideAutoSubsystem bucketSubsystem;
 
-    // Path Variables
-    private Path pickUpToScoreBefore2;
-    private Path scoreBefore2ToScore2;
-    private Path score2ToPickUp;
-    private final Pose pickUp = new Pose(12, 28.75, Math.toRadians(0));
-    private final Pose scoreBefore2 = new Pose(32.5, 76.7, Math.toRadians(0));
-    private final Pose score2 = new Pose(40, 76.7, Math.toRadians(0));
+    private DcMotor viperMotor = null;
 
-    // Hardware
-    private DcMotor viperMotor;
-    private Servo IntakeArmLeft, IntakeArmRight;
-    private Servo NintakeWrist, NintakeWristPivot, NintakeClaw;
-    private Servo OuttakeArmLeft, OuttakeArmRight;
-    private Servo OuttakeWrist, OuttakeWristPivot, OuttakeClaw;
+    private Servo IntakeArmLeft = null;  // Dual intake arms
+    private Servo IntakeArmRight = null;
+    private Servo NintakeWrist = null;
+    private Servo NintakeWristPivot = null;
+    private Servo NintakeClaw = null;
+    private Servo OuttakeArmLeft = null;
+    private Servo OuttakeArmRight = null;
+    private Servo OuttakeWrist = null;
+    private Servo OuttakeWristPivot = null;
+    private Servo OuttakeClaw = null;
 
-    // Controllers
-    private GamepadEx driver;
-    private GamepadEx operator;
-
-    // State variables
-    private boolean isAutoSequenceActive = false;
-    private double power = 1;
     private boolean isOutakeHorizontal = false;
+    private boolean lastRightBumper = false;
     private boolean isWristHorizontal = false;
+    private boolean lastLeftBumper = false;
+    private ElapsedTime flickTimer = new ElapsedTime();
+    private boolean isFlicking = false;
+    private int flickState = 0;
 
-    @Override
-    public void initialize() {
-        // Initialize hardware
-        initializeHardware();
+    private int transferState = 0;
+    private ElapsedTime transferTimer = new ElapsedTime();
+    private boolean transferInProgress = false;
 
-        // Set up paths
-        initializePaths();
+    private int lengthWait = 500;
 
-        // Set up controllers
-        driver = new GamepadEx(gamepad1);
-        operator = new GamepadEx(gamepad2);
+    private boolean lastDpadUp = false;
 
-        // Set up subsystems
-        outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, follower);
-        bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
+    private int pickupState = 0;
+    private ElapsedTime pickupTimer = new ElapsedTime();
+    private boolean pickupInProgress = false;
+    private boolean lastB = false;
 
-        // Schedule continuous commands
-        schedule(new RunCommand(follower::update));
-        schedule(new RunCommand(() -> {
-            if (!isAutoSequenceActive) {
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            }
-        }));
+    private boolean lastDpadLeft = false;
+    private boolean lastDpadRight = false;
 
-        // Set up default drive command
-        schedule(new RunCommand(() -> {
-            if (!isAutoSequenceActive) {
-                follower.setTeleOpMovementVectors(
-                        -gamepad1.left_stick_y,
-                        -gamepad1.left_stick_x,
-                        -gamepad1.right_stick_x,
-                        false
-                );
-            }
-        }));
+    private boolean isViperAtTarget = false;
+    private static final int POSITION_TOLERANCE = 20;
 
-        // Button bindings - Driver
-        configureDriverBindings();
+    private int viperDownState = 0;
+    private ElapsedTime viperDownTimer = new ElapsedTime();
+    private boolean viperDownInProgress = false;
+    private boolean lastStart = false;
 
-        // Button bindings - Operator
-        configureOperatorBindings();
+    private static final double VIPER_HOLDING_POWER = 0.1;
 
-        // Telemetry
-        schedule(new RunCommand(telemetry::update));
+    private ElapsedTime groundPowerTimer = new ElapsedTime();
+    private boolean isGroundTimerActive = false;
+    private static final double GROUND_POWER_TIMEOUT = 5000;
+
+    private boolean isManualResetActive = false;
+    private boolean lastLeftBumper1 = false;
+    private boolean isStallCheckActive = false;
+
+    private int intakeCloseState = 0;
+    private ElapsedTime intakeCloseTimer = new ElapsedTime();
+    private boolean intakeCloseInProgress = false;
+
+    private boolean isArmExtended = false;
+    private boolean isPivotHorizontal = false;
+
+    private boolean bPressed = false;
+
+
+    private int lastViperPosition = 0;
+    private ElapsedTime positionChangeTimer = new ElapsedTime();
+    private static final int POSITION_CHANGE_THRESHOLD = 5;
+    private static final long POSITION_TIMEOUT = 750; // 500ms timeout
+
+    private void updatePivotState() {
+        double pivotPosition = NintakeWristPivot.getPosition();
+        isPivotHorizontal = Math.abs(pivotPosition - positions_motor.NIntakeWristPivotHorizontal) < 0.05;
     }
 
-    private void initializeHardware() {
+    private void updateArmExtensionState() {
+        double leftArmPosition = IntakeArmLeft.getPosition();
+        double rightArmPosition = IntakeArmRight.getPosition();
+
+        // Check if both arms are within a tolerance of their fully extended positions
+        double tolerance = 0.1; // Adjust this value based on your servo's precision
+        isArmExtended = Math.abs(leftArmPosition - positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL) < tolerance &&
+                Math.abs(rightArmPosition - positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL) < tolerance;
+    }
+
+    private void cancelGroundTimer() {
+        if (isGroundTimerActive) {
+            isGroundTimerActive = false;
+            groundPowerTimer.reset();
+        }
+    }
+
+    private void updateViperMotorState() {
+        if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+            int currentPos = viperMotor.getCurrentPosition();
+            int targetPos = viperMotor.getTargetPosition();
+
+            // Stall detection for ground position
+            if (targetPos == positions_motor.VIPER_GROUND) {
+                int positionDelta = Math.abs(currentPos - lastViperPosition);
+                if (!isStallCheckActive) {
+                    isStallCheckActive = true;
+                    lastViperPosition = currentPos;
+                    positionChangeTimer.reset(); // Using existing timer
+                } else if (positionChangeTimer.milliseconds() > 250) { // 250ms stall threshold
+                    if (positionDelta < 5) { // 5 ticks threshold
+                        viperMotor.setPower(0);
+                        viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                        isStallCheckActive = false;
+                        cancelGroundTimer();
+                        viperDownInProgress = false; // Reset state machine if active
+                        return;
+                    }
+                    lastViperPosition = currentPos;
+                    positionChangeTimer.reset();
+                }
+            } else {
+                isStallCheckActive = false; // Disable stall check for non-ground positions
+            }
+
+            // Standard position control
+            if (Math.abs(currentPos - targetPos) <= POSITION_TOLERANCE) {
+                isViperAtTarget = true;
+                viperMotor.setPower(VIPER_HOLDING_POWER);
+            } else {
+                isViperAtTarget = false;
+                viperMotor.setPower(1);
+            }
+
+            lastViperPosition = currentPos;
+        }
+    }
+
+    private void checkManualReset() {
+        if (isManualResetActive) {
+            viperMotor.setPower(0);
+            viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            isManualResetActive = false;
+        }
+    }
+
+    @Override
+    public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(RobotPose.stopPose);
         follower.setMaxPower(0.9);
+        try {
+            autoPaths = new AutoPaths(hardwareMap, follower, gamepad1); // Telemetry removed from AutoPaths
+        } catch (Exception e) {
+            // Silently handle exception since AutoPaths doesn't use telemetry
+        }
+
+        this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
+        this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -133,223 +203,143 @@ public class FieldcentricTELE extends CommandOpMode {
         OuttakeWristPivot = hardwareMap.get(Servo.class, "OuttakeWristPivot");
         OuttakeClaw = hardwareMap.get(Servo.class, "OuttakeClaw");
     }
-//a
-    private void initializePaths() {
-        pickUpToScoreBefore2 = new Path(new BezierLine(
-                new Point(pickUp),
-                new Point(scoreBefore2)
-        ));
-        pickUpToScoreBefore2.setConstantHeadingInterpolation(Math.toRadians(0));
 
-        scoreBefore2ToScore2 = new Path(new BezierLine(
-                new Point(scoreBefore2),
-                new Point(score2)
-        ));
-        scoreBefore2ToScore2.setConstantHeadingInterpolation(Math.toRadians(0));
-
-        score2ToPickUp = new Path(new BezierLine(
-                new Point(score2),
-                new Point(pickUp)
-        ));
-        score2ToPickUp.setConstantHeadingInterpolation(Math.toRadians(0));
+    @Override
+    public void start() {
+        follower.startTeleopDrive();
     }
 
-    private void configureDriverBindings() {
-        // B button to start auto sequence
-        driver.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(new InstantCommand(() -> {
-                    if (!isAutoSequenceActive) {
-                        startAutoSequence();
-                        follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
+    @Override
+    public void loop() {
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightFront")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        CommandScheduler.getInstance().run();
+        follower.update();
+        autoPaths.update();
+
+
+
+        boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
+                Math.abs(gamepad1.left_stick_y) > 0.1 ||
+                Math.abs(gamepad1.right_stick_x) > 0.1;
+
+        if (!autoPaths.isActive()) {
+            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+
+            if (gamepad1.b && !bPressed) {
+                bPressed = true;
+                autoPaths.startAuto();
+                follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
+            }
+        } else if (hasJoystickInput) {
+            autoPaths.cancelSequence();
+        }
+
+        if (!gamepad1.b) {
+            bPressed = false;
+        }
+
+        if (gamepad1.a) {
+            follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
+        }
+
+        if (gamepad2.left_bumper && !lastLeftBumper) {
+            isWristHorizontal = !isWristHorizontal;
+            NintakeWristPivot.setPosition(isWristHorizontal ?
+                    positions_motor.NIntakeWristPivotHorizontal :
+                    positions_motor.NIntakeWristPivotVertical);
+        }
+        lastLeftBumper = gamepad2.left_bumper;
+
+        if (gamepad2.right_bumper && !lastRightBumper) {
+            isOutakeHorizontal = !isOutakeHorizontal;
+            OuttakeWristPivot.setPosition(isOutakeHorizontal ?
+                    positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR :
+                    positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+        }
+        lastRightBumper = gamepad2.right_bumper;
+
+        if (gamepad2.dpad_left && !lastDpadLeft) {
+            NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+        }
+        if (gamepad2.dpad_right && !lastDpadRight) {
+            NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
+        }
+        lastDpadLeft = gamepad2.dpad_left;
+        lastDpadRight = gamepad2.dpad_right;
+
+        if (gamepad2.b && !lastB && !pickupInProgress) {
+            pickupState = 0;
+            pickupTimer.reset();
+            pickupInProgress = true;
+        }
+        lastB = gamepad2.b;
+
+        if (pickupInProgress) {
+            switch (pickupState) {
+                case 0:
+                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+                    if (pickupTimer.milliseconds() > 250) {
+                        pickupState = 1;
+                        pickupTimer.reset();
                     }
-                }));
+                    break;
 
-        // A button to reset heading
-        driver.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(new InstantCommand(() ->
-                        follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)))
-                ));
-
-        // Y button for up intake
-        driver.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(new InstantCommand(() -> {
-                    IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
-                    IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
-                    NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                }));
-
-        // Down on D-pad to extend intake
-        driver.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                .whenPressed(new InstantCommand(() -> {
-                    IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
-                    IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
-                }));
-
-        // Stop motor on touchpad
-//        driver.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
-//                .whenPressed(new InstantCommand(() -> {
-//                    viperMotor.setPower(0);
-//                    // Cancel ground timer if it's active
-//                }));
-
-        // Y button for manual viper movement
-        driver.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(new InstantCommand(() -> {
-                    viperMotor.setPower(-0.3);
-                    // Cancel ground timer if it's active
-                }));
-    }
-
-    private void configureOperatorBindings() {
-        // Left bumper for wrist pivot toggle
-        operator.getGamepadButton(GamepadKeys.Button.LEFT_BUMPER)
-                .whenPressed(new InstantCommand(() -> {
-                    isWristHorizontal = !isWristHorizontal;
-                    NintakeWristPivot.setPosition(isWristHorizontal ?
-                            positions_motor.NIntakeWristPivotHorizontal :
-                            positions_motor.NIntakeWristPivotVertical);
-                }));
-
-        // Right bumper for outtake wrist pivot toggle
-        operator.getGamepadButton(GamepadKeys.Button.RIGHT_BUMPER)
-                .whenPressed(new InstantCommand(() -> {
-                    isOutakeHorizontal = !isOutakeHorizontal;
-                    OuttakeWristPivot.setPosition(isOutakeHorizontal ?
-                            positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR :
-                            positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                }));
-
-        // D-pad left for intake claw open
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_LEFT)
-                .whenPressed(new InstantCommand(() ->
-                        NintakeClaw.setPosition(positions_motor.NIntakeClawOpen)
-                ));
-
-        // D-pad right for intake claw close
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_RIGHT)
-                .whenPressed(new InstantCommand(() ->
-                        NintakeClaw.setPosition(positions_motor.NIntakeClawClose)
-                ));
-
-        // B button for pickup sequence
-        operator.getGamepadButton(GamepadKeys.Button.B)
-                .whenPressed(createPickupCommand());
-
-        // A button for outtake to pickup position
-        operator.getGamepadButton(GamepadKeys.Button.A)
-                .whenPressed(new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_PICKUP);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                    NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-                }));
-
-        // X button for outtake flick position
-        operator.getGamepadButton(GamepadKeys.Button.X)
-                .whenPressed(new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
-                }));
-
-        // Down on D-pad for transfer position
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_DOWN)
-                .whenPressed(new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                }));
-
-        // Y button for transfer wait position
-        operator.getGamepadButton(GamepadKeys.Button.Y)
-                .whenPressed(new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                }));
-
-        // Touchpad for transfer sequence
-//        operator.getGamepadButton(GamepadKeys.Button.TOUCHPAD)
-//                .whenPressed(createTransferCommand());
-
-        // Start button for viper down sequence
-        operator.getGamepadButton(GamepadKeys.Button.START)
-                .whenPressed(createViperDownCommand());
-
-        // Back button for high bucket position
-        operator.getGamepadButton(GamepadKeys.Button.BACK)
-                .whenPressed(new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                    OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-                    viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
-                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
-                }));
-
-        // D-pad up for intake pickup
-        operator.getGamepadButton(GamepadKeys.Button.DPAD_UP)
-                .whenPressed(new InstantCommand(() ->
-                        NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore)
-                ));
-
-        // Left trigger for open outtake claw
-        schedule(new RunCommand(() -> {
-            if (gamepad2.left_trigger > 0.25) {
-                OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
-            }
-        }));
-
-        // Right trigger for close outtake claw
-        schedule(new RunCommand(() -> {
-            if (gamepad2.right_trigger > 0.25) {
-                OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                Commands.closeClaw(outtakeSubsystem).raceWith(Commands.sleep(100));
-            }
-        }));
-
-        // Left/right stick for intake arm positions
-        schedule(new RunCommand(() -> {
-            if (gamepad2.left_stick_y > 0.5) {
-                IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
-                IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
-            }
-            if (gamepad2.left_stick_y < -0.5) {
-                IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
-                IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
-                NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
-            }
-            if (gamepad2.right_stick_y > 0.5) {
-                NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-            }
-            if (gamepad2.right_stick_y < -0.5) {
-                NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
-            }
-        }));
-    }
-
-    private SequentialCommandGroup createPickupCommand() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
-                }),
-                new WaitCommand(250),
-                new InstantCommand(() -> {
+                case 1:
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
-                })
-        );
-    }
+                    if (pickupTimer.milliseconds() > 10) {
+                        pickupInProgress = false;
+                    }
+                    break;
+            }
+        }
 
-    private SequentialCommandGroup createTransferCommand() {
-        return new SequentialCommandGroup(
-                // Phase 1: Initial positioning
-                new InstantCommand(() -> {
+        if (gamepad2.a) {
+            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_PICKUP);
+            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_PICKUP);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_PICKUP);
+            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+        }
+
+        if (gamepad2.x) {
+            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_FLICK);
+            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_FLICK);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_FLICK);
+        }
+
+        if (gamepad2.dpad_down) {
+            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
+            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+        }
+
+        if (gamepad2.y) {
+            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
+            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+            //a
+        }
+
+        if (gamepad2.touchpad && !lastDpadUp && !transferInProgress) {
+            transferState = 0;
+            transferTimer.reset();
+            transferInProgress = true;
+        }
+        lastDpadUp = gamepad2.touchpad;
+
+        if (transferInProgress) {
+            cancelGroundTimer();
+            switch (transferState) {
+                case 0:
+                    updateArmExtensionState();
                     NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
                     IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
@@ -357,160 +347,195 @@ public class FieldcentricTELE extends CommandOpMode {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
                     NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-                }),
-                new WaitCommand(150),
+                    if (transferTimer.milliseconds() > 150) {
+                        transferState = 1;
+                        transferTimer.reset();
+                    }
+                    break;
 
-                // Phase 2: Move outtake to transfer position
-                new InstantCommand(() -> {
-                    OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
-                    OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
-                    OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
-                }),
-                new WaitCommand(200),
+                case 1:
+                    if (isArmExtended) {
+                        if (transferTimer.milliseconds() <= 2000) {
+                        } else {
+                            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
+                            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
+                            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+                            if (transferTimer.milliseconds() > 200) {
+                                transferState = 2;
+                                transferTimer.reset();
+                            }
+                        }
+                    } else {
+                        NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
+                        NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+                        OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
+                        OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
+                        OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
+                        OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+                        if (transferTimer.milliseconds() > 200) {
+                            transferState = 2;
+                            transferTimer.reset();
+                        }
+                    }
+                    break;
 
-                // Phase 3: Close outtake claw
-                new InstantCommand(() -> OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE)),
-                new WaitCommand(150),
+                case 2:
+                    OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
+                    if (transferTimer.milliseconds() > 150) {
+                        transferState = 3;
+                        transferTimer.reset();
+                    }
+                    break;
 
-                // Phase 4: Open intake claw
-                new InstantCommand(() -> NintakeClaw.setPosition(positions_motor.NIntakeClawOpen)),
-                new WaitCommand(10),
+                case 3:
+                    NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+                    if (transferTimer.milliseconds() > 10) {
+                        transferState = 4;
+                        transferTimer.reset();
+                    }
+                    break;
 
-                // Phase 5: Move to scoring position
-                new InstantCommand(() -> {
+                case 4:
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
-                }),
-                new WaitCommand(100),
-
-                // Phase 6: Reset intake
-                new InstantCommand(() -> {
+//                    viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
+//                    viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//                    viperMotor.setPower(1);
+                    if (transferTimer.milliseconds() > 100) {
+                        transferState = 5;
+                        transferTimer.reset();
+                    }
+                    break;
+                case 5:
                     NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotHorizontal);
                     NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
-                })
-        );
-    }
+                    transferInProgress = false;
+                    break;
+            }
+        }
 
-    private SequentialCommandGroup createViperDownCommand() {
-        return new SequentialCommandGroup(
-                new InstantCommand(() -> {
+        if (gamepad1.dpad_up) {
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
+            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+        }
+
+        if (gamepad1.dpad_down) {
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
+        }
+
+        if (gamepad2.left_stick_y > 0.5) {
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
+        }
+        if (gamepad2.left_stick_y < -0.5) {
+            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
+            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
+        }
+
+        if (gamepad2.right_stick_y > 0.5) {
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUp);
+        }
+        if (gamepad2.right_stick_y < -0.5) {
+            NintakeWrist.setPosition(positions_motor.NIntakeWristTransfer);
+        }
+
+        if (gamepad2.left_trigger > 0.25) {
+            OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
+        }
+        if (gamepad2.right_trigger > 0.25) {
+            OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
+            Commands.closeClaw(outtakeSubsystem).raceWith(Commands.sleep(100));
+        }
+
+        if (gamepad2.back) {
+            cancelGroundTimer();
+            OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_HIGHBAR);
+            OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_HIGHBAR);
+            OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
+            OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
+            viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
+            viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            viperMotor.setPower(1);
+        }
+
+        if (gamepad2.start && !lastStart && !viperDownInProgress) {
+            viperDownState = 0;
+            viperDownTimer.reset();
+            viperDownInProgress = true;
+        }
+        lastStart = gamepad2.start;
+
+        if (viperDownInProgress) {
+            switch (viperDownState) {
+                case 0:
                     OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER_WAIT);
                     OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
                     OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
-                }),
-                new WaitCommand(750),
-                new InstantCommand(() -> {
+                    if (viperDownTimer.milliseconds() > 750) {
+                        viperDownState = 1;
+                        viperDownTimer.reset();
+                    }
+                    break;
+
+                case 1:
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_GROUND);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     viperMotor.setPower(1);
-                })
-        );
-    }
-
-    private void startAutoSequence() {
-        isAutoSequenceActive = true;
-
-        SequentialCommandGroup autoCommand = new SequentialCommandGroup(
-                // First cycle
-                Commands.closeClawThenScore(outtakeSubsystem)
-                        .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-                        .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
-                        .andThen(Commands.openClaw(outtakeSubsystem))
-                        .andThen(Commands.pickUpPOS(outtakeSubsystem))
-                        .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000)),
-
-                // Second cycle
-                Commands.closeClawThenScore(outtakeSubsystem)
-                        .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-                        .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
-                        .andThen(Commands.openClaw(outtakeSubsystem))
-                        .andThen(Commands.pickUpPOS(outtakeSubsystem))
-                        .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000)),
-
-                // Third cycle
-                Commands.closeClawThenScore(outtakeSubsystem)
-                        .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-                        .andThen(Commands.flick(outtakeSubsystem))
-                        .andThen(new RunCommand(() -> {
-                            follower.startTeleopDrive();
-                            follower.setTeleOpMovementVectors(0.3, 0, 0, false);
-                        }).withTimeout(300))
-                        .andThen(Commands.openClaw(outtakeSubsystem))
-                        .andThen(Commands.pickUpPOS(outtakeSubsystem))
-                        .andThen(Commands.followPath(follower, score2ToPickUp).withTimeout(2000))
-                        .andThen(new InstantCommand(() -> {
-                            isAutoSequenceActive = false;
-                            follower.startTeleopDrive();
-                        }))
-        );
-
-        schedule(autoCommand);
-
-        // Check for joystick input to cancel
-        schedule(new RunCommand(() -> {
-            boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
-                    Math.abs(gamepad1.left_stick_y) > 0.1 ||
-                    Math.abs(gamepad1.right_stick_x) > 0.1;
-
-            if (isAutoSequenceActive && hasJoystickInput) {
-                cancelAutoSequence();
-            }
-        }));
-    }
-
-    private void cancelAutoSequence() {
-        CommandScheduler.getInstance().cancelAll();
-        isAutoSequenceActive = false;
-        follower.breakFollowing();
-        follower.setTeleOpMovementVectors(0, 0, 0, false);
-        follower.startTeleopDrive();
-
-        // Reinitialize
-        initialize();
-    }
-
-    @Override
-    public void runOpMode() {
-        initialize();
-        waitForStart();
-        follower.startTeleopDrive();
-
-        while (opModeIsActive() && !isStopRequested()) {
-            run();
-
-            // Handle viper motor state
-            updateViperMotorState();
-
-            // Add telemetry
-            telemetry.addData("viper power", viperMotor.getPower());
-            telemetry.addData("viper target", viperMotor.getTargetPosition());
-            telemetry.addData("viper pos", viperMotor.getCurrentPosition());
-            telemetry.addData("Auto Active", isAutoSequenceActive);
-        }
-    }
-
-    private void updateViperMotorState() {
-        if (viperMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-            int currentPos = viperMotor.getCurrentPosition();
-            int targetPos = viperMotor.getTargetPosition();
-
-            // Simplified position control
-            if (Math.abs(currentPos - targetPos) <= 20) {
-                viperMotor.setPower(0.1); // Holding power
-            } else {
-                viperMotor.setPower(1);
+                    groundPowerTimer.reset();
+                    isGroundTimerActive = true;
+                    viperDownInProgress = false;
+                    break;
             }
         }
+
+        if (gamepad1.touchpad) {
+            viperMotor.setPower(0);
+            cancelGroundTimer();
+        }
+
+        if (gamepad1.y) {
+            viperMotor.setPower(-0.3);
+            cancelGroundTimer();
+        }
+
+        if (gamepad2.dpad_up) {
+            NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
+        }
+
+        if (gamepad1.left_bumper && !lastLeftBumper1) {
+            isManualResetActive = true;
+        }
+        lastLeftBumper1 = gamepad1.left_bumper;
+
+        if (isGroundTimerActive && groundPowerTimer.milliseconds() > GROUND_POWER_TIMEOUT) {
+            // Timer expired, stop the motor
+            viperMotor.setPower(0);
+            isGroundTimerActive = false;
+        }
+
+        updateViperMotorState();
+        checkManualReset();
+
+        // Viper-specific telemetry (and other original telemetry)
+//        telemetry.addData("Auto Active", autoPaths.isActive());
+        telemetry.addData("viper power", viperMotor.getPower());
+        telemetry.addData("viper target", viperMotor.getTargetPosition());
+        telemetry.addData("viper pos", viperMotor.getCurrentPosition());
+        telemetry.addData("Ground Timer Active", isGroundTimerActive);
+        telemetry.addData("intake wrist pivot", NintakeWristPivot.getPosition());
+        telemetry.addData("IntakeArmLeft pos", IntakeArmLeft.getPosition());
+        telemetry.addData("IntakeArmRight pos", IntakeArmRight.getPosition());
+        if (isGroundTimerActive) {
+            telemetry.addData("Time until power off",
+                    (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);
+        }
+//        telemetry.addData("HardwareMap", hardwareMap != null ? "Initialized" : "Null");
+        telemetry.update();
     }
 }
