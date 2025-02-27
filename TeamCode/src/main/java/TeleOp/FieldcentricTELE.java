@@ -325,6 +325,7 @@ public class FieldcentricTELE extends OpMode {
             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER_WAIT);
             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_HIGHBAR);
             OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_PICKUP);
+            //a
         }
 
         if (gamepad2.touchpad && !lastDpadUp && !transferInProgress) {
