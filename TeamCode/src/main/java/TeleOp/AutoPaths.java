@@ -26,6 +26,7 @@ public class AutoPaths {
     private final Pose score1 = new Pose(40, 75.2, Math.toRadians(0));
     private final Pose scoreBefore2 = new Pose(32.5, 76.7, Math.toRadians(0));
     private final Pose score2 = new Pose(35, 76.7, Math.toRadians(0));
+    //a
     private final Pose scoreBefore3 = new Pose(35.5, 75.2, Math.toRadians(0));
     private final Pose score3 = new Pose(40, 75.2, Math.toRadians(0));
 
