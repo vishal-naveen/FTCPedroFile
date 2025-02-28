@@ -70,10 +70,12 @@ public class pushCommandBase extends CommandOpMode {
                                 .withTimeout(2000),
 //                        Commands.setMaxPower(outtakeSubsystem, slowPower),
                         Commands.followPath(follower, pushBlock3ToFinal)
-                                .withTimeout(100),
+                                .withTimeout(2000),
 //                        Commands.setMaxPower(outtakeSubsystem, 1),
+                        Commands.followPath(follower, pushBlock3ToFinalFINAL)
+                                        .withTimeout(150),
 
-                        Commands.closeClawThenScoreCorner(outtakeSubsystem)
+                        Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
                                 .andThen(Commands.flick(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
