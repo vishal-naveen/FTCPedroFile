@@ -23,7 +23,7 @@ import pedroPathing.constants.LConstants;
 @TeleOp(name="FieldcentricTELE")
 public class FieldcentricTELE extends OpMode {
     private Follower follower;
-    private AutoPaths autoPaths;
+//    private AutoPaths autoPaths;
     private double power = 1;
 
     private OuttakeSubsystem outtakeSubsystem;
@@ -201,19 +201,13 @@ public class FieldcentricTELE extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        follower.setMaxPower(1);
         follower.setStartingPose(RobotPose.stopPose);
-        follower.setMaxPower(0.9);
 
 
         this.outtakeSubsystem = new OuttakeSubsystem(hardwareMap, telemetry, this.follower);
         this.bucketSubsystem = new BucketSideAutoSubsystem(hardwareMap, telemetry);
 
-        try {
-            // Pass the existing outtakeSubsystem to avoid creating another instance
-            autoPaths = new AutoPaths(hardwareMap, follower, gamepad1, this.outtakeSubsystem);
-        } catch (Exception e) {
-            // Handle exception
-        }
 
         viperMotor = hardwareMap.get(DcMotor.class, "viper1motor");
         viperMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -244,32 +238,17 @@ public class FieldcentricTELE extends OpMode {
         ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "leftRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         ((DcMotorEx) hardwareMap.get(DcMotorEx.class, "rightRear")).setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        CommandScheduler.getInstance().run();
         follower.update();
-        autoPaths.update();
+
+
+        follower.setTeleOpMovementVectors(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x, false);
 
 
 
-        boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
-                Math.abs(gamepad1.left_stick_y) > 0.1 ||
-                Math.abs(gamepad1.right_stick_x) > 0.1;
 
-        if (!autoPaths.isActive()) {
-            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
-
-            if (gamepad1.b && !bPressed) {
-                bPressed = true;
-                // Set the robot's pose to match the actual pickUp position defined in AutoPaths
-                follower.setCurrentPoseWithOffset(new Pose(12, 28.75, Math.toRadians(0)));
-                autoPaths.startAuto();
-            }
-        } else if (hasJoystickInput) {
-            autoPaths.cancelSequence();
-        }
-
-        if (!gamepad1.b) {
-            bPressed = false;
-        }
 
         if (gamepad1.a) {
             follower.setCurrentPoseWithOffset(new Pose(4, 28.75, Math.toRadians(0)));
@@ -384,8 +363,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 1:
                     if (isArmExtended) {
-                        if (transferTimer.milliseconds() <= 2000) {
-                        } else {
+                        if (transferTimer.milliseconds() > 1) {
                             OuttakeArmLeft.setPosition(positions_motor.STATE_OUTTAKEARMLEFT_TRANSFER);
                             OuttakeArmRight.setPosition(positions_motor.STATE_OUTTAKEARMRIGHT_TRANSFER);
                             OuttakeWrist.setPosition(positions_motor.STATE_OUTTAKEWRIST_TRANSFER);
@@ -394,6 +372,7 @@ public class FieldcentricTELE extends OpMode {
                                 transferTimer.reset();
                             }
                         }
+                        // No else needed - we simply do nothing while waiting
                     } else {
                         NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                         NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
@@ -410,7 +389,7 @@ public class FieldcentricTELE extends OpMode {
 
                 case 2:
                     OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-                    if (transferTimer.milliseconds() > 150) {
+                    if (transferTimer.milliseconds() > 200) {
                         transferState = 3;
                         transferTimer.reset();
                     }
@@ -445,25 +424,27 @@ public class FieldcentricTELE extends OpMode {
             }
         }
 
-        if (gamepad1.dpad_up) {
-            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
-            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
-            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-        }
-
-        if (gamepad1.dpad_down) {
-            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
-            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
-        }
+//        if (gamepad1.dpad_up) {
+//            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
+//            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
+//            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+//        }
+//
+//        if (gamepad1.dpad_down) {
+//            IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
+//            IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
+//        }
 
         if (gamepad2.left_stick_y > 0.5) {
             IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_CLOSE);
             IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_CLOSE);
+            isArmExtended = false;
         }
         if (gamepad2.left_stick_y < -0.5) {
             IntakeArmLeft.setPosition(positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL);
             IntakeArmRight.setPosition(positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL);
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
+            isArmExtended = true;
         }
 
         if (gamepad2.right_stick_y > 0.5) {
@@ -478,7 +459,6 @@ public class FieldcentricTELE extends OpMode {
         }
         if (gamepad2.right_trigger > 0.25) {
             OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);
-            Commands.closeClaw(outtakeSubsystem).raceWith(Commands.sleep(100));
         }
 
         if (gamepad2.back) {
@@ -544,10 +524,10 @@ public class FieldcentricTELE extends OpMode {
             NintakeWrist.setPosition(positions_motor.NIntakeWristPickUpBefore);
         }
 
-        if (gamepad1.left_bumper && !lastLeftBumper1) {
-            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
-        }
-        lastLeftBumper1 = gamepad1.left_bumper;
+//        if (gamepad1.left_bumper && !lastLeftBumper1) {
+//            NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
+//        }
+//        lastLeftBumper1 = gamepad1.left_bumper;
 
         if (isGroundTimerActive && groundPowerTimer.milliseconds() > GROUND_POWER_TIMEOUT) {
             // Timer expired, stop the motor
@@ -574,7 +554,28 @@ public class FieldcentricTELE extends OpMode {
             telemetry.addData("Time until power off",
                     (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);
         }
-//        telemetry.addData("HardwareMap", hardwareMap != null ? "Initialized" : "Null");
         telemetry.update();
+
+
+        //        boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
+//                Math.abs(gamepad1.left_stick_y) > 0.1 ||
+//                Math.abs(gamepad1.right_stick_x) > 0.1;
+
+//        if (!autoPaths.isActive()) {
+//            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
+//
+//            if (gamepad1.b && !bPressed) {
+//                bPressed = true;
+//                // Set the robot's pose to match the actual pickUp position defined in AutoPaths
+//                follower.setCurrentPoseWithOffset(new Pose(12, 28.75, Math.toRadians(0)));
+//                autoPaths.startAuto();
+//            }
+//        } else if (hasJoystickInput) {
+//            autoPaths.cancelSequence();
+//        }
+
+//        if (!gamepad1.b) {
+//            bPressed = false;
+//        }
     }
 }
