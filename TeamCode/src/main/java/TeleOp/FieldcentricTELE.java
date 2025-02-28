@@ -455,7 +455,7 @@ public class FieldcentricTELE extends OpMode {
         }
 
         if (gamepad2.left_trigger > 0.25) {
-            OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN);
+            OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_OPEN_EXTRA);
         }
         if (gamepad2.right_trigger > 0.25) {
             OuttakeClaw.setPosition(positions_motor.STATE_OUTTAKECLAW_CLOSE);

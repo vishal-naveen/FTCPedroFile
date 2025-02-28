@@ -195,7 +195,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
         OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
         viperMotor.setTargetPosition(positions_motor.VIPER_HIGHBASKET);
         viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        viperMotor.setPower(1);
+        viperMotor.setPower(0.9);
     }
 
     public void setHighBucketViper() {
@@ -298,7 +298,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
+                    viperMotor.setPower(0.9);
                     if (transferTimer.milliseconds() > 100) {
                         transferState = 5;
                         transferTimer.reset();
@@ -380,7 +380,7 @@ public class BucketSideAutoSubsystem extends SubsystemBase {
                     OuttakeWristPivot.setPosition(positions_motor.STATE_OUTTAKEWRISTPIVOT_HIGHBAR);
                     viperMotor.setTargetPosition((int)positions_motor.VIPER_HIGHBASKET_HIGHER);
                     viperMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    viperMotor.setPower(1);
+                    viperMotor.setPower(0.9);
                     if (transferTimerHigher.milliseconds() > 100) {
                         transferStateHigher = 5;
                         transferTimerHigher.reset();

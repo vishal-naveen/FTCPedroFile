@@ -9,30 +9,30 @@ public class Push3Specimen {
 
     // Poses
     private static final Pose startPose = new Pose(8.4, 62.8, Math.toRadians(0));
-    private static final Pose preload = new Pose(42, 76.2, Math.toRadians(0));
-    private static final Pose preloadBefore = new Pose(35, 76.2, Math.toRadians(0));
+    private static final Pose preload = new Pose(42, 79.5, Math.toRadians(0));
+    private static final Pose preloadBefore = new Pose(36.25, 79.5, Math.toRadians(0));
 
-    private static final Pose preloadToBackPos = new Pose(25, 76.2, Math.toRadians(0));
+    private static final Pose preloadToBackPos = new Pose(25, 79.5, Math.toRadians(0));
 
     // Score poses updated with before positions
-    private static final Pose scoreBlock1 = new Pose(40, 79.2, Math.toRadians(0));
-    private static final Pose scoreBlockBefore1 = new Pose(35.5, 79.2, Math.toRadians(0));
-    private static final Pose scoreBlock2 = new Pose(40, 77.5, Math.toRadians(0));
-    private static final Pose scoreBlockBefore2 = new Pose(35.5, 77.5, Math.toRadians(0));
-    private static final Pose scoreBlock3 = new Pose(40, 74.8, Math.toRadians(0));
-    private static final Pose scoreBlockBefore3 = new Pose(35.5, 74.8, Math.toRadians(0));
+    private static final Pose scoreBlock1 = new Pose(40, 78.9, Math.toRadians(0));
+    private static final Pose scoreBlockBefore1 = new Pose(36.25, 78.9, Math.toRadians(0));
+    private static final Pose scoreBlock2 = new Pose(40, 76.8, Math.toRadians(0));
+    private static final Pose scoreBlockBefore2 = new Pose(36.25, 76.8, Math.toRadians(0));
+    private static final Pose scoreBlock3 = new Pose(40, 75.5, Math.toRadians(0));
+    private static final Pose scoreBlockBefore3 = new Pose(36.25, 75.5, Math.toRadians(0));
 
-    private static final Pose scoreBlock4 = new Pose(40, 72.5, Math.toRadians(0));
-    private static final Pose scoreBlockBefore4 = new Pose(35.5, 72.5, Math.toRadians(0));
+    private static final Pose scoreBlock4 = new Pose(40, 74.2, Math.toRadians(0));
+    private static final Pose scoreBlockBefore4 = new Pose(36.25, 74.2, Math.toRadians(0));
 
     private static final Pose blueLineUp = new Pose(60, 34.8, Math.toRadians(0));
     private static final Pose pushBlock1 = new Pose(16, 28, Math.toRadians(0));
 
-    private static final Pose pushBlock2Up = new Pose(57.5, 20.6, Math.toRadians(0));
-    private static final Pose pushBlock2 = new Pose(13.5, 20.6, Math.toRadians(0));
+    private static final Pose pushBlock2Up = new Pose(57.5, 19.6, Math.toRadians(0));
+    private static final Pose pushBlock2 = new Pose(13.5, 19.6, Math.toRadians(0));
 
-    private static final Pose pushBlock3Up = new Pose(55, 13.1, Math.toRadians(-5));
-    private static final Pose pushBlock3 = new Pose(14, 13.1, Math.toRadians(-5));
+    private static final Pose pushBlock3Up = new Pose(55, 12, Math.toRadians(-5));
+    private static final Pose pushBlock3 = new Pose(15.5, 12, Math.toRadians(-5));
     private static final Pose pushBlock3Final = new Pose(12, 28.75, Math.toRadians(0));
 
 

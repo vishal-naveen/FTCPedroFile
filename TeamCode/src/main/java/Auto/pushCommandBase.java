@@ -54,7 +54,7 @@ public class pushCommandBase extends CommandOpMode {
                         new WaitUntilCommand(this::opModeIsActive),
                         Commands.closeClawThenScorePreload(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, preloadBeforePath))
-                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.flicknew(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scorePreload).withTimeout(250))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
@@ -75,9 +75,9 @@ public class pushCommandBase extends CommandOpMode {
                         Commands.followPath(follower, pushBlock3ToFinalFINAL)
                                         .withTimeout(150),
 
-                        Commands.closeClawThenScore(outtakeSubsystem)
+                        Commands.closeClawThenScoreCorner(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pushToScoreBefore1))
-                                .andThen(Commands.flick(outtakeSubsystem)),
+                                .andThen(Commands.flickCorner(outtakeSubsystem)),
                         Commands.followPath(follower, scoreBefore1ToScore1).withTimeout(300)
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
@@ -89,7 +89,7 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
-                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.flicknew(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore2ToScore2).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
@@ -101,7 +101,7 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore3))
-                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.flicknew(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore3ToScore3).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 
@@ -113,7 +113,7 @@ public class pushCommandBase extends CommandOpMode {
 
                         Commands.closeClawThenScore(outtakeSubsystem)
                                 .andThen(Commands.followPath(follower, pickUpToScoreBefore4))
-                                .andThen(Commands.flick(outtakeSubsystem))
+                                .andThen(Commands.flicknew(outtakeSubsystem))
                                 .andThen(Commands.followPath(follower, scoreBefore4ToScore4).withTimeout(300))
                                 .andThen(Commands.openClaw(outtakeSubsystem)),
 

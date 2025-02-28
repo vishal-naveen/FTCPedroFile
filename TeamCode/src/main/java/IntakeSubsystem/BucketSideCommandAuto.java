@@ -55,7 +55,7 @@ public class BucketSideCommandAuto extends CommandOpMode {
                         // Scoring preload
                         CommandsBucket.setHighBucket(bucketSubsystem),
                         CommandsBucket.followPath(follower, waitPre),
-                        CommandsBucket.sleep(250),
+                        CommandsBucket.sleep(500),
                         CommandsBucket.followPath(follower, scorePreload),
                         CommandsBucket.sleep(250),
                         CommandsBucket.openOuttakeClaw(bucketSubsystem),

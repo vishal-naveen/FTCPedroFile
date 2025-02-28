@@ -136,11 +136,7 @@ public class Commands {
         }, outtakeSubsystem);
     }
 
-    public static Command setMaxPower(OuttakeSubsystem outtakeSubsystem, double speed) {
-        return new InstantCommand(() -> {
-            outtakeSubsystem.setMaxSpeed(speed);
-        }, outtakeSubsystem);
-    }
+
 
     public static Command completeScorePosition(OuttakeSubsystem outtakeSubsystem) {
         return new InstantCommand(() -> {
@@ -223,6 +219,21 @@ public class Commands {
             outtakeSubsystem.flick();
         }, outtakeSubsystem);
     }
+
+    public static Command flicknew(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                Commands.sleep(150),
+                Commands.flick(outtakeSubsystem)
+        );
+    }
+
+    public static Command flickCorner(OuttakeSubsystem outtakeSubsystem) {
+        return new SequentialCommandGroup(
+                Commands.sleep(150),
+                Commands.flick(outtakeSubsystem)
+        );
+    }
+
 
     public static Command flickWithDelay(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
