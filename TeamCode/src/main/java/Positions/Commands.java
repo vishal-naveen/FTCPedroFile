@@ -146,7 +146,7 @@ public class Commands {
 
     public static Command closeClawThenScore(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                new WaitCommand(500),
+                new WaitCommand(400),
                 Commands.closeClaw(outtakeSubsystem),
                 new WaitCommand(100), // Wait for 500 milliseconds (0.5 seconds)
                 Commands.pickUpSpecimen(outtakeSubsystem)
@@ -222,14 +222,14 @@ public class Commands {
 
     public static Command flicknew(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                Commands.sleep(150),
+                Commands.sleep(90),
                 Commands.flick(outtakeSubsystem)
         );
     }
 
     public static Command flickCorner(OuttakeSubsystem outtakeSubsystem) {
         return new SequentialCommandGroup(
-                Commands.sleep(150),
+                Commands.sleep(140),
                 Commands.flick(outtakeSubsystem)
         );
     }
