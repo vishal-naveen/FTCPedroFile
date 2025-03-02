@@ -62,10 +62,10 @@ public class pushCommandBase extends CommandOpMode {
                                 .andThen(Commands.pickUpPOS(outtakeSubsystem)),
                         Commands.followPath(follower, blueLineUpToPushBlock1),
                         Commands.followPath(follower, pushBlock1ToPushBlock2Up),
-                        Commands.sleep(10),
+//                        Commands.sleep(10),
                         Commands.followPath(follower, pushBlock2UpToPushBlock2),
                         Commands.followPath(follower, pushBlock2ToPushBlock3Up),
-                        Commands.sleep(10),
+//                        Commands.sleep(10),
                         Commands.followPath(follower, pushBlock3UpToPushBlock3)
                                 .withTimeout(2000),
 //                        Commands.setMaxPower(outtakeSubsystem, slowPower),

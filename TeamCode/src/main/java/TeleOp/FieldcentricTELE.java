@@ -550,6 +550,7 @@ public class FieldcentricTELE extends OpMode {
         telemetry.addData("intake wrist pivot", NintakeWristPivot.getPosition());
         telemetry.addData("IntakeArmLeft pos", IntakeArmLeft.getPosition());
         telemetry.addData("IntakeArmRight pos", IntakeArmRight.getPosition());
+        telemetry.addData("Outtake Claw: ", OuttakeClaw.getPosition());
         if (isGroundTimerActive) {
             telemetry.addData("Time until power off",
                     (GROUND_POWER_TIMEOUT - groundPowerTimer.milliseconds()) / 1000.0);

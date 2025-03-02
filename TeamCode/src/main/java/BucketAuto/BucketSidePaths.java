@@ -40,9 +40,12 @@ public class BucketSidePaths {
     private static final Pose pickUpBlock1Pos = new Pose(25, 123.5, Math.toRadians(170));
     private static final Pose pickUpBlock2Pos = new Pose(25, 133.3, Math.toRadians(170));
 
-    private static final Pose pickUpBlock3BEFORE = new Pose(45.9, 115.6, Math.toRadians(265));
-    private static final Pose pickUpBlock3Pos = new Pose(45.9, 121, Math.toRadians(265));
+    private static final Pose pickUpBlock3BEFORE = new Pose(44.8, 115.6, Math.toRadians(265));
+    private static final Pose pickUpBlock3Pos = new Pose(44.8, 121, Math.toRadians(265));
     private static final Pose park = new Pose(62.6, 95.2, Math.toRadians(270));
+
+    private static final Pose pandoraPoint = new Pose(11.093, 96, Math.toRadians(90));
+
 
     // Paths
     public static Path waitPre;
@@ -58,6 +61,9 @@ public class BucketSidePaths {
     public static Path pickUpPath3PRE;
     public static Path pickUpPath3Grab;
 
+    public static Path pandoraPick;
+    public static Path pandoraScore;
+
     public BucketSidePaths(Follower follower) {
         BucketSidePaths.follower = follower;
     }
@@ -69,6 +75,14 @@ public class BucketSidePaths {
         // Preload path to score
         scorePreload = new Path(new BezierLine(new Point(pickUpBlock1Pos), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+
+
+        pandoraPick = new Path(new BezierLine(new Point(scorePose), new Point(pandoraPoint)));
+        pandoraPick.setLinearHeadingInterpolation(scorePose.getHeading(), pandoraPoint.getHeading());
+
+
+        pandoraScore = new Path(new BezierLine(new Point(pandoraPoint), new Point(scorePose)));
+        pandoraScore.setLinearHeadingInterpolation(pandoraPoint.getHeading(), scorePose.getHeading());
 
         // Path to first pickup
         pickUp1Path = new Path(new BezierLine(new Point(scorePose), new Point(pickUpBlock1Pos)));

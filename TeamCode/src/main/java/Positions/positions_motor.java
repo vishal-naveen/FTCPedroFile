@@ -31,7 +31,7 @@ public class positions_motor {
 
  public static final double STATE_OUTTAKEWRIST_FLICK = 0.5;
 
-    public static final double STATE_OUTTAKEWRIST_PICKUP = 0.55;
+    public static final double STATE_OUTTAKEWRIST_PICKUP = 0.575;
 
  public static final double STATE_OUTTAKEWRIST_TRANSFER = 0.349;
 
@@ -86,7 +86,7 @@ public class positions_motor {
     public static final double NIntakeClawOpen = 0.8;
 
     public static final double NIntakeClawOpenTransfer = 0.75;
-    public static final double NIntakeClawClose = 0.53;
+    public static final double NIntakeClawClose = 0.525;
 
     public static final double NIntakeClawCloseFull = 0.475;
 
