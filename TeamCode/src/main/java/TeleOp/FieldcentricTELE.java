@@ -272,6 +272,7 @@ public class FieldcentricTELE extends OpMode {
 
         if (gamepad2.dpad_left && !lastDpadLeft) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawOpen);
+            Commands.openClaw(outtakeSubsystem);
         }
         if (gamepad2.dpad_right && !lastDpadRight) {
             NintakeClaw.setPosition(positions_motor.NIntakeClawClose);
@@ -558,23 +559,23 @@ public class FieldcentricTELE extends OpMode {
         telemetry.update();
 
 
-        //        boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
+//                boolean hasJoystickInput = Math.abs(gamepad1.left_stick_x) > 0.1 ||
 //                Math.abs(gamepad1.left_stick_y) > 0.1 ||
 //                Math.abs(gamepad1.right_stick_x) > 0.1;
-
+//
+//
 //        if (!autoPaths.isActive()) {
 //            follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, false);
 //
 //            if (gamepad1.b && !bPressed) {
 //                bPressed = true;
-//                // Set the robot's pose to match the actual pickUp position defined in AutoPaths
 //                follower.setCurrentPoseWithOffset(new Pose(12, 28.75, Math.toRadians(0)));
 //                autoPaths.startAuto();
 //            }
 //        } else if (hasJoystickInput) {
 //            autoPaths.cancelSequence();
 //        }
-
+//
 //        if (!gamepad1.b) {
 //            bPressed = false;
 //        }

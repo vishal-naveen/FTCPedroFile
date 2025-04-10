@@ -113,7 +113,6 @@ public class AutoPaths {
         autoSequenceActive = true;
 
         SequentialCommandGroup fullSequence = new SequentialCommandGroup(
-                // First cycle
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
@@ -122,7 +121,6 @@ public class AutoPaths {
                 Commands.pickUpPOS(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, score2ToPickUp)),
 
-                // Second cycle
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
@@ -131,7 +129,6 @@ public class AutoPaths {
                 Commands.pickUpPOS(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, score2ToPickUp)),
 
-                // Third cycle
                 Commands.closeClawThenScore(outtakeSubsystem)
                         .andThen(Commands.followPath(follower, pickUpToScoreBefore2))
                         .andThen(Commands.flick(outtakeSubsystem))
