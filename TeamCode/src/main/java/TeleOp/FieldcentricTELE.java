@@ -23,7 +23,6 @@ import pedroPathing.constants.LConstants;
 @TeleOp(name="FieldcentricTELE")
 public class FieldcentricTELE extends OpMode {
     private Follower follower;
-//    private AutoPaths autoPaths;
     private double power = 1;
 
     private OuttakeSubsystem outtakeSubsystem;
@@ -31,7 +30,7 @@ public class FieldcentricTELE extends OpMode {
 
     private DcMotor viperMotor = null;
 
-    private Servo IntakeArmLeft = null;  // Dual intake arms
+    private Servo IntakeArmLeft = null; 
     private Servo IntakeArmRight = null;
     private Servo NintakeWrist = null;
     private Servo NintakeWristPivot = null;
@@ -97,13 +96,13 @@ public class FieldcentricTELE extends OpMode {
     private int lastViperPosition = 0;
     private ElapsedTime positionChangeTimer = new ElapsedTime();
     private static final int POSITION_CHANGE_THRESHOLD = 5;
-    private static final long POSITION_TIMEOUT = 750; // 500ms timeout
+    private static final long POSITION_TIMEOUT = 750;
 
     private boolean isManualDownActive = false;
     private int manualDownLastPosition = 0;
     private ElapsedTime manualDownTimer = new ElapsedTime();
-    private static final int MANUAL_DOWN_STALL_THRESHOLD = 5; // 5 ticks threshold
-    private static final long MANUAL_DOWN_STALL_TIME = 250; // 250ms timeout
+    private static final int MANUAL_DOWN_STALL_THRESHOLD = 5;
+    private static final long MANUAL_DOWN_STALL_TIME = 250;
 
     private void updatePivotState() {
         double pivotPosition = NintakeWristPivot.getPosition();
@@ -117,7 +116,6 @@ public class FieldcentricTELE extends OpMode {
 
             if (manualDownTimer.milliseconds() > MANUAL_DOWN_STALL_TIME) {
                 if (positionDelta < MANUAL_DOWN_STALL_THRESHOLD) {
-                    // Motor is stalled, stop and reset
                     viperMotor.setPower(0);
                     viperMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     viperMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -133,8 +131,7 @@ public class FieldcentricTELE extends OpMode {
         double leftArmPosition = IntakeArmLeft.getPosition();
         double rightArmPosition = IntakeArmRight.getPosition();
 
-        // Check if both arms are within a tolerance of their fully extended positions
-        double tolerance = 0.1; // Adjust this value based on your servo's precision
+        double tolerance = 0.1; 
         isArmExtended = Math.abs(leftArmPosition - positions_motor.STATE_INTAKELEFTARM_EXTEND_FULL) < tolerance &&
                 Math.abs(rightArmPosition - positions_motor.STATE_INTAKERIGHTARM_EXTEND_FULL) < tolerance;
     }
@@ -151,13 +148,13 @@ public class FieldcentricTELE extends OpMode {
             int currentPos = viperMotor.getCurrentPosition();
             int targetPos = viperMotor.getTargetPosition();
 
-            // Stall detection for ground position
+            
             if (targetPos == positions_motor.VIPER_GROUND) {
                 int positionDelta = Math.abs(currentPos - lastViperPosition);
                 if (!isStallCheckActive) {
                     isStallCheckActive = true;
                     lastViperPosition = currentPos;
-                    positionChangeTimer.reset(); // Using existing timer
+                    positionChangeTimer.reset(); 
                 } else if (positionChangeTimer.milliseconds() > 250) { // 250ms stall threshold
                     if (positionDelta < 5) { // 5 ticks threshold
                         viperMotor.setPower(0);
@@ -373,7 +370,7 @@ public class FieldcentricTELE extends OpMode {
                                 transferTimer.reset();
                             }
                         }
-                        // No else needed - we simply do nothing while waiting
+                    
                     } else {
                         NintakeClaw.setPosition(positions_motor.NIntakeClawCloseFull);
                         NintakeWristPivot.setPosition(positions_motor.NIntakeWristPivotTransfer);
